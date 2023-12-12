@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static java.util.Objects.nonNull;
@@ -50,30 +51,55 @@ public class PojoWriter extends BaseWriter {
 
         pojoInfo.annotations.forEach(a -> writeLine(a));
 
-        writeLine("public class %s {".formatted(name));
+        if (opts.pojosAsRecords) {
+            writeLine("public record %s (".formatted(name));
+        } else {
+            writeLine("public class %s {".formatted(name));
+        }
 
-        AtomicBoolean firstProp = new AtomicBoolean(true);
+        AtomicInteger propNo = new AtomicInteger(1);
         pojoInfo.properties.forEach(propInfo -> {
-            if (!firstProp.getAndSet(false)) {
-                writeNewLine();
-            }
-
+            writeNewLine();
             writePropertyAnnotationLines(propInfo);
 
             writeIndent(1);
             if (nonNull(propInfo.type.itemType)) {
                 String itemTypeWithAnnotations = Stream.concat(propInfo.type.itemType.annotations.stream(), Stream.of(propInfo.type.itemType.name)).collect(joining(" "));
-                writeLine("public %s<%s> %s;".formatted(propInfo.type.name, itemTypeWithAnnotations, propInfo.name));
+                if (opts.pojosAsRecords) {
+                    write("%s<%s> %s".formatted(propInfo.type.name, itemTypeWithAnnotations, propInfo.name));
+                } else {
+                    write("public %s<%s> %s".formatted(propInfo.type.name, itemTypeWithAnnotations, propInfo.name));
+                }
             } else {
-                writeLine("public %s %s;".formatted(propInfo.type.name, propInfo.name));
+                if (opts.pojosAsRecords) {
+                    write("%s %s".formatted(propInfo.type.name, propInfo.name));
+                } else {
+                    write("public %s %s".formatted(propInfo.type.name, propInfo.name));
+                }
+            }
+
+            if (opts.pojosAsRecords) {
+                if (propNo.getAndIncrement() < pojoInfo.properties.size()) {
+                    writeLine(",");
+                } else {
+                    writeNewLine();
+                }
+            } else {
+                writeLine(";");
             }
         });
 
-        writeNewLine();
-        writeNoArgConstructor(name);
-        writeNewLine();
-        writeParameterizedConstructor(name, pojoInfo.properties);
-        writeLine("}");
+        if (opts.pojosAsRecords) {
+            writeLine(") {");
+            writeNewLine();
+            writeLine("}");
+        } else {
+            writeNewLine();
+            writeNoArgConstructor(name);
+            writeNewLine();
+            writeParameterizedConstructor(name, pojoInfo.properties);
+            writeLine("}");
+        }
     }
 
     private void writeNoArgConstructor(String name) {

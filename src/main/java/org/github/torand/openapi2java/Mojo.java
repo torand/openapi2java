@@ -46,6 +46,18 @@ public class Mojo extends AbstractMojo
     @Parameter( property = "resourceNameSuffix", defaultValue = "Api" )
     private String resourceNameSuffix;
 
+    /**
+     * Pojo name suffix
+     */
+    @Parameter( property = "pojoNameSuffix", defaultValue = "Dto" )
+    private String pojoNameSuffix;
+
+    /**
+     * Use Java records for pojos
+     */
+    @Parameter( property = "pojosAsRecords", defaultValue = "true" )
+    private boolean pojosAsRecords;
+
     public void execute() throws MojoExecutionException {
         SwaggerParseResult result = new OpenAPIParser().readLocation(openApiFile.toString(), null, null);
         OpenAPI openApiDoc = result.getOpenAPI();
@@ -55,6 +67,8 @@ public class Mojo extends AbstractMojo
         opts.outputDir = outputDirectory.toString();
         opts.rootUrlPath = rootUrlPath;
         opts.resourceNameSuffix = resourceNameSuffix;
+        opts.pojoNameSuffix = pojoNameSuffix;
+        opts.pojosAsRecords = pojosAsRecords;
 
         ModelGenerator modelGenerator = new ModelGenerator();
         modelGenerator.generate(openApiDoc, opts);

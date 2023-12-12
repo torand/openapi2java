@@ -28,38 +28,39 @@ public class ModelGenerator {
         System.out.println("Generating model...");
 
         openApiDoc.getComponents().getSchemas().entrySet().forEach(entry -> {
+            String pojoName = entry.getKey() + opts.pojoNameSuffix;
 
             if (isEnum(entry.getValue())) {
-                System.out.println("  Generating model enum %s".formatted(entry.getKey()));
-                String enumFileName = entry.getKey() + ".java";
+                System.out.println("  Generating model enum %s".formatted(pojoName));
+                String enumFileName = pojoName + ".java";
                 File enumFile = new File(f, enumFileName);
                 try (Writer writer = new FileWriter(enumFile)) {
                     EnumWriter enumWriter = new EnumWriter(writer, opts);
-                    enumWriter.write(entry.getKey(), entry.getValue());
+                    enumWriter.write(pojoName, entry.getValue());
                 } catch (IOException e) {
                     System.out.println("Failed to write file %s: %s".formatted(enumFileName, e.toString()));
                 }
             }
 
             if (isClass(entry.getValue())) {
-                System.out.println("  Generating model class %s".formatted(entry.getKey()));
-                String classFileName = entry.getKey() + ".java";
-                File classFile = new File(f, classFileName);
-                try (Writer writer = new FileWriter(classFile)) {
+                System.out.println("  Generating model class %s".formatted(pojoName));
+                String pojoFileName = pojoName + ".java";
+                File pojoFile = new File(f, pojoFileName);
+                try (Writer writer = new FileWriter(pojoFile)) {
                     PojoWriter pojoWriter = new PojoWriter(writer, schemaResolver, opts);
-                    pojoWriter.write(entry.getKey(), entry.getValue());
+                    pojoWriter.write(pojoName, entry.getValue());
                 } catch (IOException e) {
-                    System.out.println("Failed to write file %s: %s".formatted(classFileName, e.toString()));
+                    System.out.println("Failed to write file %s: %s".formatted(pojoFileName, e.toString()));
                 }
             }
         });
     }
 
-    public static boolean isEnum(Schema schema) {
+    private static boolean isEnum(Schema schema) {
         return nonNull(schema.getTypes()) && schema.getTypes().contains("string") && nonNull(schema.getEnum());
     }
 
-    public static boolean isClass(Schema schema) {
+    private static boolean isClass(Schema schema) {
         return (nonNull(schema.getTypes()) && schema.getTypes().contains("object")) || nonNull(schema.getAllOf());
     }
 }
