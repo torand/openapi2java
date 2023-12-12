@@ -6,15 +6,18 @@ import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
+import java.util.List;
 
 /**
- * Goal which touches a timestamp file.
+ * Goal which generates Java source code for a REST-API with resource and representation model classes
+ * based on an OpenAPI 3.1 specification.
  */
-@org.apache.maven.plugins.annotations.Mojo( name = "generate", defaultPhase = LifecyclePhase.PROCESS_SOURCES )
-public class Mojo extends AbstractMojo
+@Mojo( name = "generate", defaultPhase = LifecyclePhase.PROCESS_SOURCES )
+public class OpenAPI2JavaMojo extends AbstractMojo
 {
     /**
      * Input file containing OpenAPI specification
@@ -58,6 +61,12 @@ public class Mojo extends AbstractMojo
     @Parameter( property = "pojosAsRecords", defaultValue = "true" )
     private boolean pojosAsRecords;
 
+    /**
+     * Tags to generate source code for. Includes all tags if not specified.
+     */
+    @Parameter( property = "includeTags", defaultValue = "" )
+    private List<String> includeTags;
+
     public void execute() throws MojoExecutionException {
         SwaggerParseResult result = new OpenAPIParser().readLocation(openApiFile.toString(), null, null);
         OpenAPI openApiDoc = result.getOpenAPI();
@@ -69,6 +78,7 @@ public class Mojo extends AbstractMojo
         opts.resourceNameSuffix = resourceNameSuffix;
         opts.pojoNameSuffix = pojoNameSuffix;
         opts.pojosAsRecords = pojosAsRecords;
+        opts.includeTags = includeTags;
 
         ModelGenerator modelGenerator = new ModelGenerator();
         modelGenerator.generate(openApiDoc, opts);

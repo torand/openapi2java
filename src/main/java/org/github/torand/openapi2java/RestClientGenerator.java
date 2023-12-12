@@ -30,15 +30,17 @@ public class RestClientGenerator {
         ResponseResolver responseResolver = new ResponseResolver(openApiDoc.getComponents().getResponses());
 
         openApiDoc.getTags().forEach(tag -> {
-            String resourceName = getResourceClassName(tag);
-            System.out.println("Generating REST client for tag \"%s\": %s".formatted(tag.getName(), resourceName + opts.resourceNameSuffix));
-            String resourceFileName = resourceName + opts.resourceNameSuffix + ".java";
-            File resourceFile = new File(f, resourceFileName);
-            try (Writer writer = new FileWriter(resourceFile)) {
-                ResourceWriter resourceWriter = new ResourceWriter(writer, schemaResolver, parameterResolver, responseResolver, opts);
-                resourceWriter.writeResource(resourceName, tag.getDescription(), openApiDoc.getPaths(), tag.getName());
-            } catch (IOException e) {
-                System.out.println("Failed to write file %s: %s".formatted(resourceFileName, e.toString()));
+            if (opts.includeTags.isEmpty() || opts.includeTags.contains(tag.getName())) {
+                String resourceName = getResourceClassName(tag);
+                System.out.println("Generating REST client for tag \"%s\": %s".formatted(tag.getName(), resourceName + opts.resourceNameSuffix));
+                String resourceFileName = resourceName + opts.resourceNameSuffix + ".java";
+                File resourceFile = new File(f, resourceFileName);
+                try (Writer writer = new FileWriter(resourceFile)) {
+                    ResourceWriter resourceWriter = new ResourceWriter(writer, schemaResolver, parameterResolver, responseResolver, opts);
+                    resourceWriter.writeResource(resourceName, tag.getDescription(), openApiDoc.getPaths(), tag.getName());
+                } catch (IOException e) {
+                    System.out.println("Failed to write file %s: %s".formatted(resourceFileName, e.toString()));
+                }
             }
         });
     }
