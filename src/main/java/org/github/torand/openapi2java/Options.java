@@ -10,6 +10,7 @@ public class Options {
     public String pojoNameSuffix = "Dto";
     public boolean pojosAsRecords = true;
     public List<String> includeTags;
+    public boolean verbose = false;
 
     public String getModelOutputDir() {
         return outputDir + "/model";

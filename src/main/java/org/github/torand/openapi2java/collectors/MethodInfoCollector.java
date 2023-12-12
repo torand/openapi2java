@@ -80,7 +80,7 @@ public class MethodInfoCollector {
 
                 StringBuilder paramBuilder = new StringBuilder();
 
-                String methodParamAnnotation = getMethodParameterAnnotation(realParam, methodInfo.imports);
+                String methodParamAnnotation = getMethodParameterAnnotation(realParam, methodInfo.imports, methodInfo.staticImports);
                 paramBuilder.append(methodParamAnnotation);
 
                 if (Boolean.TRUE.equals(realParam.getRequired())) {
@@ -174,7 +174,11 @@ public class MethodInfoCollector {
 
         imports.add("org.eclipse.microprofile.openapi.annotations.parameters.Parameter");
         String inValue = getParameterInValue(realParameter, staticImports);
-        parameterBuilder.append("@Parameter(in = %s, name = \"%s\", description = \"%s\"".formatted(inValue, realParameter.getName(), realParameter.getDescription()));
+        if (inValue.equalsIgnoreCase("header")) {
+            parameterBuilder.append("@Parameter(in = %s, name = %s, description = \"%s\"".formatted(inValue, getHeaderNameConstant(realParameter.getName(), staticImports), realParameter.getDescription()));
+        } else {
+            parameterBuilder.append("@Parameter(in = %s, name = \"%s\", description = \"%s\"".formatted(inValue, realParameter.getName(), realParameter.getDescription()));
+        }
 
         if (Boolean.TRUE.equals(realParameter.getRequired())) {
             parameterBuilder.append(", required = true");
@@ -239,7 +243,7 @@ public class MethodInfoCollector {
         return apiResponseBuilder.toString();
     }
 
-    private String getMethodParameterAnnotation(Parameter parameter, Set<String> imports) {
+    private String getMethodParameterAnnotation(Parameter parameter, Set<String> imports, Set<String> staticImports) {
         String paramAnnotationName = switch (parameter.getIn().toLowerCase()) {
             case "header" -> "HeaderParam";
             case "query" -> "QueryParam";
@@ -249,7 +253,27 @@ public class MethodInfoCollector {
         };
 
         imports.add("jakarta.ws.rs." + paramAnnotationName);
-        return "@%s(\"%s\") ".formatted(paramAnnotationName, parameter.getName());
+        if (paramAnnotationName.equals("HeaderParam")) {
+            return "@%s(%s) ".formatted(paramAnnotationName, getHeaderNameConstant(parameter.getName(), staticImports));
+        } else {
+            return "@%s(\"%s\") ".formatted(paramAnnotationName, parameter.getName());
+        }
+    }
+
+    private String getHeaderNameConstant(String name, Set<String> staticImports) {
+        String standardHeaderConstant = switch (name.toUpperCase()) {
+            case "ACCEPT-LANGUAGE" -> "ACCEPT_LANGUAGE";
+            case "CONTENT-LANGUAGE" -> "CONTENT_LANGUAGE";
+            case "LOCATION" -> "LOCATION";
+            default -> null;
+        };
+
+        if (nonNull(standardHeaderConstant)) {
+            staticImports.add("jakarta.ws.rs.core.HttpHeaders." + standardHeaderConstant);
+            return standardHeaderConstant;
+        }
+
+        return "\"" + name + "\"";
     }
 
     private String getContentAnnotation(String contentType, MediaType mediaType, Set<String> imports, Set<String> staticImports) {

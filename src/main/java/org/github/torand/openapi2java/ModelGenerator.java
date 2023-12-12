@@ -11,8 +11,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Objects.nonNull;
+import static org.github.torand.openapi2java.utils.StringHelper.pluralSuffix;
 
 public class ModelGenerator {
 
@@ -25,13 +27,17 @@ public class ModelGenerator {
 
         SchemaResolver schemaResolver = new SchemaResolver(openApiDoc.getComponents().getSchemas());
 
-        System.out.println("Generating model...");
+        AtomicInteger enumCount = new AtomicInteger(0);
+        AtomicInteger pojoCount = new AtomicInteger(0);
 
         openApiDoc.getComponents().getSchemas().entrySet().forEach(entry -> {
             String pojoName = entry.getKey() + opts.pojoNameSuffix;
 
             if (isEnum(entry.getValue())) {
-                System.out.println("  Generating model enum %s".formatted(pojoName));
+                enumCount.incrementAndGet();
+                if (opts.verbose) {
+                    System.out.println("Generating model enum %s".formatted(pojoName));
+                }
                 String enumFileName = pojoName + ".java";
                 File enumFile = new File(f, enumFileName);
                 try (Writer writer = new FileWriter(enumFile)) {
@@ -43,7 +49,10 @@ public class ModelGenerator {
             }
 
             if (isClass(entry.getValue())) {
-                System.out.println("  Generating model class %s".formatted(pojoName));
+                pojoCount.incrementAndGet();
+                if (opts.verbose) {
+                    System.out.println("Generating model class %s".formatted(pojoName));
+                }
                 String pojoFileName = pojoName + ".java";
                 File pojoFile = new File(f, pojoFileName);
                 try (Writer writer = new FileWriter(pojoFile)) {
@@ -54,6 +63,8 @@ public class ModelGenerator {
                 }
             }
         });
+
+        System.out.println("Generated %d enum%s, %d pojo%s in directory %s".formatted(enumCount.get(), pluralSuffix(enumCount.get()), pojoCount.get(), pluralSuffix(pojoCount.get()), outputPath));
     }
 
     private static boolean isEnum(Schema schema) {

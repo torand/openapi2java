@@ -67,6 +67,12 @@ public class OpenAPI2JavaMojo extends AbstractMojo
     @Parameter( property = "includeTags", defaultValue = "" )
     private List<String> includeTags;
 
+    /**
+     * Enables verbose logging
+     */
+    @Parameter( property = "verbose", defaultValue = "false" )
+    private boolean verbose;
+
     public void execute() throws MojoExecutionException {
         SwaggerParseResult result = new OpenAPIParser().readLocation(openApiFile.toString(), null, null);
         OpenAPI openApiDoc = result.getOpenAPI();
@@ -79,6 +85,7 @@ public class OpenAPI2JavaMojo extends AbstractMojo
         opts.pojoNameSuffix = pojoNameSuffix;
         opts.pojosAsRecords = pojosAsRecords;
         opts.includeTags = includeTags;
+        opts.verbose = verbose;
 
         ModelGenerator modelGenerator = new ModelGenerator();
         modelGenerator.generate(openApiDoc, opts);
