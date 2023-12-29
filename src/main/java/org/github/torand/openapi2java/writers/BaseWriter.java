@@ -1,13 +1,9 @@
 package org.github.torand.openapi2java.writers;
 
-import io.swagger.v3.oas.models.media.Schema;
 import org.github.torand.openapi2java.Options;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.stream.Stream;
-
-import static java.util.Objects.nonNull;
 
 public class BaseWriter {
     public static final String INDENT = "    ";

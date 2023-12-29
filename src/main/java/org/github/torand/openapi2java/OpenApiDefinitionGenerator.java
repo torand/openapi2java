@@ -1,7 +1,6 @@
 package org.github.torand.openapi2java;
 
 import io.swagger.v3.oas.models.OpenAPI;
-import org.github.torand.openapi2java.collectors.SchemaResolver;
 import org.github.torand.openapi2java.collectors.SecuritySchemeResolver;
 import org.github.torand.openapi2java.writers.OpenApiDefinitionWriter;
 

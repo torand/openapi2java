@@ -6,13 +6,9 @@ import org.github.torand.openapi2java.model.TypeInfo;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Stream;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static java.util.stream.Collectors.joining;
 
 public class TypeInfoCollector {
 
