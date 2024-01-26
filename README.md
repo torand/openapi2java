@@ -20,6 +20,7 @@ The OpenAPI document is parsed using the excellent [Swagger Parser](https://gith
 
 Pojos for the representation model are output to a 'model' subdirectory.
 A REST client interface is output for each tag in the OpenAPI file.
+A single OpenApiDefinition Java file is output with annotations describing the security schemes.
 
 ## Usage in a Maven POM file
 
@@ -40,7 +41,7 @@ A REST client interface is output for each tag in the OpenAPI file.
           <configuration>
             <openApiFile>openapi.json</openApiFile>  
             <outputDir>target/openapi2java</outputDir>
-            <rootPackage>org.github.johndoe.myapi</rootPackage>  
+            <rootPackage>org.github.torand.myapi</rootPackage>  
           </configuration>
         </execution>
       </executions>
@@ -55,8 +56,19 @@ A REST client interface is output for each tag in the OpenAPI file.
 $ mvn org.github.torand:openapi2java:1.0.0-SNAPSHOT:generate \
   -DopenApiFile=openapi.json \
   -DoutputDir=target/openapi2java \
-  -DrootPackage=org.github.johndoe.myapi
+  -DrootPackage=org.github.torand.myapi
 ```
 
 ## Configuration
 
+| Parameter          | Default           | Description                                                       |
+|--------------------|-------------------|-------------------------------------------------------------------|
+| openApiFile        |                   | Filename of OpenAPI-file to generate Java code from               |
+| outputDir          | Project build dir | Directory to write Java code files to                             |
+| rootPackage        |                   | Root package path of output Java classes                          |
+| rootUrlPath        | "api"             | Root context path of REST resources                               |
+| resourceNameSuffix | "Api"             | Suffix for resource (REST client) interface names                 |
+| pojoNameSuffix     | "Dto"             | Suffix for POJO (model) class names                               |
+| pojosAsRecords     | true              | Whether to output Java records instead of Java classes for models |
+| includeTags        | "" (i.e. all)     | Tags (comma separated) to output resource classes for             |
+| verbose            | false             | Whether to log extra details                                      |
