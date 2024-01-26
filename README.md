@@ -1,6 +1,8 @@
 openapi2java
 ============
 
+[![openapi2java CI](https://github.com/torand/openapi2java/actions/workflows/build-snapshot.yml/badge.svg)](https://github.com/torand/openapi2java/actions/workflows/build-snapshot.yml)
+
 ## Overview
 
 Maven plugin to generate Java model and REST clients from an OpenAPI specification.
