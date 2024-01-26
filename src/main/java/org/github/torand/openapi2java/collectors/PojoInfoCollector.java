@@ -8,7 +8,9 @@ import org.github.torand.openapi2java.model.PropertyInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
+import static java.lang.Boolean.TRUE;
 import static java.util.Objects.nonNull;
 
 public class PojoInfoCollector {
@@ -26,11 +28,26 @@ public class PojoInfoCollector {
         PojoInfo pojoInfo = new PojoInfo();
 
         pojoInfo.imports.add("org.eclipse.microprofile.openapi.annotations.media.Schema");
-        pojoInfo.annotations.add("@Schema(name = \"%s\", description=\"%s\")".formatted(name, schema.getDescription()));
+        pojoInfo.annotations.add(getSchemaAnnotation(name, schema, pojoInfo.imports));
+
+        if (TRUE.equals(schema.getDeprecated())) {
+            pojoInfo.annotations.add("@Deprecated");
+        }
 
         pojoInfo.properties = getSchemaProperties(schema);
 
         return pojoInfo;
+    }
+
+    private String getSchemaAnnotation(String name, Schema<?> pojo, Set<String> imports) {
+        String description = pojo.getDescription();
+
+        imports.add("org.eclipse.microprofile.openapi.annotations.media.Schema");
+        StringBuilder schemaParams = new StringBuilder("name = \"%s\", description=\"%s\"".formatted(name, nonNull(description) ? description.replaceAll("%", "%%") : "TBD"));
+        if (TRUE.equals(pojo.getDeprecated())) {
+            schemaParams.append(", deprecated = true");
+        }
+        return "@Schema(%s)".formatted(schemaParams);
     }
 
     private List<PropertyInfo> getSchemaProperties(Schema<?> schema) {

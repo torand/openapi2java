@@ -7,6 +7,7 @@ import org.github.torand.openapi2java.model.TypeInfo;
 
 import java.util.Set;
 
+import static java.lang.Boolean.TRUE;
 import static java.util.Objects.nonNull;
 
 public class PropertyInfoCollector {
@@ -23,6 +24,10 @@ public class PropertyInfoCollector {
 
         String schemaAnnotation = getSchemaAnnotation(property, propInfo.type, propInfo.imports);
         propInfo.annotations.add(schemaAnnotation);
+
+        if (TRUE.equals(property.getDeprecated())) {
+            propInfo.annotations.add("@Deprecated");
+        }
 
         return propInfo;
     }
@@ -45,7 +50,9 @@ public class PropertyInfoCollector {
         if (nonNull(typeInfo.schemaPattern)) {
             schemaParams.append(", pattern = \"%s\"".formatted(typeInfo.schemaPattern));
         }
-
+        if (TRUE.equals(property.getDeprecated())) {
+            schemaParams.append(", deprecated = true");
+        }
         return "@Schema(%s)".formatted(schemaParams);
     }
 }
