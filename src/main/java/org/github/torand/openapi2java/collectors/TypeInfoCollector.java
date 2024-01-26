@@ -31,7 +31,7 @@ public class TypeInfoCollector {
                         .orElseThrow(() -> new IllegalStateException("Schema not found: " + $ref));
                     typeInfo = getTypeInfo($refSchema);
                 } else {
-                    typeInfo.name = schemaResolver.getTypeName($ref);
+                    typeInfo.name = schemaResolver.getTypeName($ref) + opts.pojoNameSuffix;
                     typeInfo.typeImports.add(opts.getModelPackage() + "." + typeInfo.name);
                     if (!schemaResolver.isEnumType(schema.get$ref())) {
                         typeInfo.annotations.add("@Valid");
