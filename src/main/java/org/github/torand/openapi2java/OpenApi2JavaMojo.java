@@ -87,13 +87,13 @@ public class OpenAPI2JavaMojo extends AbstractMojo
         opts.includeTags = includeTags;
         opts.verbose = verbose;
 
-        ModelGenerator modelGenerator = new ModelGenerator();
-        modelGenerator.generate(openApiDoc, opts);
+        ModelGenerator modelGenerator = new ModelGenerator(opts);
+        modelGenerator.generate(openApiDoc);
 
-        RestClientGenerator restClientGenerator = new RestClientGenerator();
-        restClientGenerator.generate(openApiDoc, opts);
+        RestClientGenerator restClientGenerator = new RestClientGenerator(opts);
+        restClientGenerator.generate(openApiDoc);
 
-        OpenApiDefinitionGenerator openApiDefinitionGenerator = new OpenApiDefinitionGenerator();
-        openApiDefinitionGenerator.generate(openApiDoc, opts);
+        OpenApiDefinitionGenerator openApiDefinitionGenerator = new OpenApiDefinitionGenerator(opts);
+        openApiDefinitionGenerator.generate(openApiDoc);
     }
 }
