@@ -17,7 +17,7 @@ import java.util.List;
  * based on an OpenAPI 3.1 specification.
  */
 @Mojo( name = "generate", defaultPhase = LifecyclePhase.PROCESS_SOURCES )
-public class OpenAPI2JavaMojo extends AbstractMojo
+public class OpenApi2JavaMojo extends AbstractMojo
 {
     /**
      * Input file containing OpenAPI specification
