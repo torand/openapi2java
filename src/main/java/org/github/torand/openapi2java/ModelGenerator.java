@@ -29,7 +29,13 @@ import static org.github.torand.openapi2java.utils.StringHelper.pluralSuffix;
 
 public class ModelGenerator {
 
-    public void generate(OpenAPI openApiDoc, Options opts) {
+    private final Options opts;
+
+    public ModelGenerator(Options opts) {
+        this.opts = opts;
+    }
+
+    public void generate(OpenAPI openApiDoc) {
         Path outputPath = Path.of(opts.getModelOutputDir());
         File f = outputPath.toFile();
         if (!f.exists()) {

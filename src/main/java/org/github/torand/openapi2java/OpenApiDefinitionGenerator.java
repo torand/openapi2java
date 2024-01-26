@@ -12,7 +12,13 @@ import java.nio.file.Path;
 
 public class OpenApiDefinitionGenerator {
 
-    public void generate(OpenAPI openApiDoc, Options opts) {
+    private final Options opts;
+
+    public OpenApiDefinitionGenerator(Options opts) {
+        this.opts = opts;
+    }
+
+    public void generate(OpenAPI openApiDoc) {
         Path outputPath = Path.of(opts.outputDir);
         File f = outputPath.toFile();
         if (!f.exists()) {
