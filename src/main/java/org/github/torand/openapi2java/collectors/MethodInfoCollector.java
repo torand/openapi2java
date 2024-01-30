@@ -44,7 +44,7 @@ public class MethodInfoCollector {
         methodInfo.annotations.add("@Path(\"%s\")".formatted(normalizePath(path)));
 
         if (nonNull(operation.getRequestBody())) {
-            String consumesAnnotation = getConsumesAnnotation(operation.getRequestBody(), methodInfo.imports);
+            String consumesAnnotation = getConsumesAnnotation(operation.getRequestBody(), methodInfo.imports, methodInfo.staticImports);
             methodInfo.annotations.add(consumesAnnotation);
         }
 
@@ -130,9 +130,9 @@ public class MethodInfoCollector {
         return methodInfo;
     }
 
-    private String getConsumesAnnotation(RequestBody requestBody, Set<String> imports) {
+    private String getConsumesAnnotation(RequestBody requestBody, Set<String> imports, Set<String> staticImports) {
         imports.add("jakarta.ws.rs.Consumes");
-        imports.add("jakarta.ws.rs.core.MediaType.APPLICATION_JSON");
+        staticImports.add("jakarta.ws.rs.core.MediaType.APPLICATION_JSON");
         List<String> mediaTypes = new ArrayList<>();
         mediaTypes.add("APPLICATION_JSON");
         if (nonNull(requestBody.getContent())) {
