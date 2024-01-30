@@ -29,6 +29,8 @@ public class ResourceInfoCollector {
     public ResourceInfo getResourceInfo(String resourceName, Map<String, PathItem> paths, String tag, String description) {
         ResourceInfo resourceInfo = new ResourceInfo();
 
+        resourceInfo.imports.add("jakarta.ws.rs.core.Response");
+
         resourceInfo.imports.add("org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement");
         resourceInfo.annotations.add("@SecurityRequirement(name = \"basic\")");
 
