@@ -114,7 +114,7 @@ public class TypeInfoCollector {
 
                 if (nonNull(schema.getPattern())) {
                     typeInfo.schemaPattern = schema.getPattern();
-                    typeInfo.annotations.add("@Pattern(\"%s\")".formatted(schema.getPattern()));
+                    typeInfo.annotations.add("@Pattern(regexp = \"%s\")".formatted(schema.getPattern()));
                     typeInfo.annotationImports.add("jakarta.validation.constraints.Pattern");
                 }
 
