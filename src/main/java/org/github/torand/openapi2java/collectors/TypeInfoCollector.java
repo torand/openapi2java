@@ -43,7 +43,7 @@ public class TypeInfoCollector {
                     typeInfo.description = schema.getDescription();
                 }
 
-                if (!isNullable(schema)) {
+                if (!isNullable(schema) && !typeInfo.annotations.contains("@NotNull") && !typeInfo.annotations.contains("@NotBlank")) {
                     typeInfo.annotations.add("@NotNull");
                     typeInfo.annotationImports.add("jakarta.validation.constraints.NotNull");
                 }
