@@ -1,0 +1,941 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Test API Specification",
+    "description": "OpenAPI specification for testing",
+    "contact": {
+      "name": "Tore",
+      "url": "https://github.com/torand/openapi2java",
+      "email": "tore@email.no"
+    },
+    "license": {
+      "name": "Proprietary software",
+      "url": "https://github.com/torand/openapi2java"
+    },
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "/api"
+    }
+  ],
+  "security": [
+    {
+      "oidc": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Tickets",
+      "description": "Retrieving and modifying tickets"
+    },
+    {
+      "name": "Users",
+      "description": "Retrieving and modifying user profiles"
+    }
+  ],
+  "paths": {
+    "/tickets": {
+      "get": {
+        "tags": [
+          "Tickets"
+        ],
+        "summary": "Get list of tickets",
+        "operationId": "getTickets",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/X-User-ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TicketV1"
+                  }
+                }
+              },
+              "application/vnd.test.api.ticket-v1+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketV1"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Tickets"
+        ],
+        "summary": "Register new ticket",
+        "operationId": "registerTicket",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketV1"
+              }
+            },
+            "application/vnd.test.api.ticket-v1+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketV1"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/X-User-ID"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Ticket was registered",
+            "headers": {
+              "Location": {
+                "description": "URI of registered ticket",
+                "schema": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketV1"
+                }
+              },
+              "application/vnd.test.api.ticket-v1+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketV1"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/tickets/{ticketId}": {
+      "get": {
+        "tags": [
+          "Tickets"
+        ],
+        "summary": "Get information about a ticket",
+        "operationId": "getTicketInfo",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/TicketId"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/X-User-ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketDetailsV1"
+                }
+              },
+              "application/vnd.test.api.ticket-v1+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketDetailsV1"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/tickets/{ticketId}/comments": {
+      "post": {
+        "tags": [
+          "Tickets"
+        ],
+        "summary": "Register new comment on a ticket",
+        "operationId": "registerTicketComment",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketCommentV1"
+              }
+            },
+            "application/vnd.test.api.ticket-v1+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketCommentV1"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/TicketId"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/X-User-ID"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Ticket comment was registered"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/tickets/{ticketId}/attachments": {
+      "post": {
+        "tags": [
+          "Tickets"
+        ],
+        "summary": "Register new attachment on a ticket",
+        "description": "Registers metadata for an attachment only. To upload the attachment content use the .../content endpoint.",
+        "operationId": "registerTicketAttachment",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketAttachmentV1"
+              }
+            },
+            "application/vnd.test.api.ticket-v1+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketAttachmentV1"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/TicketId"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/X-User-ID"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Ticket comment was registered",
+            "headers": {
+              "Location": {
+                "description": "URI of registered attachment",
+                "schema": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketAttachmentV1"
+                }
+              },
+              "application/vnd.test.api.ticket-v1+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketAttachmentV1"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/tickets/{ticketId}/attachments/{attachmentId}/content": {
+      "post": {
+        "tags": [
+          "Tickets"
+        ],
+        "summary": "Upload content of an attachment",
+        "operationId": "uploadTicketAttachmentContent",
+        "requestBody": {
+          "content": {
+            "application/octet-stream": {}
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/TicketId"
+          },
+          {
+            "$ref": "#/components/parameters/AttachmentId"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/X-User-ID"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Ticket attachment content was registered"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/users": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Register new user profile",
+        "operationId": "registerUserProfile",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewUserProfileV1"
+              }
+            },
+            "application/vnd.test.api.user-profile-v1+json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewUserProfileV1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User profile was registered",
+            "headers": {
+              "Location": {
+                "description": "URI of registered user profile",
+                "schema": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfileV1"
+                }
+              },
+              "application/vnd.test.api.user-profile-v1+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfileV1"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/users/{userId}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get a user profile",
+        "operationId": "getUserProfile",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserId"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfileV1"
+                }
+              },
+              "application/vnd.test.api.user-profile-v1+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfileV1"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/users/{userId}/verify": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Verify user profile mobile number with verification code",
+        "operationId": "verifyMobileNumber",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserId"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "description": "Verification code entered by user"
+              }
+            },
+            "application/vnd.test.api.user-profile-v1+json": {
+              "schema": {
+                "type": "string",
+                "description": "Verification code entered by user"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verification completed. Outcome in payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfileV1"
+                }
+              },
+              "application/vnd.test.api.user-profile-v1+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfileV1"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "oidc": {
+        "type": "openIdConnect",
+        "openIdConnectUrl": "https://iam.test.no/v2.0/.well-known/openid-configuration"
+      }
+    },
+    "schemas": {
+      "UuidV1": {
+        "type": "string",
+        "format": "uuid",
+        "description": "Universally unique identifier",
+        "example": "015f24f8-f0c9-445f-af95-81ad8008d37c"
+      },
+      "MobileNumberV1": {
+        "type": "string",
+        "pattern": "^[0-9]{10,15}$",
+        "description": "Mobile phone number using the E.164 standard (includes country code), without an international call prefix",
+        "example": "4791356234"
+      },
+      "AddressV1": {
+        "type": "object",
+        "properties": {
+          "streetAddress": {
+            "type": "string",
+            "description": "Street name and number"
+          },
+          "zipCode": {
+            "type": "string",
+            "description": "Zip code of postal area"
+          },
+          "city": {
+            "type": "string",
+            "description": "City name"
+          },
+          "countryCode": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$",
+            "description": "ISO 3166-alpha-3 three-letter country code. Examples: NOR, SWE, DEU"
+          }
+        }
+      },
+      "Error": {
+        "description": "Error message response for failed requests",
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "The HTTP response status code"
+          },
+          "message": {
+            "type": "string",
+            "description": "The error message"
+          }
+        }
+      },
+      "DateTimeV1": {
+        "type": "string",
+        "format": "date-time",
+        "description": "ISO-8601 formatted date and time",
+        "example": "2023‐09‐26T07:23:32Z"
+      },
+      "TicketTypeV1": {
+        "description": "Type of ticket",
+        "enum": [
+          "Change",
+          "Incident"
+        ],
+        "type": "string"
+      },
+      "TicketStatusV1": {
+        "description": "Processing status of a ticket",
+        "enum": [
+          "Registered",
+          "InProgress",
+          "Completed"
+        ],
+        "type": "string"
+      },
+      "TicketV1": {
+        "description": "A ticket or issue registered by a user",
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/UuidV1",
+            "description": "Unique ticket identifier",
+            "nullable": true
+          },
+          "type": {
+            "$ref": "#/components/schemas/TicketTypeV1"
+          },
+          "status": {
+            "$ref": "#/components/schemas/TicketStatusV1"
+          },
+          "createdTime": {
+            "$ref": "#/components/schemas/DateTimeV1",
+            "description": "Date and time of ticket creation"
+          },
+          "resolvedTime": {
+            "$ref": "#/components/schemas/DateTimeV1",
+            "description": "Date and time of ticket resolution"
+          }
+        }
+      },
+      "TicketAttributeV1": {
+        "description": "A ticket type specific form field value entered by the user",
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Unique form field name"
+          },
+          "value": {
+            "type": "string",
+            "description": "Value entered for the form field"
+          }
+        }
+      },
+      "TicketCommentV1": {
+        "description": "A comment on a ticket made by reporter, case officer or other parties",
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/UuidV1",
+            "description": "Unique ticket comment identifier",
+            "nullable": true
+          },
+          "author": {
+            "type": "string",
+            "description": "Author of this comment"
+          },
+          "createdTime": {
+            "$ref": "#/components/schemas/DateTimeV1",
+            "description": "Date and time of ticket comment creation"
+          },
+          "subject": {
+            "type": "string",
+            "description": "Subject of this comment"
+          },
+          "description": {
+            "type": "string",
+            "description": "Main content of this comment"
+          },
+          "internal": {
+            "type": "boolean",
+            "description": "Indicates whether comment is visible for case officer only"
+          }
+        }
+      },
+      "TicketAttachmentV1": {
+        "description": "A media file or document attached to a ticket by reporter, case officer or other parties",
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/UuidV1",
+            "description": "Unique ticket attachment identifier",
+            "nullable": true
+          },
+          "filename": {
+            "type": "string",
+            "description": "Filename of attachment"
+          },
+          "uploadedTime": {
+            "$ref": "#/components/schemas/DateTimeV1",
+            "description": "Date and time of ticket attachment upload"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of attachment"
+          },
+          "contentType": {
+            "type": "string",
+            "description": "IANA media type descriptor for attachment content"
+          },
+          "contentLength": {
+            "type": "integer",
+            "description": "Size of attachment in number of bytes"
+          }
+        }
+      },
+      "TicketDetailsV1": {
+        "description": "Details for a ticket or issue registered by a user",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TicketV1"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "attributes": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/TicketAttributeV1"
+                },
+                "description": "Form field values for the ticket"
+              },
+              "comments": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/TicketCommentV1"
+                },
+                "description": "Comments on a ticket made by reporter, case officer or other parties"
+              },
+              "attachments": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/TicketAttachmentV1"
+                },
+                "description": "Media files or documents attached to ticket by reporter, case officer or other parties"
+              }
+            }
+          }
+        ]
+      },
+      "UserProfileV1": {
+        "description": "A user profile",
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "description": "First name of user"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Last name of user"
+          },
+          "address": {
+            "$ref": "#/components/schemas/AddressV1",
+            "description": "Address of user"
+          },
+
+          "mobileNumber": {
+            "$ref": "#/components/schemas/MobileNumberV1",
+            "description": "Mobile number of user"
+          },
+          "mobileNumberVerified": {
+            "type": "boolean",
+            "description": "Indicates whether mobile number is successfully authenticated using a verification code"
+          },
+          "createdTime": {
+            "$ref": "#/components/schemas/DateTimeV1",
+            "description": "Date and time of user profile creation"
+          },
+          "lastLoginTime": {
+            "$ref": "#/components/schemas/DateTimeV1",
+            "description": "Date and time of last user login",
+            "nullable": true
+          }
+        }
+      },
+      "NationalIdentityNumberV1": {
+        "type": "string",
+        "pattern": "^[0-9]{11}$",
+        "description": "Identifies a Norwegian citizen",
+        "example": "17016898765"
+      },
+      "NewUserProfileV1": {
+        "description": "A user profile to be created",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/UserProfileV1"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "nationalIdentityNumber": {
+                "$ref": "#/components/schemas/NationalIdentityNumberV1",
+                "description": "National identity number of user"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "parameters": {
+      "AcceptLanguage": {
+        "name": "Accept-Language",
+        "in": "header",
+        "required": false,
+        "description": "Natural language and locale accepted by client",
+        "schema": {
+          "type": "string",
+          "example": "en-US"
+        }
+      },
+      "X-User-ID": {
+        "name": "X-User-ID",
+        "in": "header",
+        "required": true,
+        "description": "Unique user identifier (SHA1 fingerprint)",
+        "schema": {
+          "type": "string",
+          "example": "5a27363f823ecf20a7722f445a35aa77bd5ea236"
+        }
+      },
+      "TicketId": {
+        "name": "ticketId",
+        "in": "path",
+        "required": true,
+        "description": "Unique ticket identifier (ticketing system specific)",
+        "schema": {
+          "type": "string",
+          "example": "987654321"
+        }
+      },
+      "AttachmentId": {
+        "name": "attachmentId",
+        "in": "path",
+        "required": true,
+        "description": "Unique attachment identifier (ticketing system specific)",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "UserId": {
+        "name": "userId",
+        "in": "path",
+        "required": true,
+        "description": "Unique user identifier (SHA1 fingerprint)",
+        "schema": {
+          "type": "string",
+          "example": "5a27363f823ecf20a7722f445a35aa77bd5ea236"
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Invalid input parameters supplied",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Authentication credentials are invalid or missing",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Authenticated client or user is not granted access to this resource",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "The requested resource was not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "InternalServerError": {
+        "description": "Internal server error while processing request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    }
+  }
+}
