@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.Set;
 
 import static java.lang.Boolean.TRUE;
-import static java.util.Objects.nonNull;
+import static org.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
+import static org.github.torand.openapi2java.utils.Exceptions.illegalStateException;
+import static org.github.torand.openapi2java.utils.StringHelper.nonBlank;
 
 public class PojoInfoCollector {
     private final PropertyInfoCollector propertyInfoCollector;
@@ -43,7 +45,7 @@ public class PojoInfoCollector {
         String description = pojo.getDescription();
 
         imports.add("org.eclipse.microprofile.openapi.annotations.media.Schema");
-        StringBuilder schemaParams = new StringBuilder("name = \"%s\", description=\"%s\"".formatted(name, nonNull(description) ? description.replaceAll("%", "%%") : "TBD"));
+        StringBuilder schemaParams = new StringBuilder("name = \"%s\", description=\"%s\"".formatted(name, nonBlank(description) ? description.replaceAll("%", "%%") : "TBD"));
         if (TRUE.equals(pojo.getDeprecated())) {
             schemaParams.append(", deprecated = true");
         }
@@ -53,11 +55,11 @@ public class PojoInfoCollector {
     private List<PropertyInfo> getSchemaProperties(Schema<?> schema) {
         List<PropertyInfo> props = new ArrayList<>();
 
-        if (nonNull(schema.getAllOf())) {
+        if (nonEmpty(schema.getAllOf())) {
             schema.getAllOf().forEach(subSchema -> props.addAll(getSchemaProperties(subSchema)));
-        } else if (nonNull(schema.get$ref())) {
+        } else if (nonBlank(schema.get$ref())) {
             Schema<?> $refSchema = schemaResolver.get(schema.get$ref())
-                .orElseThrow(() -> new IllegalStateException("Schema not found: " + schema.get$ref()));
+                .orElseThrow(illegalStateException("Schema not found: %s", schema.get$ref()));
             return getSchemaProperties($refSchema);
         } else {
             schema.getProperties().forEach((String k, Schema v) ->

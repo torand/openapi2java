@@ -20,7 +20,8 @@ public class ResourceInfoCollector {
         this.methodInfoCollector = new MethodInfoCollector(
             parameterResolver,
             responseResolver,
-            new TypeInfoCollector(schemaResolver, opts)
+            new TypeInfoCollector(schemaResolver, opts),
+            opts
         );
 
         this.opts = opts;
@@ -49,19 +50,19 @@ public class ResourceInfoCollector {
         resourceInfo.annotations.add("@Path(ROOT_PATH)");
 
         paths.forEach((path, pathInfo) -> {
-            if (nonNull(pathInfo.getGet()) && usesTag(pathInfo.getGet(), tag)) {
+            if (shouldProcessOperation(pathInfo.getGet(), tag)) {
                 resourceInfo.methods.add(methodInfoCollector.getMethodInfo("GET", path, pathInfo.getGet()));
             }
-            if (nonNull(pathInfo.getPost()) && usesTag(pathInfo.getPost(), tag)) {
+            if (shouldProcessOperation(pathInfo.getPost(), tag)) {
                 resourceInfo.methods.add(methodInfoCollector.getMethodInfo("POST", path, pathInfo.getPost()));
             }
-            if (nonNull(pathInfo.getDelete()) && usesTag(pathInfo.getDelete(), tag)) {
+            if (shouldProcessOperation(pathInfo.getDelete(), tag)) {
                 resourceInfo.methods.add(methodInfoCollector.getMethodInfo("DELETE", path, pathInfo.getDelete()));
             }
-            if (nonNull(pathInfo.getPut()) && usesTag(pathInfo.getPut(), tag)) {
+            if (shouldProcessOperation(pathInfo.getPut(), tag)) {
                 resourceInfo.methods.add(methodInfoCollector.getMethodInfo("PUT", path, pathInfo.getPut()));
             }
-            if (nonNull(pathInfo.getPatch()) && usesTag(pathInfo.getPatch(), tag)) {
+            if (shouldProcessOperation(pathInfo.getPatch(), tag)) {
                 resourceInfo.methods.add(methodInfoCollector.getMethodInfo("PATCH", path, pathInfo.getPatch()));
             }
         });
@@ -69,7 +70,11 @@ public class ResourceInfoCollector {
         return resourceInfo;
     }
 
-    private boolean usesTag(Operation operation, String tag) {
+    private boolean shouldProcessOperation(Operation operation, String tag) {
+        if (isNull(operation)) {
+            return false;
+        }
+
         if (isNull(tag)) {
             return true;
         }

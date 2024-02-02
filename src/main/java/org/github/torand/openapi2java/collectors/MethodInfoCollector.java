@@ -8,6 +8,7 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
+import org.github.torand.openapi2java.Options;
 import org.github.torand.openapi2java.model.MethodInfo;
 import org.github.torand.openapi2java.model.TypeInfo;
 
@@ -16,20 +17,29 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static java.lang.Boolean.TRUE;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
+import static org.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
+import static org.github.torand.openapi2java.utils.Exceptions.illegalStateException;
+import static org.github.torand.openapi2java.utils.StringHelper.nonBlank;
+import static org.github.torand.openapi2java.utils.StringHelper.stripHead;
+import static org.github.torand.openapi2java.utils.StringHelper.stripTail;
+import static org.github.torand.openapi2java.utils.StringHelper.uncapitalize;
 
 public class MethodInfoCollector {
     private static final String CONTENT_TYPE_JSON = "application/json";
     private final ParameterResolver parameterResolver;
     private final ResponseResolver responseResolver;
     private final TypeInfoCollector typeInfoCollector;
+    private final Options opts;
 
-    public MethodInfoCollector(ParameterResolver parameterResolver, ResponseResolver responseResolver, TypeInfoCollector typeInfoCollector) {
+    public MethodInfoCollector(ParameterResolver parameterResolver, ResponseResolver responseResolver, TypeInfoCollector typeInfoCollector, Options opts) {
         this.parameterResolver = parameterResolver;
         this.responseResolver = responseResolver;
         this.typeInfoCollector = typeInfoCollector;
+        this.opts = opts;
     }
 
     public MethodInfo getMethodInfo(String verb, String path, Operation operation) {
@@ -56,26 +66,26 @@ public class MethodInfoCollector {
         methodInfo.imports.add("org.eclipse.microprofile.openapi.annotations.Operation");
         methodInfo.annotations.add("@Operation(operationId = \"%s\", summary = \"%s\")".formatted(operation.getOperationId(), operation.getSummary()));
 
-        if (nonNull(operation.getParameters()) && !operation.getParameters().isEmpty()) {
+        if (nonEmpty(operation.getParameters())) {
             operation.getParameters().forEach(parameter -> {
                 String parameterAnnotation = getParameterAnnotation(parameter, methodInfo.imports, methodInfo.staticImports);
                 methodInfo.annotations.add(parameterAnnotation);
             });
         }
 
-        if (nonNull(operation.getResponses()) && !operation.getResponses().isEmpty()) {
+        if (nonEmpty(operation.getResponses())) {
             operation.getResponses().forEach((code, response) -> {
                 String apiResponseAnnotation = getApiResponseAnnotation(response, code, methodInfo.imports, methodInfo.staticImports);
                 methodInfo.annotations.add(apiResponseAnnotation);
             });
         }
 
-        if (nonNull(operation.getParameters())) {
+        if (nonEmpty(operation.getParameters())) {
             operation.getParameters().forEach(param -> {
                 Parameter realParam = param;
                 if (nonNull(param.get$ref())) {
                     realParam = parameterResolver.get(param.get$ref())
-                        .orElseThrow(() -> new IllegalStateException("Parameter %s not found".formatted(param.get$ref())));
+                        .orElseThrow(illegalStateException("Parameter %s not found", param.get$ref()));
                 }
 
                 StringBuilder paramBuilder = new StringBuilder();
@@ -83,7 +93,7 @@ public class MethodInfoCollector {
                 String methodParamAnnotation = getMethodParameterAnnotation(realParam, methodInfo.imports, methodInfo.staticImports);
                 paramBuilder.append(methodParamAnnotation);
 
-                if (Boolean.TRUE.equals(realParam.getRequired())) {
+                if (TRUE.equals(realParam.getRequired())) {
                     methodInfo.imports.add("jakarta.validation.constraints.NotNull");
                     paramBuilder.append("@NotNull ");
                 }
@@ -107,7 +117,7 @@ public class MethodInfoCollector {
 
         // Payload parameters
         if (nonNull(operation.getRequestBody())) {
-            if (nonNull(operation.getRequestBody().getContent())) {
+            if (nonEmpty(operation.getRequestBody().getContent())) {
                 operation.getRequestBody().getContent().values().stream()
                     .findFirst()
                     .ifPresent(mt -> {
@@ -133,14 +143,17 @@ public class MethodInfoCollector {
     private String getConsumesAnnotation(RequestBody requestBody, Set<String> imports, Set<String> staticImports) {
         imports.add("jakarta.ws.rs.Consumes");
         staticImports.add("jakarta.ws.rs.core.MediaType.APPLICATION_JSON");
+
         List<String> mediaTypes = new ArrayList<>();
         mediaTypes.add("APPLICATION_JSON");
-        if (nonNull(requestBody.getContent())) {
+
+        if (nonEmpty(requestBody.getContent())) {
             requestBody.getContent().keySet().stream()
                 .filter(mt -> !CONTENT_TYPE_JSON.equals(mt))
                 .map(mt -> "\"" + mt + "\"")
                 .forEach(mediaTypes::add);
         }
+
         String mediaTypesString = mediaTypes.size() == 1 ? mediaTypes.get(0) : "{" + String.join(", ", mediaTypes) + "}";
         return "@Consumes(%s)".formatted(mediaTypesString);
     }
@@ -148,10 +161,10 @@ public class MethodInfoCollector {
     private String getProducesAnnotation(ApiResponses responses, Set<String> imports, Set<String> staticImports) {
         imports.add("jakarta.ws.rs.Produces");
         staticImports.add("jakarta.ws.rs.core.MediaType.APPLICATION_JSON");
+
         List<String> mediaTypes = new ArrayList<>();
         mediaTypes.add("APPLICATION_JSON");
-        Optional<ApiResponse> maybeSuccessResponse = getSuccessResponse(responses);
-        maybeSuccessResponse.ifPresent(apiResponse -> {
+        getSuccessResponse(responses).ifPresent(apiResponse -> {
             if (nonNull(apiResponse.getContent())) {
                 apiResponse.getContent().keySet().stream()
                     .filter(mt -> !CONTENT_TYPE_JSON.equals(mt))
@@ -169,7 +182,7 @@ public class MethodInfoCollector {
         Parameter realParameter = parameter;
         if (nonNull(parameter.get$ref())) {
             realParameter = parameterResolver.get(parameter.get$ref())
-                .orElseThrow(() -> new IllegalStateException("Parameter %s not found".formatted(parameter.get$ref())));
+                .orElseThrow(illegalStateException("Parameter %s not found", parameter.get$ref()));
         }
 
         imports.add("org.eclipse.microprofile.openapi.annotations.parameters.Parameter");
@@ -180,7 +193,7 @@ public class MethodInfoCollector {
             parameterBuilder.append("@Parameter(in = %s, name = \"%s\", description = \"%s\"".formatted(inValue, realParameter.getName(), realParameter.getDescription()));
         }
 
-        if (Boolean.TRUE.equals(realParameter.getRequired())) {
+        if (TRUE.equals(realParameter.getRequired())) {
             parameterBuilder.append(", required = true");
         }
 
@@ -189,7 +202,7 @@ public class MethodInfoCollector {
             parameterBuilder.append(", schema = %s".formatted(schemaAnnotation));
         }
 
-        if (nonNull(realParameter.getContent())) {
+        if (nonEmpty(realParameter.getContent())) {
             parameterBuilder.append(", content = { ");
             List<String> contentItems = new ArrayList<>();
             realParameter.getContent().forEach((contentType, mediaType) -> {
@@ -223,12 +236,12 @@ public class MethodInfoCollector {
         ApiResponse realResponse = response;
         if (nonNull(response.get$ref())) {
             realResponse = responseResolver.get(response.get$ref())
-                .orElseThrow(() -> new IllegalStateException("Response %s not found".formatted(response.get$ref())));
+                .orElseThrow(illegalStateException("Response %s not found", response.get$ref()));
         }
 
         imports.add("org.eclipse.microprofile.openapi.annotations.responses.APIResponse");
         apiResponseBuilder.append("@APIResponse(responseCode = \"%s\", description = \"%s\"".formatted(statusCode, realResponse.getDescription()));
-        if (nonNull(realResponse.getContent())) {
+        if (nonEmpty(realResponse.getContent())) {
             apiResponseBuilder.append(", content = { ");
             List<String> contentItems = new ArrayList<>();
             realResponse.getContent().forEach((contentType, mediaType) -> {
@@ -278,7 +291,7 @@ public class MethodInfoCollector {
 
     private String getContentAnnotation(String contentType, MediaType mediaType, Set<String> imports, Set<String> staticImports) {
         imports.add("org.eclipse.microprofile.openapi.annotations.media.Content");
-        if (contentType.equals(CONTENT_TYPE_JSON)) {
+        if (CONTENT_TYPE_JSON.equals(contentType)) {
             contentType = "APPLICATION_JSON";
             staticImports.add("jakarta.ws.rs.core.MediaType.APPLICATION_JSON");
         } else {
@@ -290,6 +303,7 @@ public class MethodInfoCollector {
 
     private String getSchemaAnnotation(Schema schema, Set<String> imports, Set<String> staticImports) {
         imports.add("org.eclipse.microprofile.openapi.annotations.media.Schema");
+
         TypeInfo bodyType = typeInfoCollector.getTypeInfo((JsonSchema)schema);
         imports.addAll(bodyType.typeImports);
         if (nonNull(bodyType.itemType)) {
@@ -303,17 +317,21 @@ public class MethodInfoCollector {
 
     private String normalizePath(String path) {
         if (path.startsWith("/")) {
-            path = path.substring(1);
+            path = stripHead(path, 1);
         }
         if (path.endsWith("/")) {
-            path = path.substring(0, path.length()-1);
+            path = stripTail(path, 1);
         }
         return path;
     }
 
     private String toParamName(String paramName) {
-        paramName = requireNonNull(paramName).replaceAll("\\-", "");
-        return paramName.substring(0, 1).toLowerCase() + paramName.substring(1);
+        requireNonNull(paramName);
+        if (nonBlank(opts.pojoNameSuffix) && paramName.endsWith(opts.pojoNameSuffix)) {
+            paramName = stripTail(paramName, opts.pojoNameSuffix.length());
+        }
+        paramName = paramName.replaceAll("\\-", "");
+        return uncapitalize(paramName);
     }
 
     private Optional<ApiResponse> getSuccessResponse(ApiResponses responses) {
@@ -321,6 +339,6 @@ public class MethodInfoCollector {
         return responses.keySet().stream()
             .filter(sc -> sc.startsWith("2"))
             .findFirst()
-            .map(sc -> responses.get(sc));
+            .map(responses::get);
     }
 }

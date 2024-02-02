@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Set;
 
 import static java.util.Objects.nonNull;
+import static org.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
+import static org.github.torand.openapi2java.utils.Exceptions.illegalStateException;
+import static org.github.torand.openapi2java.utils.StringHelper.nonBlank;
 
 public class SecuritySchemeInfoCollector {
     private final SecuritySchemeResolver securitySchemeResolver;
@@ -26,12 +29,12 @@ public class SecuritySchemeInfoCollector {
         SecuritySchemeInfo info = new SecuritySchemeInfo();
 
         SecurityScheme securityScheme = securitySchemeResolver.get(name)
-            .orElseThrow(() -> new IllegalStateException("Security scheme %s not found".formatted(name)));
+            .orElseThrow(illegalStateException("Security scheme %s not found",name));
 
         List<String> params = new ArrayList<>();
         params.add("securitySchemeName = \"%s\"".formatted(name));
 
-        if (nonNull(securityScheme.getDescription())) {
+        if (nonBlank(securityScheme.getDescription())) {
             params.add("description = \"%s\"".formatted(securityScheme.getDescription()));
         }
 
@@ -57,6 +60,7 @@ public class SecuritySchemeInfoCollector {
                 params.add("openIdConnectUrl = \"%s\"".formatted(securityScheme.getOpenIdConnectUrl()));
             }
             case MUTUALTLS -> {
+                throw new IllegalStateException("Security scheme MUTUALTLS not supported");
             }
         }
 
@@ -89,16 +93,16 @@ public class SecuritySchemeInfoCollector {
     private String getOAuthFlowAnnotation(OAuthFlow flow, Set<String> imports) {
         List<String> params = new ArrayList<>();
 
-        if (nonNull(flow.getAuthorizationUrl())) {
+        if (nonBlank(flow.getAuthorizationUrl())) {
             params.add("authorizationUrl = \"%s\"".formatted(flow.getAuthorizationUrl()));
         }
-        if (nonNull(flow.getTokenUrl())) {
+        if (nonBlank(flow.getTokenUrl())) {
             params.add("tokenUrl = \"%s\"".formatted(flow.getTokenUrl()));
         }
-        if (nonNull(flow.getRefreshUrl())) {
+        if (nonBlank(flow.getRefreshUrl())) {
             params.add("refreshUrl = \"%s\"".formatted(flow.getRefreshUrl()));
         }
-        if (nonNull(flow.getScopes())) {
+        if (nonEmpty(flow.getScopes())) {
             params.add("scopes = \"%s\"".formatted(getScopesAnnotation(flow.getScopes(), imports)));
         }
 

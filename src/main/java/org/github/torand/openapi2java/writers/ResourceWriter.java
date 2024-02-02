@@ -2,18 +2,18 @@ package org.github.torand.openapi2java.writers;
 
 import io.swagger.v3.oas.models.PathItem;
 import org.github.torand.openapi2java.Options;
-import org.github.torand.openapi2java.model.ResourceInfo;
 import org.github.torand.openapi2java.collectors.ParameterResolver;
 import org.github.torand.openapi2java.collectors.ResourceInfoCollector;
 import org.github.torand.openapi2java.collectors.ResponseResolver;
 import org.github.torand.openapi2java.collectors.SchemaResolver;
+import org.github.torand.openapi2java.model.ResourceInfo;
 
 import java.io.Writer;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static java.util.Objects.nonNull;
+import static org.github.torand.openapi2java.utils.StringHelper.nonBlank;
 
 public class ResourceWriter extends BaseWriter {
 
@@ -47,7 +47,7 @@ public class ResourceWriter extends BaseWriter {
         writeNewLine();
 
         resourceInfo.annotations.forEach(a -> writeLine(a));
-        writeLine("public interface %s {".formatted(name + opts.resourceNameSuffix));
+        writeLine("public interface %s%s {".formatted(name, opts.resourceNameSuffix));
         writeNewLine();
 
         writeIndent(1);
@@ -69,7 +69,7 @@ public class ResourceWriter extends BaseWriter {
                 if (i < (m.parameters.size()-1)) {
                     write(",");
                 }
-                if (nonNull(m.parameterComments.get(i))) {
+                if (nonBlank(m.parameterComments.get(i))) {
                     write(" // %s", m.parameterComments.get(i));
                 }
                 writeNewLine();

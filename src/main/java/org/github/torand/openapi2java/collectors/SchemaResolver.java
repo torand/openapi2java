@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Objects.nonNull;
+import static org.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
 
 public class SchemaResolver {
     private Map<String, Schema> schemas;
@@ -28,15 +29,15 @@ public class SchemaResolver {
     }
 
     public boolean isObjectType(String $ref) {
-        return get($ref).map(s -> nonNull(s.getTypes()) && s.getTypes().contains("object")).orElse(false);
+        return get($ref).map(s -> nonEmpty(s.getTypes()) && s.getTypes().contains("object")).orElse(false);
     }
 
     public boolean isArrayType(String $ref) {
-        return get($ref).map(s -> nonNull(s.getTypes()) && s.getTypes().contains("array")).orElse(false);
+        return get($ref).map(s -> nonEmpty(s.getTypes()) && s.getTypes().contains("array")).orElse(false);
     }
 
     public boolean isCompoundType(String $ref) {
-        return get($ref).map(s -> nonNull(s.getAllOf())).orElse(false);
+        return get($ref).map(s -> nonEmpty(s.getAllOf())).orElse(false);
     }
 
     /**

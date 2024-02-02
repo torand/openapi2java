@@ -12,11 +12,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 
 import static java.util.Objects.nonNull;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.joining;
+import static org.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
+import static org.github.torand.openapi2java.utils.CollectionHelper.streamConcat;
 
 public class PojoWriter extends BaseWriter {
     private final PojoInfoCollector pojoInfoCollector;
@@ -43,7 +44,7 @@ public class PojoWriter extends BaseWriter {
             .filter(not(this::isModelPackage))
             .forEach(imports::add);
 
-        if (!imports.isEmpty()) {
+        if (nonEmpty(imports)) {
             imports.forEach(ti -> writeLine("import %s;".formatted(ti)));
             writeNewLine();
         }
@@ -63,7 +64,9 @@ public class PojoWriter extends BaseWriter {
 
             writeIndent(1);
             if (nonNull(propInfo.type.itemType)) {
-                String itemTypeWithAnnotations = Stream.concat(propInfo.type.itemType.annotations.stream(), Stream.of(propInfo.type.itemType.name)).collect(joining(" "));
+                String itemTypeWithAnnotations = streamConcat(propInfo.type.itemType.annotations, List.of(propInfo.type.itemType.name))
+                    .collect(joining(" "));
+
                 if (opts.pojosAsRecords) {
                     write("%s<%s> %s".formatted(propInfo.type.name, itemTypeWithAnnotations, propInfo.name));
                 } else {

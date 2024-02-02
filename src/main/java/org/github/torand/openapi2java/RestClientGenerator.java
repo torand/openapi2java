@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
+import static org.github.torand.openapi2java.utils.CollectionHelper.isEmpty;
 import static org.github.torand.openapi2java.utils.StringHelper.pluralSuffix;
 
 public class RestClientGenerator {
@@ -41,7 +42,7 @@ public class RestClientGenerator {
         AtomicInteger clientCount = new AtomicInteger(0);
 
         openApiDoc.getTags().forEach(tag -> {
-            if (opts.includeTags.isEmpty() || opts.includeTags.contains(tag.getName())) {
+            if (isEmpty(opts.includeTags) || opts.includeTags.contains(tag.getName())) {
                 clientCount.incrementAndGet();
                 String resourceName = getResourceClassName(tag);
                 if (opts.verbose) {

@@ -7,8 +7,14 @@ import org.github.torand.openapi2java.model.TypeInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.Objects.isNull;
+import static java.lang.Boolean.TRUE;
 import static java.util.Objects.nonNull;
+import static org.github.torand.openapi2java.utils.CollectionHelper.containsOneOf;
+import static org.github.torand.openapi2java.utils.CollectionHelper.isEmpty;
+import static org.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
+import static org.github.torand.openapi2java.utils.CollectionHelper.streamSafely;
+import static org.github.torand.openapi2java.utils.Exceptions.illegalStateException;
+import static org.github.torand.openapi2java.utils.StringHelper.nonBlank;
 
 public class TypeInfoCollector {
 
@@ -21,14 +27,14 @@ public class TypeInfoCollector {
     }
 
     public TypeInfo getTypeInfo(JsonSchema schema) {
-        if (isNull(schema.getTypes())) {
+        if (isEmpty(schema.getTypes())) {
             String $ref = schema.get$ref();
-            if (nonNull($ref)) {
+            if (nonBlank($ref)) {
                 TypeInfo typeInfo = new TypeInfo();
 
                 if (schemaResolver.isPrimitiveType($ref)) {
                     JsonSchema $refSchema = schemaResolver.get($ref)
-                        .orElseThrow(() -> new IllegalStateException("Schema not found: " + $ref));
+                        .orElseThrow(illegalStateException("Schema not found: %s", $ref));
                     typeInfo = getTypeInfo($refSchema);
                 } else {
                     typeInfo.name = schemaResolver.getTypeName($ref) + opts.pojoNameSuffix;
@@ -39,17 +45,17 @@ public class TypeInfoCollector {
                     }
                 }
 
-                if (nonNull(schema.getDescription())) {
+                if (nonBlank(schema.getDescription())) {
                     typeInfo.description = schema.getDescription();
                 }
 
-                if (!isNullable(schema) && !typeInfo.annotations.contains("@NotNull") && !typeInfo.annotations.contains("@NotBlank")) {
+                if (!isNullable(schema) && !containsOneOf(typeInfo.annotations, "@NotNull", "@NotBlank")) {
                     typeInfo.annotations.add("@NotNull");
                     typeInfo.annotationImports.add("jakarta.validation.constraints.NotNull");
                 }
 
                 return typeInfo;
-            } else if (isNull(schema.getAllOf())) {
+            } else if (isEmpty(schema.getAllOf())) {
                 throw new IllegalStateException("No types, no $ref: %s".formatted(schema.toString()));
             }
         }
@@ -63,8 +69,8 @@ public class TypeInfoCollector {
 
         boolean nullable = isNullable(schema);
 
-        String jsonType = schema.getTypes().stream().filter(t -> !"null".equals(t)).findFirst()
-            .orElseThrow(() -> new IllegalStateException("Unexpected types: %s".formatted(schema.toString())));
+        String jsonType = streamSafely(schema.getTypes()).filter(t -> !"null".equals(t)).findFirst()
+            .orElseThrow(illegalStateException("Unexpected types: %s", schema.toString()));
 
         if ("string".equals(jsonType)) {
             if ("uuid".equals(schema.getFormat())) {
@@ -112,7 +118,7 @@ public class TypeInfoCollector {
                     typeInfo.annotationImports.add("jakarta.validation.constraints.NotBlank");
                 }
 
-                if (nonNull(schema.getPattern())) {
+                if (nonBlank(schema.getPattern())) {
                     typeInfo.schemaPattern = schema.getPattern();
                     typeInfo.annotations.add("@Pattern(regexp = \"%s\")".formatted(schema.getPattern()));
                     typeInfo.annotationImports.add("jakarta.validation.constraints.Pattern");
@@ -171,10 +177,10 @@ public class TypeInfoCollector {
     }
 
     public boolean isNullable(JsonSchema schema) {
-        if (isNull(schema.getTypes())) {
-            if (nonNull(schema.get$ref())) {
-                return Boolean.TRUE.equals(schema.getNullable());
-            } else if (nonNull(schema.getAllOf())) {
+        if (isEmpty(schema.getTypes())) {
+            if (nonBlank(schema.get$ref())) {
+                return TRUE.equals(schema.getNullable());
+            } else if (nonEmpty(schema.getAllOf())) {
                 return schema.getAllOf().stream().allMatch(subSchema -> isNullable((JsonSchema)subSchema));
             } else {
                 throw new IllegalStateException("No types, no $ref: %s".formatted(schema.toString()));

@@ -23,9 +23,14 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static org.github.torand.openapi2java.utils.CollectionHelper.isEmpty;
+import static org.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
+import static org.github.torand.openapi2java.utils.CollectionHelper.streamSafely;
+import static org.github.torand.openapi2java.utils.Exceptions.illegalStateException;
+import static org.github.torand.openapi2java.utils.StringHelper.nonBlank;
 import static org.github.torand.openapi2java.utils.StringHelper.pluralSuffix;
+import static org.github.torand.openapi2java.utils.StringHelper.stripTail;
 
 public class ModelGenerator {
 
@@ -119,20 +124,20 @@ public class ModelGenerator {
 
         Set<String> relevantPojos = new HashSet<>();
 
-        if (isNull(operation.getTags()) || operation.getTags().isEmpty() || isRelevantTag(operation)) {
-            if (nonNull(operation.getParameters())) {
+        if (isEmpty(operation.getTags()) || isRelevantTag(operation)) {
+            if (nonEmpty(operation.getParameters())) {
                 operation.getParameters().forEach(parameter -> {
                     Parameter realParameter = parameter;
-                    if (nonNull(parameter.get$ref())) {
+                    if (nonBlank(parameter.get$ref())) {
                         realParameter = parameterResolver.get(parameter.get$ref())
-                            .orElseThrow(() -> new IllegalStateException("Parameter %s not found".formatted(parameter.get$ref())));
+                            .orElseThrow(illegalStateException("Parameter %s not found", parameter.get$ref()));
                     }
 
                     if (nonNull(realParameter.getSchema())) {
                         relevantPojos.add(getPojoTypeName(realParameter.getSchema(), typeInfoCollector));
                     }
 
-                    if (nonNull(realParameter.getContent())) {
+                    if (nonEmpty(realParameter.getContent())) {
                         realParameter.getContent().forEach((contentType, mediaType) -> {
                             if (nonNull(mediaType.getSchema())) {
                                 relevantPojos.add(getPojoTypeName(mediaType.getSchema(), typeInfoCollector));
@@ -142,7 +147,7 @@ public class ModelGenerator {
                 });
             }
             if (nonNull(operation.getRequestBody())) {
-                if (nonNull(operation.getRequestBody().getContent())) {
+                if (nonEmpty(operation.getRequestBody().getContent())) {
                     operation.getRequestBody().getContent().forEach((contentType, mediaType) -> {
                         if (nonNull(mediaType.getSchema())) {
                             relevantPojos.add(getPojoTypeName(mediaType.getSchema(), typeInfoCollector));
@@ -150,15 +155,15 @@ public class ModelGenerator {
                     });
                 }
             }
-            if (nonNull(operation.getResponses())) {
+            if (nonEmpty(operation.getResponses())) {
                 operation.getResponses().forEach((code, response) -> {
                     ApiResponse realResponse = response;
-                    if (nonNull(response.get$ref())) {
+                    if (nonBlank(response.get$ref())) {
                         realResponse = responseResolver.get(response.get$ref())
-                            .orElseThrow(() -> new IllegalStateException("Response %s not found".formatted(response.get$ref())));
+                            .orElseThrow(illegalStateException("Response %s not found", response.get$ref()));
                     }
 
-                    if (nonNull(realResponse.getContent())) {
+                    if (nonEmpty(realResponse.getContent())) {
                         realResponse.getContent().forEach((contentType, mediaType) -> {
                             if (nonNull(mediaType.getSchema())) {
                                 relevantPojos.add(getPojoTypeName(mediaType.getSchema(), typeInfoCollector));
@@ -174,31 +179,30 @@ public class ModelGenerator {
         return relevantPojos;
     }
 
-    private Set<String> getNestedPojos(Set<String> relevantPojos, SchemaResolver schemaResolver) {
+    private Set<String> getNestedPojos(Set<String> parentPojos, SchemaResolver schemaResolver) {
         TypeInfoCollector typeInfoCollector = new TypeInfoCollector(schemaResolver, opts);
 
         Set<String> nestedPojos = new HashSet<>();
-        relevantPojos.forEach(pojo -> {
-                String schemaRef = "#/components/schemas/" + pojo.substring(0, pojo.length()-opts.pojoNameSuffix.length());
-                schemaResolver.get(schemaRef).ifPresent(schema -> nestedPojos.addAll(getNestedSchemaTypes(schema, schemaResolver, typeInfoCollector)));
-            }
-        );
+        parentPojos.forEach(pojo -> {
+            String schemaRef = "#/components/schemas/" + stripTail(pojo, opts.pojoNameSuffix.length());
+            schemaResolver.get(schemaRef).ifPresent(schema -> nestedPojos.addAll(getNestedSchemaTypes(schema, schemaResolver, typeInfoCollector)));
+        });
 
         return nestedPojos;
     }
 
-    private Set<String> getNestedSchemaTypes(Schema<?> schema, SchemaResolver schemaResolver, TypeInfoCollector typeInfoCollector) {
+    private Set<String> getNestedSchemaTypes(Schema<?> parentSchema, SchemaResolver schemaResolver, TypeInfoCollector typeInfoCollector) {
         Set<String> schemaTypes = new HashSet<>();
 
-        if (nonNull(schema.getAllOf())) {
-            schema.getAllOf().forEach(subSchema -> schemaTypes.addAll(getNestedSchemaTypes(subSchema, schemaResolver, typeInfoCollector)));
-        } else if (nonNull(schema.get$ref())) {
-            schemaTypes.add(getPojoTypeName(schema, typeInfoCollector));
-            Schema<?> $refSchema = schemaResolver.get(schema.get$ref())
-                .orElseThrow(() -> new IllegalStateException("Schema not found: " + schema.get$ref()));
+        if (nonEmpty(parentSchema.getAllOf())) {
+            parentSchema.getAllOf().forEach(subSchema -> schemaTypes.addAll(getNestedSchemaTypes(subSchema, schemaResolver, typeInfoCollector)));
+        } else if (nonBlank(parentSchema.get$ref())) {
+            schemaTypes.add(getPojoTypeName(parentSchema, typeInfoCollector));
+            Schema<?> $refSchema = schemaResolver.get(parentSchema.get$ref())
+                .orElseThrow(illegalStateException("Schema not found: %s", parentSchema.get$ref()));
             schemaTypes.addAll(getNestedSchemaTypes($refSchema, schemaResolver, typeInfoCollector));
-        } else if (nonNull(schema.getProperties())) {
-            schema.getProperties().forEach((String k, Schema v) -> {
+        } else if (nonEmpty(parentSchema.getProperties())) {
+            parentSchema.getProperties().forEach((String k, Schema v) -> {
                 schemaTypes.addAll(getNestedSchemaTypes(v, schemaResolver, typeInfoCollector));
             });
         }
@@ -216,14 +220,14 @@ public class ModelGenerator {
     }
 
     private boolean isRelevantTag(Operation operation) {
-        return opts.includeTags.isEmpty() || operation.getTags().stream().anyMatch(tag -> opts.includeTags.contains(tag));
+        return isEmpty(opts.includeTags) || streamSafely(operation.getTags()).anyMatch(tag -> opts.includeTags.contains(tag));
     }
 
     private boolean isEnum(Schema schema) {
-        return nonNull(schema.getTypes()) && schema.getTypes().contains("string") && nonNull(schema.getEnum());
+        return streamSafely(schema.getTypes()).anyMatch("string"::equals) && nonNull(schema.getEnum());
     }
 
     private boolean isClass(Schema schema) {
-        return (nonNull(schema.getTypes()) && schema.getTypes().contains("object")) || nonNull(schema.getAllOf());
+        return streamSafely(schema.getTypes()).anyMatch("object"::equals) || nonNull(schema.getAllOf());
     }
 }
