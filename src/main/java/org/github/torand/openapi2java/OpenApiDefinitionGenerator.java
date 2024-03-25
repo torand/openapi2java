@@ -1,7 +1,7 @@
 package org.github.torand.openapi2java;
 
 import io.swagger.v3.oas.models.OpenAPI;
-import org.github.torand.openapi2java.collectors.SecuritySchemeResolver;
+import org.github.torand.openapi2java.collectors.ComponentResolver;
 import org.github.torand.openapi2java.writers.OpenApiDefinitionWriter;
 
 import java.io.File;
@@ -25,7 +25,7 @@ public class OpenApiDefinitionGenerator {
             f.mkdirs();
         }
 
-        SecuritySchemeResolver securitySchemeResolver = new SecuritySchemeResolver(openApiDoc.getComponents().getSecuritySchemes());
+        ComponentResolver componentResolver = new ComponentResolver(openApiDoc);
 
         String openApiDefClassName = "OpenApiDefinition";
         String openApiDefFileName = openApiDefClassName + ".java";
@@ -34,7 +34,7 @@ public class OpenApiDefinitionGenerator {
             if (opts.verbose) {
                 System.out.println("Generating Open-API definition class: %s".formatted(openApiDefClassName));
             }
-            OpenApiDefinitionWriter openApiDefWriter = new OpenApiDefinitionWriter(writer, securitySchemeResolver, opts);
+            OpenApiDefinitionWriter openApiDefWriter = new OpenApiDefinitionWriter(writer, componentResolver, opts);
             openApiDefWriter.writeOpenApiDefinition(openApiDefClassName, openApiDoc.getSecurity());
         } catch (IOException e) {
             System.out.println("Failed to write file %s: %s".formatted(openApiDefFileName, e.toString()));

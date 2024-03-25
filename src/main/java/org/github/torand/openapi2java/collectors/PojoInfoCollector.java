@@ -12,8 +12,8 @@ import java.util.Set;
 
 import static java.lang.Boolean.TRUE;
 import static org.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
-import static org.github.torand.openapi2java.utils.Exceptions.illegalStateException;
 import static org.github.torand.openapi2java.utils.StringHelper.nonBlank;
+import static org.github.torand.openapi2java.utils.StringHelper.normalizeDescription;
 
 public class PojoInfoCollector {
     private final PropertyInfoCollector propertyInfoCollector;
@@ -45,11 +45,13 @@ public class PojoInfoCollector {
         String description = pojo.getDescription();
 
         imports.add("org.eclipse.microprofile.openapi.annotations.media.Schema");
-        StringBuilder schemaParams = new StringBuilder("name = \"%s\", description=\"%s\"".formatted(name, nonBlank(description) ? description.replaceAll("%", "%%") : "TBD"));
+        List<String> schemaParams = new ArrayList<>();
+        schemaParams.add("name = \"%s\"".formatted(name));
+        schemaParams.add("description=\"%s\"".formatted(normalizeDescription(description)));
         if (TRUE.equals(pojo.getDeprecated())) {
-            schemaParams.append(", deprecated = true");
+            schemaParams.add("deprecated = true");
         }
-        return "@Schema(%s)".formatted(schemaParams);
+        return "@Schema(%s)".formatted(String.join(", ", schemaParams));
     }
 
     private List<PropertyInfo> getSchemaProperties(Schema<?> schema) {
@@ -58,8 +60,7 @@ public class PojoInfoCollector {
         if (nonEmpty(schema.getAllOf())) {
             schema.getAllOf().forEach(subSchema -> props.addAll(getSchemaProperties(subSchema)));
         } else if (nonBlank(schema.get$ref())) {
-            Schema<?> $refSchema = schemaResolver.get(schema.get$ref())
-                .orElseThrow(illegalStateException("Schema not found: %s", schema.get$ref()));
+            Schema<?> $refSchema = schemaResolver.getOrThrow(schema.get$ref());
             return getSchemaProperties($refSchema);
         } else {
             schema.getProperties().forEach((String k, Schema v) ->

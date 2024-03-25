@@ -6,8 +6,7 @@ import io.swagger.v3.oas.models.media.JsonSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
-import org.github.torand.openapi2java.collectors.ParameterResolver;
-import org.github.torand.openapi2java.collectors.ResponseResolver;
+import org.github.torand.openapi2java.collectors.ComponentResolver;
 import org.github.torand.openapi2java.collectors.SchemaResolver;
 import org.github.torand.openapi2java.collectors.TypeInfoCollector;
 import org.github.torand.openapi2java.model.TypeInfo;
@@ -27,7 +26,6 @@ import static java.util.Objects.nonNull;
 import static org.github.torand.openapi2java.utils.CollectionHelper.isEmpty;
 import static org.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
 import static org.github.torand.openapi2java.utils.CollectionHelper.streamSafely;
-import static org.github.torand.openapi2java.utils.Exceptions.illegalStateException;
 import static org.github.torand.openapi2java.utils.StringHelper.nonBlank;
 import static org.github.torand.openapi2java.utils.StringHelper.pluralSuffix;
 import static org.github.torand.openapi2java.utils.StringHelper.stripTail;
@@ -47,10 +45,10 @@ public class ModelGenerator {
             f.mkdirs();
         }
 
-        SchemaResolver schemaResolver = new SchemaResolver(openApiDoc.getComponents().getSchemas());
+        ComponentResolver componentResolver = new ComponentResolver(openApiDoc);
 
         // Generate pojos referenced by included tags only
-        Set<String> relevantPojos = getRelevantPojos(openApiDoc, schemaResolver);
+        Set<String> relevantPojos = getRelevantPojos(openApiDoc, componentResolver);
 
         AtomicInteger enumCount = new AtomicInteger(0);
         AtomicInteger pojoCount = new AtomicInteger(0);
@@ -81,7 +79,7 @@ public class ModelGenerator {
                     String pojoFileName = pojoName + ".java";
                     File pojoFile = new File(f, pojoFileName);
                     try (Writer writer = new FileWriter(pojoFile)) {
-                        PojoWriter pojoWriter = new PojoWriter(writer, schemaResolver, opts);
+                        PojoWriter pojoWriter = new PojoWriter(writer, componentResolver.schemas(), opts);
                         pojoWriter.write(pojoName, entry.getValue());
                     } catch (IOException e) {
                         System.out.println("Failed to write file %s: %s".formatted(pojoFileName, e.toString()));
@@ -93,34 +91,31 @@ public class ModelGenerator {
         System.out.println("Generated %d enum%s, %d pojo%s in directory %s".formatted(enumCount.get(), pluralSuffix(enumCount.get()), pojoCount.get(), pluralSuffix(pojoCount.get()), outputPath));
     }
 
-    private Set<String> getRelevantPojos(OpenAPI openApiDoc, SchemaResolver schemaResolver) {
-        ResponseResolver responseResolver = new ResponseResolver(openApiDoc.getComponents().getResponses());
-        ParameterResolver parameterResolver = new ParameterResolver(openApiDoc.getComponents().getParameters());
-
+    private Set<String> getRelevantPojos(OpenAPI openApiDoc, ComponentResolver componentResolver) {
         Set<String> relevantPojos = new HashSet<>();
         openApiDoc.getPaths().forEach((path, action) -> {
             if (nonNull(action.getGet())) {
-                relevantPojos.addAll(getRelevantPojosForOperation(action.getGet(), schemaResolver, responseResolver, parameterResolver));
+                relevantPojos.addAll(getRelevantPojosForOperation(action.getGet(), componentResolver));
             }
             if (nonNull(action.getPost())) {
-                relevantPojos.addAll(getRelevantPojosForOperation(action.getPost(), schemaResolver, responseResolver, parameterResolver));
+                relevantPojos.addAll(getRelevantPojosForOperation(action.getPost(), componentResolver));
             }
             if (nonNull(action.getDelete())) {
-                relevantPojos.addAll(getRelevantPojosForOperation(action.getDelete(), schemaResolver, responseResolver, parameterResolver));
+                relevantPojos.addAll(getRelevantPojosForOperation(action.getDelete(), componentResolver));
             }
             if (nonNull(action.getPut())) {
-                relevantPojos.addAll(getRelevantPojosForOperation(action.getPut(), schemaResolver, responseResolver, parameterResolver));
+                relevantPojos.addAll(getRelevantPojosForOperation(action.getPut(), componentResolver));
             }
             if (nonNull(action.getPatch())) {
-                relevantPojos.addAll(getRelevantPojosForOperation(action.getPatch(), schemaResolver, responseResolver, parameterResolver));
+                relevantPojos.addAll(getRelevantPojosForOperation(action.getPatch(), componentResolver));
             }
         });
 
         return relevantPojos;
     }
 
-    private Set<String> getRelevantPojosForOperation(Operation operation, SchemaResolver schemaResolver, ResponseResolver responseResolver, ParameterResolver parameterResolver) {
-        TypeInfoCollector typeInfoCollector = new TypeInfoCollector(schemaResolver, opts);
+    private Set<String> getRelevantPojosForOperation(Operation operation, ComponentResolver componentResolver) {
+        TypeInfoCollector typeInfoCollector = new TypeInfoCollector(componentResolver.schemas(), opts);
 
         Set<String> relevantPojos = new HashSet<>();
 
@@ -129,8 +124,7 @@ public class ModelGenerator {
                 operation.getParameters().forEach(parameter -> {
                     Parameter realParameter = parameter;
                     if (nonBlank(parameter.get$ref())) {
-                        realParameter = parameterResolver.get(parameter.get$ref())
-                            .orElseThrow(illegalStateException("Parameter %s not found", parameter.get$ref()));
+                        realParameter = componentResolver.parameters().getOrThrow(parameter.get$ref());
                     }
 
                     if (nonNull(realParameter.getSchema())) {
@@ -159,8 +153,7 @@ public class ModelGenerator {
                 operation.getResponses().forEach((code, response) -> {
                     ApiResponse realResponse = response;
                     if (nonBlank(response.get$ref())) {
-                        realResponse = responseResolver.get(response.get$ref())
-                            .orElseThrow(illegalStateException("Response %s not found", response.get$ref()));
+                        realResponse = componentResolver.responses().getOrThrow(response.get$ref());
                     }
 
                     if (nonEmpty(realResponse.getContent())) {
@@ -174,7 +167,7 @@ public class ModelGenerator {
             }
         }
 
-        relevantPojos.addAll(getNestedPojos(relevantPojos, schemaResolver));
+        relevantPojos.addAll(getNestedPojos(relevantPojos, componentResolver.schemas()));
 
         return relevantPojos;
     }
@@ -198,8 +191,7 @@ public class ModelGenerator {
             parentSchema.getAllOf().forEach(subSchema -> schemaTypes.addAll(getNestedSchemaTypes(subSchema, schemaResolver, typeInfoCollector)));
         } else if (nonBlank(parentSchema.get$ref())) {
             schemaTypes.add(getPojoTypeName(parentSchema, typeInfoCollector));
-            Schema<?> $refSchema = schemaResolver.get(parentSchema.get$ref())
-                .orElseThrow(illegalStateException("Schema not found: %s", parentSchema.get$ref()));
+            Schema<?> $refSchema = schemaResolver.getOrThrow(parentSchema.get$ref());
             schemaTypes.addAll(getNestedSchemaTypes($refSchema, schemaResolver, typeInfoCollector));
         } else if (nonEmpty(parentSchema.getProperties())) {
             parentSchema.getProperties().forEach((String k, Schema v) -> {

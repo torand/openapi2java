@@ -5,10 +5,12 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import java.util.Map;
 import java.util.Optional;
 
-public class ParameterResolver {
-    private Map<String, Parameter> parameters;
+import static org.github.torand.openapi2java.utils.Exceptions.illegalStateException;
 
-    public ParameterResolver(Map<String, Parameter> parameters) {
+public class ParameterResolver {
+    private final Map<String, Parameter> parameters;
+
+    ParameterResolver(Map<String, Parameter> parameters) {
         this.parameters = parameters;
     }
 
@@ -18,6 +20,10 @@ public class ParameterResolver {
 
     public Optional<Parameter> get(String $ref) {
         return Optional.ofNullable(parameters.get(getParameterName($ref)));
+    }
+
+    public Parameter getOrThrow(String $ref) {
+        return get($ref).orElseThrow(illegalStateException("Parameter %s not found", $ref));
     }
 
     public boolean isHeaderParameter(String $ref) {

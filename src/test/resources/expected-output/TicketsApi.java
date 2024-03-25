@@ -9,8 +9,11 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
+import java.net.URI;
 import java.util.List;
+import java.util.UUID;
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.headers.Header;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
@@ -65,7 +68,7 @@ public interface TicketsApi {
     @Produces({APPLICATION_JSON, "application/vnd.test.api.ticket-v1+json"})
     @Operation(operationId = "registerTicket", summary = "Register new ticket")
     @Parameter(in = HEADER, name = "X-User-ID", description = "Unique user identifier (SHA1 fingerprint)", required = true, schema = @Schema(implementation = String.class))
-    @APIResponse(responseCode = "201", description = "Ticket was registered", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = TicketV1Dto.class)), @Content(mediaType = "application/vnd.test.api.ticket-v1+json", schema = @Schema(implementation = TicketV1Dto.class)) })
+    @APIResponse(responseCode = "201", description = "Ticket was registered", headers = { @Header(name = "Location", description = "URI of registered ticket", schema = @Schema(implementation = URI.class, format = "uri")) }, content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = TicketV1Dto.class)), @Content(mediaType = "application/vnd.test.api.ticket-v1+json", schema = @Schema(implementation = TicketV1Dto.class)) })
     @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
     @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
     @APIResponse(responseCode = "403", description = "Authenticated client or user is not granted access to this resource", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
@@ -124,7 +127,7 @@ public interface TicketsApi {
     @Parameter(in = PATH, name = "ticketId", description = "Unique ticket identifier (ticketing system specific)", required = true, schema = @Schema(implementation = String.class))
     @Parameter(in = HEADER, name = ACCEPT_LANGUAGE, description = "Natural language and locale accepted by client", schema = @Schema(implementation = String.class))
     @Parameter(in = HEADER, name = "X-User-ID", description = "Unique user identifier (SHA1 fingerprint)", required = true, schema = @Schema(implementation = String.class))
-    @APIResponse(responseCode = "201", description = "Ticket comment was registered", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = TicketAttachmentV1Dto.class)), @Content(mediaType = "application/vnd.test.api.ticket-v1+json", schema = @Schema(implementation = TicketAttachmentV1Dto.class)) })
+    @APIResponse(responseCode = "201", description = "Ticket attachment was registered", headers = { @Header(name = "Location", description = "URI of registered attachment", schema = @Schema(implementation = URI.class, format = "uri")), @Header(name = "X-Test-Header", description = "A test header", schema = @Schema(implementation = UUID.class, format = "uuid")) }, content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = TicketAttachmentV1Dto.class)), @Content(mediaType = "application/vnd.test.api.ticket-v1+json", schema = @Schema(implementation = TicketAttachmentV1Dto.class)) })
     @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
     @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
     @APIResponse(responseCode = "403", description = "Authenticated client or user is not granted access to this resource", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })

@@ -9,7 +9,9 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
+import java.net.URI;
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.headers.Header;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
@@ -43,7 +45,7 @@ public interface UsersApi {
     @Consumes({APPLICATION_JSON, "application/vnd.test.api.user-profile-v1+json"})
     @Produces({APPLICATION_JSON, "application/vnd.test.api.user-profile-v1+json"})
     @Operation(operationId = "registerUserProfile", summary = "Register new user profile")
-    @APIResponse(responseCode = "201", description = "User profile was registered", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = UserProfileV1Dto.class)), @Content(mediaType = "application/vnd.test.api.user-profile-v1+json", schema = @Schema(implementation = UserProfileV1Dto.class)) })
+    @APIResponse(responseCode = "201", description = "User profile was registered", headers = { @Header(name = "Location", description = "URI of registered user profile", schema = @Schema(implementation = URI.class, format = "uri")) }, content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = UserProfileV1Dto.class)), @Content(mediaType = "application/vnd.test.api.user-profile-v1+json", schema = @Schema(implementation = UserProfileV1Dto.class)) })
     @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
     @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
     @APIResponse(responseCode = "403", description = "Authenticated client or user is not granted access to this resource", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })

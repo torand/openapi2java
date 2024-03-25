@@ -1,6 +1,7 @@
 package org.github.torand.openapi2java.collectors;
 
 import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.headers.Header;
 import io.swagger.v3.oas.models.media.JsonSchema;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
@@ -22,22 +23,21 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 import static org.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
-import static org.github.torand.openapi2java.utils.Exceptions.illegalStateException;
 import static org.github.torand.openapi2java.utils.StringHelper.nonBlank;
-import static org.github.torand.openapi2java.utils.StringHelper.stripHead;
+import static org.github.torand.openapi2java.utils.StringHelper.normalizeDescription;
+import static org.github.torand.openapi2java.utils.StringHelper.normalizePath;
 import static org.github.torand.openapi2java.utils.StringHelper.stripTail;
 import static org.github.torand.openapi2java.utils.StringHelper.uncapitalize;
 
 public class MethodInfoCollector {
     private static final String CONTENT_TYPE_JSON = "application/json";
-    private final ParameterResolver parameterResolver;
-    private final ResponseResolver responseResolver;
+
+    private final ComponentResolver componentResolver;
     private final TypeInfoCollector typeInfoCollector;
     private final Options opts;
 
-    public MethodInfoCollector(ParameterResolver parameterResolver, ResponseResolver responseResolver, TypeInfoCollector typeInfoCollector, Options opts) {
-        this.parameterResolver = parameterResolver;
-        this.responseResolver = responseResolver;
+    public MethodInfoCollector(ComponentResolver componentResolver, TypeInfoCollector typeInfoCollector, Options opts) {
+        this.componentResolver = componentResolver;
         this.typeInfoCollector = typeInfoCollector;
         this.opts = opts;
     }
@@ -84,8 +84,7 @@ public class MethodInfoCollector {
             operation.getParameters().forEach(param -> {
                 Parameter realParam = param;
                 if (nonNull(param.get$ref())) {
-                    realParam = parameterResolver.get(param.get$ref())
-                        .orElseThrow(illegalStateException("Parameter %s not found", param.get$ref()));
+                    realParam = componentResolver.parameters().getOrThrow(param.get$ref());
                 }
 
                 StringBuilder paramBuilder = new StringBuilder();
@@ -178,43 +177,45 @@ public class MethodInfoCollector {
     }
 
     private String getParameterAnnotation(Parameter parameter, Set<String> imports, Set<String> staticImports) {
-        StringBuilder parameterBuilder = new StringBuilder();
         Parameter realParameter = parameter;
         if (nonNull(parameter.get$ref())) {
-            realParameter = parameterResolver.get(parameter.get$ref())
-                .orElseThrow(illegalStateException("Parameter %s not found", parameter.get$ref()));
+            realParameter = componentResolver.parameters().getOrThrow(parameter.get$ref());
         }
 
+        List<String> parameterParams = new ArrayList<>();
         imports.add("org.eclipse.microprofile.openapi.annotations.parameters.Parameter");
         String inValue = getParameterInValue(realParameter, staticImports);
+        parameterParams.add("in = %s".formatted(inValue));
+
         if (inValue.equalsIgnoreCase("header")) {
-            parameterBuilder.append("@Parameter(in = %s, name = %s, description = \"%s\"".formatted(inValue, getHeaderNameConstant(realParameter.getName(), staticImports), realParameter.getDescription()));
+            parameterParams.add("name = %s".formatted(getHeaderNameConstant(realParameter.getName(), staticImports)));
         } else {
-            parameterBuilder.append("@Parameter(in = %s, name = \"%s\", description = \"%s\"".formatted(inValue, realParameter.getName(), realParameter.getDescription()));
+            parameterParams.add("name = \"%s\"".formatted(realParameter.getName()));
         }
 
+        parameterParams.add("description = \"%s\"".formatted(normalizeDescription(realParameter.getDescription())));
+
         if (TRUE.equals(realParameter.getRequired())) {
-            parameterBuilder.append(", required = true");
+            parameterParams.add("required = true");
         }
 
         if (nonNull(realParameter.getSchema())) {
             String schemaAnnotation = getSchemaAnnotation(realParameter.getSchema(), imports, staticImports);
-            parameterBuilder.append(", schema = %s".formatted(schemaAnnotation));
+            parameterParams.add("schema = %s".formatted(schemaAnnotation));
         }
 
         if (nonEmpty(realParameter.getContent())) {
-            parameterBuilder.append(", content = { ");
+            parameterParams.add("content = { ");
             List<String> contentItems = new ArrayList<>();
             realParameter.getContent().forEach((contentType, mediaType) -> {
                 String contentAnnotation = getContentAnnotation(contentType, mediaType, imports, staticImports);
                 contentItems.add(contentAnnotation);
             });
 
-            parameterBuilder.append(String.join(", ", contentItems));
-            parameterBuilder.append(" }");
+            parameterParams.add("content = { %s }".formatted(String.join(", ", contentItems)));
         }
-        parameterBuilder.append(")");
-        return parameterBuilder.toString();
+
+        return "@Parameter(%s)".formatted(String.join(", ", parameterParams));
     }
 
     private String getParameterInValue(Parameter parameter, Set<String> staticImports) {
@@ -232,28 +233,37 @@ public class MethodInfoCollector {
     }
 
     private String getApiResponseAnnotation(ApiResponse response, String statusCode, Set<String> imports, Set<String> staticImports) {
-        StringBuilder apiResponseBuilder = new StringBuilder();
         ApiResponse realResponse = response;
         if (nonNull(response.get$ref())) {
-            realResponse = responseResolver.get(response.get$ref())
-                .orElseThrow(illegalStateException("Response %s not found", response.get$ref()));
+            realResponse = componentResolver.responses().getOrThrow(response.get$ref());
         }
 
+        List<String> apiResponseParams = new ArrayList<>();
         imports.add("org.eclipse.microprofile.openapi.annotations.responses.APIResponse");
-        apiResponseBuilder.append("@APIResponse(responseCode = \"%s\", description = \"%s\"".formatted(statusCode, realResponse.getDescription()));
+        apiResponseParams.add("responseCode = \"%s\"".formatted(statusCode));
+        apiResponseParams.add("description = \"%s\"".formatted(normalizeDescription(realResponse.getDescription())));
+
+        if (nonEmpty(realResponse.getHeaders())) {
+            List<String> headerItems = new ArrayList<>();
+            realResponse.getHeaders().forEach((name, header) -> {
+                String headerAnnotation = getHeaderAnnotation(name, header, imports, staticImports);
+                headerItems.add(headerAnnotation);
+            });
+
+            apiResponseParams.add("headers = { %s }".formatted(String.join(", ", headerItems)));
+        }
+
         if (nonEmpty(realResponse.getContent())) {
-            apiResponseBuilder.append(", content = { ");
             List<String> contentItems = new ArrayList<>();
             realResponse.getContent().forEach((contentType, mediaType) -> {
                 String contentAnnotation = getContentAnnotation(contentType, mediaType, imports, staticImports);
                 contentItems.add(contentAnnotation);
             });
 
-            apiResponseBuilder.append(String.join(", ", contentItems));
-            apiResponseBuilder.append(" }");
+            apiResponseParams.add("content = { %s }".formatted(String.join(", ", contentItems)));
         }
-        apiResponseBuilder.append(")");
-        return apiResponseBuilder.toString();
+
+        return "@APIResponse(%s)".formatted(String.join(", ", apiResponseParams));
     }
 
     private String getMethodParameterAnnotation(Parameter parameter, Set<String> imports, Set<String> staticImports) {
@@ -303,26 +313,38 @@ public class MethodInfoCollector {
 
     private String getSchemaAnnotation(Schema schema, Set<String> imports, Set<String> staticImports) {
         imports.add("org.eclipse.microprofile.openapi.annotations.media.Schema");
+        List<String> schemaParams = new ArrayList<>();
 
         TypeInfo bodyType = typeInfoCollector.getTypeInfo((JsonSchema)schema);
         imports.addAll(bodyType.typeImports);
+
         if (nonNull(bodyType.itemType)) {
             staticImports.add("org.eclipse.microprofile.openapi.annotations.enums.SchemaType.ARRAY");
             imports.addAll(bodyType.itemType.typeImports);
-            return "@Schema(type = ARRAY, implementation = %s.class)".formatted(bodyType.itemType.name);
-        } else {
-            return "@Schema(implementation = %s.class)".formatted(bodyType.name);
+            schemaParams.add("type = ARRAY");
+            bodyType = bodyType.itemType;
         }
+
+        schemaParams.add("implementation = %s.class".formatted(bodyType.name));
+        if (nonBlank(bodyType.schemaFormat)) {
+            schemaParams.add("format = \"%s\"".formatted(bodyType.schemaFormat));
+        }
+        if (nonBlank(bodyType.schemaPattern)) {
+            schemaParams.add("pattern = \"%s\"".formatted(bodyType.schemaPattern));
+        }
+
+        return "@Schema(%s)".formatted(String.join(", ", schemaParams));
     }
 
-    private String normalizePath(String path) {
-        if (path.startsWith("/")) {
-            path = stripHead(path, 1);
+    private String getHeaderAnnotation(String name, Header header, Set<String> imports, Set<String> staticImports) {
+        Header realHeader = header;
+        if (nonNull(header.get$ref())) {
+            realHeader = componentResolver.headers().getOrThrow(header.get$ref());
         }
-        if (path.endsWith("/")) {
-            path = stripTail(path, 1);
-        }
-        return path;
+
+        imports.add("org.eclipse.microprofile.openapi.annotations.headers.Header");
+        String schemaAnnotation = getSchemaAnnotation(realHeader.getSchema(), imports, staticImports);
+        return "@Header(name = \"%s\", description = \"%s\", schema = %s)".formatted(name, normalizeDescription(realHeader.getDescription()), schemaAnnotation);
     }
 
     private String toParamName(String paramName) {

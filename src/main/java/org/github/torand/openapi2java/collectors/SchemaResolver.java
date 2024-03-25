@@ -8,11 +8,12 @@ import java.util.Optional;
 
 import static java.util.Objects.nonNull;
 import static org.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
+import static org.github.torand.openapi2java.utils.Exceptions.illegalStateException;
 
 public class SchemaResolver {
-    private Map<String, Schema> schemas;
+    private final Map<String, Schema> schemas;
 
-    public SchemaResolver(Map<String, Schema> schemas) {
+    SchemaResolver(Map<String, Schema> schemas) {
         this.schemas = schemas;
     }
 
@@ -22,6 +23,10 @@ public class SchemaResolver {
 
     public Optional<JsonSchema> get(String $ref) {
         return Optional.ofNullable((JsonSchema)schemas.get(getTypeName($ref)));
+    }
+
+    public JsonSchema getOrThrow(String $ref) {
+        return get($ref).orElseThrow(illegalStateException("Schema %s not found", $ref));
     }
 
     public boolean isEnumType(String $ref) {

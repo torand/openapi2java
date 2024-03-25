@@ -2,10 +2,8 @@ package org.github.torand.openapi2java.writers;
 
 import io.swagger.v3.oas.models.PathItem;
 import org.github.torand.openapi2java.Options;
-import org.github.torand.openapi2java.collectors.ParameterResolver;
+import org.github.torand.openapi2java.collectors.ComponentResolver;
 import org.github.torand.openapi2java.collectors.ResourceInfoCollector;
-import org.github.torand.openapi2java.collectors.ResponseResolver;
-import org.github.torand.openapi2java.collectors.SchemaResolver;
 import org.github.torand.openapi2java.model.ResourceInfo;
 
 import java.io.Writer;
@@ -19,9 +17,9 @@ public class ResourceWriter extends BaseWriter {
 
     private final ResourceInfoCollector resourceInfoCollector;
 
-    public ResourceWriter(Writer writer, SchemaResolver schemaResolver, ParameterResolver parameterResolver, ResponseResolver responseResolver, Options opts) {
+    public ResourceWriter(Writer writer, ComponentResolver componentResolver, Options opts) {
         super(writer, opts);
-        this.resourceInfoCollector = new ResourceInfoCollector(schemaResolver, parameterResolver, responseResolver, opts);
+        this.resourceInfoCollector = new ResourceInfoCollector(componentResolver, opts);
     }
 
     public void writeResource(String name, String description, Map<String, PathItem> paths, String tag) {

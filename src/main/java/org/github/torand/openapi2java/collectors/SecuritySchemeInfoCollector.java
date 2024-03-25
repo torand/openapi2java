@@ -13,29 +13,28 @@ import java.util.Set;
 
 import static java.util.Objects.nonNull;
 import static org.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
-import static org.github.torand.openapi2java.utils.Exceptions.illegalStateException;
 import static org.github.torand.openapi2java.utils.StringHelper.nonBlank;
+import static org.github.torand.openapi2java.utils.StringHelper.normalizeDescription;
 
 public class SecuritySchemeInfoCollector {
-    private final SecuritySchemeResolver securitySchemeResolver;
+    private final ComponentResolver componentResolver;
     private final Options opts;
 
-    public SecuritySchemeInfoCollector(SecuritySchemeResolver securitySchemeResolver, Options opts) {
-        this.securitySchemeResolver = securitySchemeResolver;
+    public SecuritySchemeInfoCollector(ComponentResolver componentResolver, Options opts) {
+        this.componentResolver = componentResolver;
         this.opts = opts;
     }
 
     public SecuritySchemeInfo getSecuritySchemeInfo(String name) {
         SecuritySchemeInfo info = new SecuritySchemeInfo();
 
-        SecurityScheme securityScheme = securitySchemeResolver.get(name)
-            .orElseThrow(illegalStateException("Security scheme %s not found",name));
+        SecurityScheme securityScheme = componentResolver.securitySchemes().getOrThrow(name);
 
         List<String> params = new ArrayList<>();
         params.add("securitySchemeName = \"%s\"".formatted(name));
 
         if (nonBlank(securityScheme.getDescription())) {
-            params.add("description = \"%s\"".formatted(securityScheme.getDescription()));
+            params.add("description = \"%s\"".formatted(normalizeDescription(securityScheme.getDescription())));
         }
 
         info.imports.add("org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType");
@@ -120,6 +119,6 @@ public class SecuritySchemeInfoCollector {
 
     private String getScopeAnnotation(String name, String description, Set<String> imports) {
         imports.add("org.eclipse.microprofile.openapi.annotations.security.OAuthScope");
-        return "@OAuthScope(name = \"%s\", description = \"%s\")".formatted(name, nonNull(description) ? description : "TBD");
+        return "@OAuthScope(name = \"%s\", description = \"%s\")".formatted(name, normalizeDescription(description));
     }
 }

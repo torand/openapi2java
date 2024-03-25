@@ -295,7 +295,7 @@
         ],
         "responses": {
           "201": {
-            "description": "Ticket comment was registered",
+            "description": "Ticket attachment was registered",
             "headers": {
               "Location": {
                 "description": "URI of registered attachment",
@@ -303,6 +303,9 @@
                   "type": "string",
                   "format": "uri"
                 }
+              },
+              "X-Test-Header": {
+                "$ref": "#/components/headers/X-Test-Header"
               }
             },
             "content": {
@@ -882,6 +885,15 @@
         "schema": {
           "type": "string",
           "example": "5a27363f823ecf20a7722f445a35aa77bd5ea236"
+        }
+      }
+    },
+    "headers": {
+      "X-Test-Header": {
+        "description": "A test header",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
         }
       }
     },

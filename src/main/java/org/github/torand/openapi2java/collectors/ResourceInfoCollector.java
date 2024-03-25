@@ -9,6 +9,7 @@ import java.util.Map;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static org.github.torand.openapi2java.utils.StringHelper.normalizeDescription;
 
 public class ResourceInfoCollector {
 
@@ -16,11 +17,10 @@ public class ResourceInfoCollector {
 
     private final Options opts;
 
-    public ResourceInfoCollector(SchemaResolver schemaResolver, ParameterResolver parameterResolver, ResponseResolver responseResolver, Options opts) {
+    public ResourceInfoCollector(ComponentResolver componentResolver, Options opts) {
         this.methodInfoCollector = new MethodInfoCollector(
-            parameterResolver,
-            responseResolver,
-            new TypeInfoCollector(schemaResolver, opts),
+            componentResolver,
+            new TypeInfoCollector(componentResolver.schemas(), opts),
             opts
         );
 
@@ -36,7 +36,7 @@ public class ResourceInfoCollector {
         resourceInfo.annotations.add("@SecurityRequirement(name = \"basic\")");
 
         resourceInfo.imports.add("org.eclipse.microprofile.openapi.annotations.tags.Tag");
-        resourceInfo.annotations.add("@Tag(name = \"%s\", description = \"%s\")".formatted(tag, description));
+        resourceInfo.annotations.add("@Tag(name = \"%s\", description = \"%s\")".formatted(tag, normalizeDescription(description)));
 
         resourceInfo.imports.add("org.eclipse.microprofile.rest.client.inject.RegisterRestClient");
         resourceInfo.annotations.add("@RegisterRestClient(configKey=\"%s\")".formatted(tag.toLowerCase()));

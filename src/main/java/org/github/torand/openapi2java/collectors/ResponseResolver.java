@@ -5,10 +5,12 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
 import java.util.Map;
 import java.util.Optional;
 
-public class ResponseResolver {
-    private Map<String, ApiResponse> responses;
+import static org.github.torand.openapi2java.utils.Exceptions.illegalStateException;
 
-    public ResponseResolver(Map<String, ApiResponse> responses) {
+public class ResponseResolver {
+    private final Map<String, ApiResponse> responses;
+
+    ResponseResolver(Map<String, ApiResponse> responses) {
         this.responses = responses;
     }
 
@@ -18,5 +20,9 @@ public class ResponseResolver {
 
     public Optional<ApiResponse> get(String $ref) {
         return Optional.ofNullable(responses.get(getResponseName($ref)));
+    }
+
+    public ApiResponse getOrThrow(String $ref) {
+        return get($ref).orElseThrow(illegalStateException("Response %s not found", $ref));
     }
 }

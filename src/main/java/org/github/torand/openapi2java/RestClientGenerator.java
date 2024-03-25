@@ -2,9 +2,7 @@ package org.github.torand.openapi2java;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.tags.Tag;
-import org.github.torand.openapi2java.collectors.ParameterResolver;
-import org.github.torand.openapi2java.collectors.ResponseResolver;
-import org.github.torand.openapi2java.collectors.SchemaResolver;
+import org.github.torand.openapi2java.collectors.ComponentResolver;
 import org.github.torand.openapi2java.utils.StringHelper;
 import org.github.torand.openapi2java.writers.ResourceWriter;
 
@@ -35,9 +33,7 @@ public class RestClientGenerator {
             f.mkdirs();
         }
 
-        SchemaResolver schemaResolver = new SchemaResolver(openApiDoc.getComponents().getSchemas());
-        ParameterResolver parameterResolver = new ParameterResolver(openApiDoc.getComponents().getParameters());
-        ResponseResolver responseResolver = new ResponseResolver(openApiDoc.getComponents().getResponses());
+        ComponentResolver componentResolver = new ComponentResolver(openApiDoc);
 
         AtomicInteger clientCount = new AtomicInteger(0);
 
@@ -51,7 +47,7 @@ public class RestClientGenerator {
                 String resourceFileName = resourceName + opts.resourceNameSuffix + ".java";
                 File resourceFile = new File(f, resourceFileName);
                 try (Writer writer = new FileWriter(resourceFile)) {
-                    ResourceWriter resourceWriter = new ResourceWriter(writer, schemaResolver, parameterResolver, responseResolver, opts);
+                    ResourceWriter resourceWriter = new ResourceWriter(writer, componentResolver, opts);
                     resourceWriter.writeResource(resourceName, tag.getDescription(), openApiDoc.getPaths(), tag.getName());
                 } catch (IOException e) {
                     System.out.println("Failed to write file %s: %s".formatted(resourceFileName, e.toString()));

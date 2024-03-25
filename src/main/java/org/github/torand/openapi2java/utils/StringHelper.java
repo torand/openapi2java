@@ -45,6 +45,20 @@ public class StringHelper {
         return value.replaceAll("\\n", " ");
     }
 
+    public static String normalizeDescription(String description) {
+        return nonBlank(description) ? description.replaceAll("%", "%%") : "TBD";
+    }
+
+    public static String normalizePath(String path) {
+        if (path.startsWith("/")) {
+            path = stripHead(path, 1);
+        }
+        if (path.endsWith("/")) {
+            path = stripTail(path, 1);
+        }
+        return path;
+    }
+
     public static boolean isBlank(String value) {
         return isNull(value) || value.isEmpty();
     }

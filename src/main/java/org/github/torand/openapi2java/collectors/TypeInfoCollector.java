@@ -33,8 +33,7 @@ public class TypeInfoCollector {
                 TypeInfo typeInfo = new TypeInfo();
 
                 if (schemaResolver.isPrimitiveType($ref)) {
-                    JsonSchema $refSchema = schemaResolver.get($ref)
-                        .orElseThrow(illegalStateException("Schema not found: %s", $ref));
+                    JsonSchema $refSchema = schemaResolver.getOrThrow($ref);
                     typeInfo = getTypeInfo($refSchema);
                 } else {
                     typeInfo.name = schemaResolver.getTypeName($ref) + opts.pojoNameSuffix;
@@ -73,9 +72,17 @@ public class TypeInfoCollector {
             .orElseThrow(illegalStateException("Unexpected types: %s", schema.toString()));
 
         if ("string".equals(jsonType)) {
-            if ("uuid".equals(schema.getFormat())) {
+            if ("uri".equals(schema.getFormat())) {
+                typeInfo.name = "URI";
+                typeInfo.schemaFormat = schema.getFormat();
+                typeInfo.typeImports.add("java.net.URI");
+                if (!nullable) {
+                    typeInfo.annotations.add("@NotNull");
+                    typeInfo.annotationImports.add("jakarta.validation.constraints.NotNull");
+                }
+            } else if ("uuid".equals(schema.getFormat())) {
                 typeInfo.name = "UUID";
-                typeInfo.schemaFormat = "uuid";
+                typeInfo.schemaFormat = schema.getFormat();
                 typeInfo.typeImports.add("java.util.UUID");
                 if (!nullable) {
                     typeInfo.annotations.add("@NotNull");
@@ -83,24 +90,24 @@ public class TypeInfoCollector {
                 }
             } else if ("date".equals(schema.getFormat())) {
                 typeInfo.name = "LocalDate";
-                typeInfo.schemaFormat = "date";
+                typeInfo.schemaFormat = schema.getFormat();
                 typeInfo.typeImports.add("java.time.LocalDate");
                 typeInfo.annotations.add("@JsonFormat(pattern = \"yyyy-MM-dd\")");
                 typeInfo.annotationImports.add("com.fasterxml.jackson.annotation.JsonFormat");
             } else if ("date-time".equals(schema.getFormat())) {
                 typeInfo.name = "LocalDateTime";
-                typeInfo.schemaFormat = "date-time";
+                typeInfo.schemaFormat = schema.getFormat();
                 typeInfo.typeImports.add("java.time.LocalDateTime");
                 typeInfo.annotations.add("@JsonFormat(pattern = \"yyyy-MM-dd'T'HH:mm:ss\")");
                 typeInfo.annotationImports.add("com.fasterxml.jackson.annotation.JsonFormat");
             } else if ("email".equals(schema.getFormat())) {
                 typeInfo.name = "String";
-                typeInfo.schemaFormat = "email";
+                typeInfo.schemaFormat = schema.getFormat();
                 typeInfo.annotations.add("@Email");
                 typeInfo.annotationImports.add("jakarta.validation.constraints.Email");
             } else if ("binary".equals(schema.getFormat())) {
                 typeInfo.name = "byte[]";
-                typeInfo.schemaFormat = "binary";
+                typeInfo.schemaFormat = schema.getFormat();
 
                 if (!nullable) {
                     typeInfo.annotations.add("@NotEmpty");
@@ -118,6 +125,8 @@ public class TypeInfoCollector {
                     typeInfo.annotationImports.add("jakarta.validation.constraints.NotBlank");
                 }
 
+                typeInfo.schemaFormat = schema.getFormat();
+
                 if (nonBlank(schema.getPattern())) {
                     typeInfo.schemaPattern = schema.getPattern();
                     typeInfo.annotations.add("@Pattern(regexp = \"%s\")".formatted(schema.getPattern()));
@@ -132,12 +141,14 @@ public class TypeInfoCollector {
         } else if ("number".equals(jsonType)) {
             typeInfo.name = "Double";
             // TODO: float/double format
+            typeInfo.schemaFormat = schema.getFormat();
         } else if ("integer".equals(jsonType)) {
             if ("int64".equals(schema.getFormat())) {
                 typeInfo.name = "Long";
             } else {
                 typeInfo.name = "Integer";
             }
+            typeInfo.schemaFormat = schema.getFormat();
 
             if (nonNull(schema.getMinimum())) {
                 typeInfo.annotations.add("@Min(%d)".formatted(schema.getMinimum().longValue()));

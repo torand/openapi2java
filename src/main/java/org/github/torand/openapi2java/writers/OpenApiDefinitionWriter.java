@@ -2,8 +2,8 @@ package org.github.torand.openapi2java.writers;
 
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import org.github.torand.openapi2java.Options;
+import org.github.torand.openapi2java.collectors.ComponentResolver;
 import org.github.torand.openapi2java.collectors.SecuritySchemeInfoCollector;
-import org.github.torand.openapi2java.collectors.SecuritySchemeResolver;
 import org.github.torand.openapi2java.model.SecuritySchemeInfo;
 
 import java.io.Writer;
@@ -16,9 +16,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class OpenApiDefinitionWriter extends BaseWriter {
     private final SecuritySchemeInfoCollector securitySchemeInfoCollector;
 
-    public OpenApiDefinitionWriter(Writer writer, SecuritySchemeResolver securitySchemeResolver, Options opts) {
+    public OpenApiDefinitionWriter(Writer writer, ComponentResolver componentResolver, Options opts) {
         super(writer, opts);
-        this.securitySchemeInfoCollector = new SecuritySchemeInfoCollector(securitySchemeResolver, opts);
+        this.securitySchemeInfoCollector = new SecuritySchemeInfoCollector(componentResolver, opts);
     }
 
     public void writeOpenApiDefinition(String name, List<SecurityRequirement> securityRequirements) {
