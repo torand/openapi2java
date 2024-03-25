@@ -29,7 +29,6 @@ public class PojoInfoCollector {
     public PojoInfo getPojoInfo(String name, Schema<?> schema) {
         PojoInfo pojoInfo = new PojoInfo();
 
-        pojoInfo.imports.add("org.eclipse.microprofile.openapi.annotations.media.Schema");
         pojoInfo.annotations.add(getSchemaAnnotation(name, schema, pojoInfo.imports));
 
         if (TRUE.equals(schema.getDeprecated())) {
