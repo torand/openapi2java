@@ -6,7 +6,8 @@ import java.io.IOException;
 import java.io.Writer;
 
 public class BaseWriter {
-    public static final String INDENT = "    ";
+    private static final String INDENT = "    ";
+
     private final Writer writer;
     protected final Options opts;
 
