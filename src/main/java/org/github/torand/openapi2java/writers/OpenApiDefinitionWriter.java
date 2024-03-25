@@ -21,7 +21,7 @@ public class OpenApiDefinitionWriter extends BaseWriter {
         this.securitySchemeInfoCollector = new SecuritySchemeInfoCollector(componentResolver, opts);
     }
 
-    public void writeOpenApiDefinition(String name, List<SecurityRequirement> securityRequirements) {
+    public void write(String name, List<SecurityRequirement> securityRequirements) {
         writeLine("package %s;", opts.rootPackage);
         writeNewLine();
 

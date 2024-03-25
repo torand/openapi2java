@@ -35,7 +35,7 @@ public class OpenApiDefinitionGenerator {
                 System.out.println("Generating Open-API definition class: %s".formatted(openApiDefClassName));
             }
             OpenApiDefinitionWriter openApiDefWriter = new OpenApiDefinitionWriter(writer, componentResolver, opts);
-            openApiDefWriter.writeOpenApiDefinition(openApiDefClassName, openApiDoc.getSecurity());
+            openApiDefWriter.write(openApiDefClassName, openApiDoc.getSecurity());
         } catch (IOException e) {
             System.out.println("Failed to write file %s: %s".formatted(openApiDefFileName, e.toString()));
         }

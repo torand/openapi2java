@@ -22,7 +22,7 @@ public class ResourceWriter extends BaseWriter {
         this.resourceInfoCollector = new ResourceInfoCollector(componentResolver, opts);
     }
 
-    public void writeResource(String name, String description, Map<String, PathItem> paths, String tag) {
+    public void write(String name, String description, Map<String, PathItem> paths, String tag) {
         ResourceInfo resourceInfo = resourceInfoCollector.getResourceInfo(name, paths, tag, description);
 
         if (resourceInfo.isEmpty()) {

@@ -48,7 +48,7 @@ public class RestClientGenerator {
                 File resourceFile = new File(f, resourceFileName);
                 try (Writer writer = new FileWriter(resourceFile)) {
                     ResourceWriter resourceWriter = new ResourceWriter(writer, componentResolver, opts);
-                    resourceWriter.writeResource(resourceName, tag.getDescription(), openApiDoc.getPaths(), tag.getName());
+                    resourceWriter.write(resourceName, tag.getDescription(), openApiDoc.getPaths(), tag.getName());
                 } catch (IOException e) {
                     System.out.println("Failed to write file %s: %s".formatted(resourceFileName, e.toString()));
                 }
