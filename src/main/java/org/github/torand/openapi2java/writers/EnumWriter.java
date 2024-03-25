@@ -1,8 +1,6 @@
 package org.github.torand.openapi2java.writers;
 
-import io.swagger.v3.oas.models.media.Schema;
 import org.github.torand.openapi2java.Options;
-import org.github.torand.openapi2java.collectors.EnumInfoCollector;
 import org.github.torand.openapi2java.model.EnumInfo;
 
 import java.io.Writer;
@@ -10,16 +8,12 @@ import java.io.Writer;
 import static org.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
 
 public class EnumWriter extends BaseWriter {
-    private final EnumInfoCollector enumInfoCollector;
 
     public EnumWriter(Writer writer, Options opts) {
         super(writer, opts);
-        this.enumInfoCollector = new EnumInfoCollector(opts);
     }
 
-    public void write(String name, Schema<?> schema) {
-        EnumInfo enumInfo = enumInfoCollector.getEnumInfo(name, schema);
-
+    public void write(EnumInfo enumInfo) {
         writeLine("package %s;", opts.getModelPackage());
         writeNewLine();
 
@@ -28,9 +22,9 @@ public class EnumWriter extends BaseWriter {
             writeNewLine();
         }
 
-        enumInfo.annotations.forEach(a -> writeLine(a));
+        enumInfo.annotations.forEach(this::writeLine);
 
-        writeLine("public enum %s {".formatted(name));
+        writeLine("public enum %s {".formatted(enumInfo.name));
         writeIndent(1);
         writeLine(String.join(", ", enumInfo.constants));
         writeLine("}");

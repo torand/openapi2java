@@ -29,6 +29,7 @@ public class ResourceInfoCollector {
 
     public ResourceInfo getResourceInfo(String resourceName, Map<String, PathItem> paths, String tag, String description) {
         ResourceInfo resourceInfo = new ResourceInfo();
+        resourceInfo.name = resourceName + opts.resourceNameSuffix;
 
         resourceInfo.imports.add("jakarta.ws.rs.core.Response");
 
@@ -46,7 +47,7 @@ public class ResourceInfoCollector {
         resourceInfo.annotations.add("@ClientHeaderParam(name = AUTHORIZATION, value = \"{basicAuth}\")");
 
         resourceInfo.imports.add("jakarta.ws.rs.Path");
-        resourceInfo.staticImports.add("%s.%s.ROOT_PATH".formatted(opts.rootPackage, resourceName + opts.resourceNameSuffix));
+        resourceInfo.staticImports.add("%s.%s.ROOT_PATH".formatted(opts.rootPackage, resourceInfo.name));
         resourceInfo.annotations.add("@Path(ROOT_PATH)");
 
         paths.forEach((path, pathInfo) -> {

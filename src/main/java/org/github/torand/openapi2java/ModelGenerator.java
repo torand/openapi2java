@@ -7,8 +7,12 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import org.github.torand.openapi2java.collectors.ComponentResolver;
+import org.github.torand.openapi2java.collectors.EnumInfoCollector;
+import org.github.torand.openapi2java.collectors.PojoInfoCollector;
 import org.github.torand.openapi2java.collectors.SchemaResolver;
 import org.github.torand.openapi2java.collectors.TypeInfoCollector;
+import org.github.torand.openapi2java.model.EnumInfo;
+import org.github.torand.openapi2java.model.PojoInfo;
 import org.github.torand.openapi2java.model.TypeInfo;
 import org.github.torand.openapi2java.writers.EnumWriter;
 import org.github.torand.openapi2java.writers.PojoWriter;
@@ -46,8 +50,10 @@ public class ModelGenerator {
         }
 
         ComponentResolver componentResolver = new ComponentResolver(openApiDoc);
+        PojoInfoCollector pojoInfoCollector = new PojoInfoCollector(componentResolver.schemas(), opts);
+        EnumInfoCollector enumInfoCollector = new EnumInfoCollector(opts);
 
-        // Generate pojos referenced by included tags only
+        // Generate pojos and enums referenced by included tags only
         Set<String> relevantPojos = getRelevantPojos(openApiDoc, componentResolver);
 
         AtomicInteger enumCount = new AtomicInteger(0);
@@ -61,11 +67,14 @@ public class ModelGenerator {
                     if (opts.verbose) {
                         System.out.println("Generating model enum %s".formatted(pojoName));
                     }
+
+                    EnumInfo enumInfo = enumInfoCollector.getEnumInfo(pojoName, entry.getValue());
+
                     String enumFileName = pojoName + ".java";
                     File enumFile = new File(f, enumFileName);
                     try (Writer writer = new FileWriter(enumFile)) {
                         EnumWriter enumWriter = new EnumWriter(writer, opts);
-                        enumWriter.write(pojoName, entry.getValue());
+                        enumWriter.write(enumInfo);
                     } catch (IOException e) {
                         System.out.println("Failed to write file %s: %s".formatted(enumFileName, e.toString()));
                     }
@@ -76,11 +85,14 @@ public class ModelGenerator {
                     if (opts.verbose) {
                         System.out.println("Generating model class %s".formatted(pojoName));
                     }
+
+                    PojoInfo pojoInfo = pojoInfoCollector.getPojoInfo(pojoName, entry.getValue());
+
                     String pojoFileName = pojoName + ".java";
                     File pojoFile = new File(f, pojoFileName);
                     try (Writer writer = new FileWriter(pojoFile)) {
-                        PojoWriter pojoWriter = new PojoWriter(writer, componentResolver.schemas(), opts);
-                        pojoWriter.write(pojoName, entry.getValue());
+                        PojoWriter pojoWriter = new PojoWriter(writer, opts);
+                        pojoWriter.write(pojoInfo);
                     } catch (IOException e) {
                         System.out.println("Failed to write file %s: %s".formatted(pojoFileName, e.toString()));
                     }

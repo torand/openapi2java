@@ -1,13 +1,9 @@
 package org.github.torand.openapi2java.writers;
 
-import io.swagger.v3.oas.models.PathItem;
 import org.github.torand.openapi2java.Options;
-import org.github.torand.openapi2java.collectors.ComponentResolver;
-import org.github.torand.openapi2java.collectors.ResourceInfoCollector;
 import org.github.torand.openapi2java.model.ResourceInfo;
 
 import java.io.Writer;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -15,20 +11,11 @@ import static org.github.torand.openapi2java.utils.StringHelper.nonBlank;
 
 public class ResourceWriter extends BaseWriter {
 
-    private final ResourceInfoCollector resourceInfoCollector;
-
-    public ResourceWriter(Writer writer, ComponentResolver componentResolver, Options opts) {
+    public ResourceWriter(Writer writer, Options opts) {
         super(writer, opts);
-        this.resourceInfoCollector = new ResourceInfoCollector(componentResolver, opts);
     }
 
-    public void write(String name, String description, Map<String, PathItem> paths, String tag) {
-        ResourceInfo resourceInfo = resourceInfoCollector.getResourceInfo(name, paths, tag, description);
-
-        if (resourceInfo.isEmpty()) {
-            return;
-        }
-
+    public void write(ResourceInfo resourceInfo) {
         writeLine("package %s;", opts.rootPackage);
         writeNewLine();
 
@@ -45,7 +32,7 @@ public class ResourceWriter extends BaseWriter {
         writeNewLine();
 
         resourceInfo.annotations.forEach(a -> writeLine(a));
-        writeLine("public interface %s%s {".formatted(name, opts.resourceNameSuffix));
+        writeLine("public interface %s {".formatted(resourceInfo.name));
         writeNewLine();
 
         writeIndent(1);

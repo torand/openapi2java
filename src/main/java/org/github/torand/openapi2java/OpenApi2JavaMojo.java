@@ -92,7 +92,7 @@ public class OpenApi2JavaMojo extends AbstractMojo
         RestClientGenerator restClientGenerator = new RestClientGenerator(opts);
         restClientGenerator.generate(openApiDoc);
 
-        OpenApiDefinitionGenerator openApiDefinitionGenerator = new OpenApiDefinitionGenerator(opts);
-        openApiDefinitionGenerator.generate(openApiDoc);
+        OpenApiDefGenerator openApiDefGenerator = new OpenApiDefGenerator(opts);
+        openApiDefGenerator.generate(openApiDoc);
     }
 }

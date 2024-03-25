@@ -28,6 +28,7 @@ public class PojoInfoCollector {
 
     public PojoInfo getPojoInfo(String name, Schema<?> schema) {
         PojoInfo pojoInfo = new PojoInfo();
+        pojoInfo.name = name;
 
         pojoInfo.annotations.add(getSchemaAnnotation(name, schema, pojoInfo.imports));
 

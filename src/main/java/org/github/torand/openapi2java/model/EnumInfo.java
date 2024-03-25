@@ -7,6 +7,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class EnumInfo {
+    public String name;
+
     public Set<String> imports = new TreeSet<>();
     public Set<String> annotations = new LinkedHashSet<>();
     public List<String> constants = new ArrayList<>();

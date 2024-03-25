@@ -3,9 +3,10 @@ package org.github.torand.openapi2java.collectors;
 import io.swagger.v3.oas.models.security.OAuthFlow;
 import io.swagger.v3.oas.models.security.OAuthFlows;
 import io.swagger.v3.oas.models.security.Scopes;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.github.torand.openapi2java.Options;
-import org.github.torand.openapi2java.model.SecuritySchemeInfo;
+import org.github.torand.openapi2java.model.OpenApiDefInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,18 +17,42 @@ import static org.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
 import static org.github.torand.openapi2java.utils.StringHelper.nonBlank;
 import static org.github.torand.openapi2java.utils.StringHelper.normalizeDescription;
 
-public class SecuritySchemeInfoCollector {
+public class OpenApiDefInfoCollector {
     private final ComponentResolver componentResolver;
     private final Options opts;
 
-    public SecuritySchemeInfoCollector(ComponentResolver componentResolver, Options opts) {
+    public OpenApiDefInfoCollector(ComponentResolver componentResolver, Options opts) {
         this.componentResolver = componentResolver;
         this.opts = opts;
     }
 
-    public SecuritySchemeInfo getSecuritySchemeInfo(String name) {
-        SecuritySchemeInfo info = new SecuritySchemeInfo();
+    public OpenApiDefInfo getOpenApiDefInfo(String name, List<SecurityRequirement> securityRequirements) {
+        OpenApiDefInfo openApiDefInfo = new OpenApiDefInfo();
+        openApiDefInfo.name = name;
 
+        openApiDefInfo.imports.add("jakarta.ws.rs.core.Application");
+
+        if (nonEmpty(securityRequirements)) {
+            openApiDefInfo.annotations.add(getSecuritySchemesAnnotation(securityRequirements, openApiDefInfo.imports));
+        }
+
+        return openApiDefInfo;
+    }
+
+    private String getSecuritySchemesAnnotation(List<SecurityRequirement> securityRequirements, Set<String> imports) {
+        imports.add("org.eclipse.microprofile.openapi.annotations.security.SecuritySchemes");
+
+        List<String> securitySchemeAnnotations = new ArrayList<>();
+        securityRequirements.forEach(sr -> {
+            sr.keySet().forEach(schemeName -> {
+                securitySchemeAnnotations.add(getSecuritySchemeAnnotation(schemeName, imports));
+            });
+        });
+
+        return "@SecuritySchemes({%s})".formatted(String.join(", ", securitySchemeAnnotations));
+    }
+
+    private String getSecuritySchemeAnnotation(String name, Set<String> imports) {
         SecurityScheme securityScheme = componentResolver.securitySchemes().getOrThrow(name);
 
         List<String> params = new ArrayList<>();
@@ -37,7 +62,7 @@ public class SecuritySchemeInfoCollector {
             params.add("description = \"%s\"".formatted(normalizeDescription(securityScheme.getDescription())));
         }
 
-        info.imports.add("org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType");
+        imports.add("org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType");
         params.add("type = SecuritySchemeType.%s".formatted(securityScheme.getType().name()));
 
         switch (securityScheme.getType()) {
@@ -52,7 +77,7 @@ public class SecuritySchemeInfoCollector {
             }
             case OAUTH2 -> {
                 if (nonNull(securityScheme.getFlows())) {
-                    params.add("flows = %s".formatted(getOAuthFlowsAnnotation(securityScheme.getFlows(), info.imports)));
+                    params.add("flows = %s".formatted(getOAuthFlowsAnnotation(securityScheme.getFlows(), imports)));
                 }
             }
             case OPENIDCONNECT -> {
@@ -63,10 +88,8 @@ public class SecuritySchemeInfoCollector {
             }
         }
 
-        info.imports.add("org.eclipse.microprofile.openapi.annotations.security.SecurityScheme");
-        info.annotation = "@SecurityScheme(%s)".formatted(String.join(", ", params));
-
-        return info;
+        imports.add("org.eclipse.microprofile.openapi.annotations.security.SecurityScheme");
+        return "@SecurityScheme(%s)".formatted(String.join(", ", params));
     }
 
     private String getOAuthFlowsAnnotation(OAuthFlows flows, Set<String> imports) {

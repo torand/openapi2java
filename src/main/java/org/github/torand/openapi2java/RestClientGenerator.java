@@ -3,6 +3,8 @@ package org.github.torand.openapi2java;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.tags.Tag;
 import org.github.torand.openapi2java.collectors.ComponentResolver;
+import org.github.torand.openapi2java.collectors.ResourceInfoCollector;
+import org.github.torand.openapi2java.model.ResourceInfo;
 import org.github.torand.openapi2java.utils.StringHelper;
 import org.github.torand.openapi2java.writers.ResourceWriter;
 
@@ -34,6 +36,7 @@ public class RestClientGenerator {
         }
 
         ComponentResolver componentResolver = new ComponentResolver(openApiDoc);
+        ResourceInfoCollector resourceInfoCollector = new ResourceInfoCollector(componentResolver, opts);
 
         AtomicInteger clientCount = new AtomicInteger(0);
 
@@ -41,14 +44,22 @@ public class RestClientGenerator {
             if (isEmpty(opts.includeTags) || opts.includeTags.contains(tag.getName())) {
                 clientCount.incrementAndGet();
                 String resourceName = getResourceClassName(tag);
+
                 if (opts.verbose) {
                     System.out.println("Generating REST client for tag \"%s\": %s".formatted(tag.getName(), resourceName + opts.resourceNameSuffix));
                 }
-                String resourceFileName = resourceName + opts.resourceNameSuffix + ".java";
+
+                ResourceInfo resourceInfo = resourceInfoCollector.getResourceInfo(resourceName, openApiDoc.getPaths(), tag.getName(), tag.getDescription());
+
+                String resourceFileName = resourceInfo.name + ".java";
                 File resourceFile = new File(f, resourceFileName);
                 try (Writer writer = new FileWriter(resourceFile)) {
-                    ResourceWriter resourceWriter = new ResourceWriter(writer, componentResolver, opts);
-                    resourceWriter.write(resourceName, tag.getDescription(), openApiDoc.getPaths(), tag.getName());
+                    if (resourceInfo.isEmpty()) {
+                        System.out.println("No paths found for tag \"%s\"".formatted(tag.getName()));
+                    } else {
+                        ResourceWriter resourceWriter = new ResourceWriter(writer, opts);
+                        resourceWriter.write(resourceInfo);
+                    }
                 } catch (IOException e) {
                     System.out.println("Failed to write file %s: %s".formatted(resourceFileName, e.toString()));
                 }

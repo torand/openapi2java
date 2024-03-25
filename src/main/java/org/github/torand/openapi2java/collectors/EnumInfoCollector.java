@@ -20,6 +20,7 @@ public class EnumInfoCollector {
 
     public EnumInfo getEnumInfo(String name, Schema<?> schema) {
         EnumInfo enumInfo = new EnumInfo();
+        enumInfo.name = name;
 
         enumInfo.annotations.add(getSchemaAnnotation(name, schema, enumInfo.imports));
 

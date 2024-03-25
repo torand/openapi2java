@@ -1,9 +1,6 @@
 package org.github.torand.openapi2java.writers;
 
-import io.swagger.v3.oas.models.media.Schema;
 import org.github.torand.openapi2java.Options;
-import org.github.torand.openapi2java.collectors.PojoInfoCollector;
-import org.github.torand.openapi2java.collectors.SchemaResolver;
 import org.github.torand.openapi2java.model.PojoInfo;
 import org.github.torand.openapi2java.model.PropertyInfo;
 
@@ -20,16 +17,12 @@ import static org.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
 import static org.github.torand.openapi2java.utils.CollectionHelper.streamConcat;
 
 public class PojoWriter extends BaseWriter {
-    private final PojoInfoCollector pojoInfoCollector;
 
-    public PojoWriter(Writer writer, SchemaResolver schemaResolver, Options opts) {
+    public PojoWriter(Writer writer, Options opts) {
         super(writer, opts);
-        this.pojoInfoCollector = new PojoInfoCollector(schemaResolver, opts);
     }
 
-    public void write(String name, Schema<?> schema) {
-        PojoInfo pojoInfo = pojoInfoCollector.getPojoInfo(name, schema);
-
+    public void write(PojoInfo pojoInfo) {
         writeLine("package %s;", opts.getModelPackage());
         writeNewLine();
 
@@ -49,12 +42,12 @@ public class PojoWriter extends BaseWriter {
             writeNewLine();
         }
 
-        pojoInfo.annotations.forEach(a -> writeLine(a));
+        pojoInfo.annotations.forEach(this::writeLine);
 
         if (opts.pojosAsRecords) {
-            writeLine("public record %s (".formatted(name));
+            writeLine("public record %s (".formatted(pojoInfo.name));
         } else {
-            writeLine("public class %s {".formatted(name));
+            writeLine("public class %s {".formatted(pojoInfo.name));
         }
 
         AtomicInteger propNo = new AtomicInteger(1);
@@ -97,9 +90,9 @@ public class PojoWriter extends BaseWriter {
             writeLine("}");
         } else {
             writeNewLine();
-            writeNoArgConstructor(name);
+            writeNoArgConstructor(pojoInfo.name);
             writeNewLine();
-            writeParameterizedConstructor(name, pojoInfo.properties);
+            writeParameterizedConstructor(pojoInfo.name, pojoInfo.properties);
             writeLine("}");
         }
     }
