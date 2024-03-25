@@ -9,7 +9,6 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import java.io.File;
 import java.util.List;
 
 /**
@@ -23,13 +22,13 @@ public class OpenApi2JavaMojo extends AbstractMojo
      * Input file containing OpenAPI specification
      */
     @Parameter(property = "openApiFile", required = true )
-    private File openApiFile;
+    private String openApiFile;
 
     /**
      * Root directory of output
      */
     @Parameter( property = "outputDir", defaultValue = "${project.build.directory}" )
-    private File outputDirectory;
+    private String outputDirectory;
 
     /**
      * Root package of classes and enums
@@ -74,7 +73,7 @@ public class OpenApi2JavaMojo extends AbstractMojo
     private boolean verbose;
 
     public void execute() throws MojoExecutionException {
-        SwaggerParseResult result = new OpenAPIParser().readLocation(openApiFile.toString(), null, null);
+        SwaggerParseResult result = new OpenAPIParser().readLocation(openApiFile, null, null);
         OpenAPI openApiDoc = result.getOpenAPI();
 
         Options opts = new Options();
