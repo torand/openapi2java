@@ -1,5 +1,7 @@
 package org.github.torand.openapi2java.model;
 
+import org.github.torand.openapi2java.utils.CollectionHelper;
+
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -16,6 +18,6 @@ public class PojoInfo {
     public List<PropertyInfo> properties = new ArrayList<>();
 
     public boolean isEmpty() {
-        return properties.isEmpty();
+        return CollectionHelper.isEmpty(properties);
     }
 }

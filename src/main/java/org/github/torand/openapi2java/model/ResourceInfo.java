@@ -1,5 +1,7 @@
 package org.github.torand.openapi2java.model;
 
+import org.github.torand.openapi2java.utils.CollectionHelper;
+
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -16,6 +18,6 @@ public class ResourceInfo {
     public List<MethodInfo> methods = new ArrayList<>();
 
     public boolean isEmpty() {
-        return methods.isEmpty();
+        return CollectionHelper.isEmpty(methods);
     }
 }
