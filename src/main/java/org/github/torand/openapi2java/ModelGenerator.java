@@ -197,6 +197,8 @@ public class ModelGenerator {
             parentSchema.getProperties().forEach((String k, Schema v) -> {
                 schemaTypes.addAll(getNestedSchemaTypes(v, schemaResolver, typeInfoCollector));
             });
+        } else if (nonNull(parentSchema.getItems())) {
+            schemaTypes.addAll(getNestedSchemaTypes(parentSchema.getItems(), schemaResolver, typeInfoCollector));
         }
 
         return schemaTypes;
