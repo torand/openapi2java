@@ -17,11 +17,7 @@ import org.github.torand.openapi2java.model.TypeInfo;
 import org.github.torand.openapi2java.writers.EnumWriter;
 import org.github.torand.openapi2java.writers.PojoWriter;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
-import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -33,6 +29,8 @@ import static org.github.torand.openapi2java.utils.CollectionHelper.streamSafely
 import static org.github.torand.openapi2java.utils.StringHelper.nonBlank;
 import static org.github.torand.openapi2java.utils.StringHelper.pluralSuffix;
 import static org.github.torand.openapi2java.utils.StringHelper.stripTail;
+import static org.github.torand.openapi2java.writers.WriterFactory.createEnumWriter;
+import static org.github.torand.openapi2java.writers.WriterFactory.createPojoWriter;
 
 public class ModelGenerator {
 
@@ -43,12 +41,6 @@ public class ModelGenerator {
     }
 
     public void generate(OpenAPI openApiDoc) {
-        Path outputPath = Path.of(opts.getModelOutputDir());
-        File f = outputPath.toFile();
-        if (!f.exists()) {
-            f.mkdirs();
-        }
-
         ComponentResolver componentResolver = new ComponentResolver(openApiDoc);
         PojoInfoCollector pojoInfoCollector = new PojoInfoCollector(componentResolver.schemas(), opts);
         EnumInfoCollector enumInfoCollector = new EnumInfoCollector(opts);
@@ -70,13 +62,11 @@ public class ModelGenerator {
 
                     EnumInfo enumInfo = enumInfoCollector.getEnumInfo(pojoName, entry.getValue());
 
-                    String enumFileName = pojoName + ".java";
-                    File enumFile = new File(f, enumFileName);
-                    try (Writer writer = new FileWriter(enumFile)) {
-                        EnumWriter enumWriter = new EnumWriter(writer, opts);
+                    String enumFilename = pojoName + ".java";
+                    try (EnumWriter enumWriter = createEnumWriter(enumFilename, opts)) {
                         enumWriter.write(enumInfo);
                     } catch (IOException e) {
-                        System.out.println("Failed to write file %s: %s".formatted(enumFileName, e.toString()));
+                        System.out.println("Failed to write file %s: %s".formatted(enumFilename, e.toString()));
                     }
                 }
 
@@ -88,19 +78,17 @@ public class ModelGenerator {
 
                     PojoInfo pojoInfo = pojoInfoCollector.getPojoInfo(pojoName, entry.getValue());
 
-                    String pojoFileName = pojoName + ".java";
-                    File pojoFile = new File(f, pojoFileName);
-                    try (Writer writer = new FileWriter(pojoFile)) {
-                        PojoWriter pojoWriter = new PojoWriter(writer, opts);
+                    String pojoFilename = pojoName + ".java";
+                    try (PojoWriter pojoWriter = createPojoWriter(pojoFilename, opts)) {
                         pojoWriter.write(pojoInfo);
                     } catch (IOException e) {
-                        System.out.println("Failed to write file %s: %s".formatted(pojoFileName, e.toString()));
+                        System.out.println("Failed to write file %s: %s".formatted(pojoFilename, e.toString()));
                     }
                 }
             }
         });
 
-        System.out.println("Generated %d enum%s, %d pojo%s in directory %s".formatted(enumCount.get(), pluralSuffix(enumCount.get()), pojoCount.get(), pluralSuffix(pojoCount.get()), outputPath));
+        System.out.println("Generated %d enum%s, %d pojo%s in directory %s".formatted(enumCount.get(), pluralSuffix(enumCount.get()), pojoCount.get(), pluralSuffix(pojoCount.get()), opts.getModelOutputDir()));
     }
 
     private Set<String> getRelevantPojos(OpenAPI openApiDoc, ComponentResolver componentResolver) {

@@ -5,7 +5,7 @@ import org.github.torand.openapi2java.Options;
 import java.io.IOException;
 import java.io.Writer;
 
-public class BaseWriter {
+public class BaseWriter implements AutoCloseable {
     private static final String INDENT = "    ";
 
     private final Writer writer;
@@ -48,5 +48,10 @@ public class BaseWriter {
                 throw new RuntimeException("Failed to append to writer", e);
             }
         }
+    }
+
+    @Override
+    public void close() throws IOException {
+        writer.close();
     }
 }
