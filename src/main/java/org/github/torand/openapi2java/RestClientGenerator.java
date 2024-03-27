@@ -42,7 +42,7 @@ public class RestClientGenerator {
 
                 ResourceInfo resourceInfo = resourceInfoCollector.getResourceInfo(resourceName, openApiDoc.getPaths(), tag.getName(), tag.getDescription());
 
-                String resourceFilename = resourceInfo.name + ".java";
+                String resourceFilename = resourceInfo.name + opts.getFileExtension();
                 try (ResourceWriter resourceWriter = createResourceWriter(resourceFilename, opts)) {
                     if (resourceInfo.isEmpty()) {
                         System.out.println("No paths found for tag \"%s\"".formatted(tag.getName()));

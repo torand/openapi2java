@@ -5,7 +5,7 @@ import org.github.torand.openapi2java.Options;
 import java.io.IOException;
 import java.io.Writer;
 
-public class BaseWriter implements AutoCloseable {
+public abstract class BaseWriter implements AutoCloseable {
     private static final String INDENT = "    ";
 
     private final Writer writer;

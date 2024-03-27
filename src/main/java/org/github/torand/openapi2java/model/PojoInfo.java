@@ -12,7 +12,6 @@ public class PojoInfo {
     public String name;
 
     public Set<String> imports = new TreeSet<>();
-    public Set<String> staticImports = new TreeSet<>();
     public Set<String> annotations = new LinkedHashSet<>();
 
     public List<PropertyInfo> properties = new ArrayList<>();

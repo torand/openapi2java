@@ -10,6 +10,7 @@ import static java.util.Objects.nonNull;
 public class TypeInfo {
     public String name;
     public String description;
+    public boolean nullable;
     public TypeInfo itemType;
     public String schemaFormat;
     public String schemaPattern;

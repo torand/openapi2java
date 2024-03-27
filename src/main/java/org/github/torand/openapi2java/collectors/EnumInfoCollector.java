@@ -9,13 +9,11 @@ import java.util.List;
 import java.util.Set;
 
 import static java.lang.Boolean.TRUE;
-import static org.github.torand.openapi2java.utils.StringHelper.normalizeDescription;
 
-public class EnumInfoCollector {
-    private final Options opts;
+public class EnumInfoCollector extends BaseCollector {
 
     public EnumInfoCollector(Options opts) {
-        this.opts = opts;
+        super(opts);
     }
 
     public EnumInfo getEnumInfo(String name, Schema<?> schema) {

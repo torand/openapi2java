@@ -25,13 +25,13 @@ public record TicketDetailsV1Dto (
     TicketStatusV1Dto status,
 
     @Schema(description="Date and time of ticket creation", required = true, format = "date-time")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @NotNull
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime createdTime,
 
     @Schema(description="Date and time of ticket resolution", required = true, format = "date-time")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @NotNull
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime resolvedTime,
 
     @Schema(description="Form field values for the ticket", required = true)

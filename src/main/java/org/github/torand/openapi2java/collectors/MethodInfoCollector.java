@@ -11,6 +11,7 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import org.github.torand.openapi2java.Options;
 import org.github.torand.openapi2java.model.MethodInfo;
+import org.github.torand.openapi2java.model.MethodParamInfo;
 import org.github.torand.openapi2java.model.TypeInfo;
 
 import java.util.ArrayList;
@@ -24,22 +25,19 @@ import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 import static org.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
 import static org.github.torand.openapi2java.utils.StringHelper.nonBlank;
-import static org.github.torand.openapi2java.utils.StringHelper.normalizeDescription;
-import static org.github.torand.openapi2java.utils.StringHelper.normalizePath;
 import static org.github.torand.openapi2java.utils.StringHelper.stripTail;
 import static org.github.torand.openapi2java.utils.StringHelper.uncapitalize;
 
-public class MethodInfoCollector {
+public class MethodInfoCollector extends BaseCollector {
     private static final String CONTENT_TYPE_JSON = "application/json";
 
     private final ComponentResolver componentResolver;
     private final TypeInfoCollector typeInfoCollector;
-    private final Options opts;
 
     public MethodInfoCollector(ComponentResolver componentResolver, TypeInfoCollector typeInfoCollector, Options opts) {
+        super(opts);
         this.componentResolver = componentResolver;
         this.typeInfoCollector = typeInfoCollector;
-        this.opts = opts;
     }
 
     public MethodInfo getMethodInfo(String verb, String path, Operation operation) {
@@ -87,14 +85,17 @@ public class MethodInfoCollector {
                     realParam = componentResolver.parameters().getOrThrow(param.get$ref());
                 }
 
-                StringBuilder paramBuilder = new StringBuilder();
+                MethodParamInfo paramInfo = new MethodParamInfo();
 
-                String methodParamAnnotation = getMethodParameterAnnotation(realParam, methodInfo.imports, methodInfo.staticImports);
-                paramBuilder.append(methodParamAnnotation);
+                String methodParamAnnotation = getMethodParameterAnnotation(realParam, paramInfo.imports, paramInfo.staticImports);
+                paramInfo.annotations.add(methodParamAnnotation);
 
                 if (TRUE.equals(realParam.getRequired())) {
-                    methodInfo.imports.add("jakarta.validation.constraints.NotNull");
-                    paramBuilder.append("@NotNull ");
+                    paramInfo.nullable = false;
+                    paramInfo.imports.add("jakarta.validation.constraints.NotNull");
+                    paramInfo.annotations.add("@NotNull");
+                } else {
+                    paramInfo.nullable = true;
                 }
 
                 Schema realSchema = realParam.getSchema();
@@ -103,14 +104,13 @@ public class MethodInfoCollector {
                 }
 
                 TypeInfo paramType = typeInfoCollector.getTypeInfo((JsonSchema)realParam.getSchema());
+                paramInfo.type = paramType;
 
-                // TODO: @Valid
-                methodInfo.imports.addAll(paramType.typeImports);
-                paramBuilder.append(paramType.name).append(" ");
-                paramBuilder.append(toParamName(realParam.getName()));
+                // TODO: @Valid ?
+                paramInfo.name = toParamName(realParam.getName());
+                paramInfo.comment = paramType.description;
 
-                methodInfo.parameters.add(paramBuilder.toString());
-                methodInfo.parameterComments.add(paramType.description);
+                methodInfo.parameters.add(paramInfo);
             });
         }
 
@@ -121,16 +121,14 @@ public class MethodInfoCollector {
                     .findFirst()
                     .ifPresent(mt -> {
                         if (nonNull(mt.getSchema())) {
-                            StringBuilder paramBuilder = new StringBuilder();
-                            TypeInfo bodyType = typeInfoCollector.getTypeInfo((JsonSchema)mt.getSchema());
+                            MethodParamInfo paramInfo = new MethodParamInfo();
+                            TypeInfo bodyType = typeInfoCollector.getTypeInfo((JsonSchema) mt.getSchema());
+                            paramInfo.type = bodyType;
 
-                            // TODO: @Valid
-                            methodInfo.imports.addAll(bodyType.typeImports);
-                            paramBuilder.append(bodyType.name).append(" ");
-                            paramBuilder.append(toParamName(bodyType.name));
-
-                            methodInfo.parameters.add(paramBuilder.toString());
-                            methodInfo.parameterComments.add(bodyType.description);
+                            // TODO: @Valid @NotNull ?
+                            paramInfo.name = toParamName(bodyType.name);
+                            paramInfo.comment = bodyType.description;
+                            methodInfo.parameters.add(paramInfo);
                         }
                     });
             }
@@ -153,7 +151,7 @@ public class MethodInfoCollector {
                 .forEach(mediaTypes::add);
         }
 
-        String mediaTypesString = mediaTypes.size() == 1 ? mediaTypes.get(0) : "{" + String.join(", ", mediaTypes) + "}";
+        String mediaTypesString = formatAnnotationDefaultParam(mediaTypes);
         return "@Consumes(%s)".formatted(mediaTypesString);
     }
 
@@ -172,7 +170,7 @@ public class MethodInfoCollector {
             }
         });
 
-        String mediaTypesString = mediaTypes.size() == 1 ? mediaTypes.get(0) : "{" + String.join(", ", mediaTypes) + "}";
+        String mediaTypesString = formatAnnotationDefaultParam(mediaTypes);
         return "@Produces(%s)".formatted(mediaTypesString);
     }
 
@@ -185,7 +183,8 @@ public class MethodInfoCollector {
         List<String> parameterParams = new ArrayList<>();
         imports.add("org.eclipse.microprofile.openapi.annotations.parameters.Parameter");
         String inValue = getParameterInValue(realParameter, staticImports);
-        parameterParams.add("in = %s".formatted(inValue));
+        String inName = opts.useKotlinSyntax ? "`in`" : "in";
+        parameterParams.add("%s = %s".formatted(inName, inValue));
 
         if (inValue.equalsIgnoreCase("header")) {
             parameterParams.add("name = %s".formatted(getHeaderNameConstant(realParameter.getName(), staticImports)));
@@ -205,14 +204,13 @@ public class MethodInfoCollector {
         }
 
         if (nonEmpty(realParameter.getContent())) {
-            parameterParams.add("content = { ");
             List<String> contentItems = new ArrayList<>();
             realParameter.getContent().forEach((contentType, mediaType) -> {
                 String contentAnnotation = getContentAnnotation(contentType, mediaType, imports, staticImports);
                 contentItems.add(contentAnnotation);
             });
 
-            parameterParams.add("content = { %s }".formatted(String.join(", ", contentItems)));
+            parameterParams.add("content = %s".formatted(formatAnnotationNamedParam(contentItems)));
         }
 
         return "@Parameter(%s)".formatted(String.join(", ", parameterParams));
@@ -250,7 +248,7 @@ public class MethodInfoCollector {
                 headerItems.add(headerAnnotation);
             });
 
-            apiResponseParams.add("headers = { %s }".formatted(String.join(", ", headerItems)));
+            apiResponseParams.add("headers = %s".formatted(formatAnnotationNamedParam(headerItems)));
         }
 
         if (nonEmpty(realResponse.getContent())) {
@@ -260,7 +258,7 @@ public class MethodInfoCollector {
                 contentItems.add(contentAnnotation);
             });
 
-            apiResponseParams.add("content = { %s }".formatted(String.join(", ", contentItems)));
+            apiResponseParams.add("content = %s".formatted(formatAnnotationNamedParam(contentItems)));
         }
 
         return "@APIResponse(%s)".formatted(String.join(", ", apiResponseParams));
@@ -277,9 +275,9 @@ public class MethodInfoCollector {
 
         imports.add("jakarta.ws.rs." + paramAnnotationName);
         if (paramAnnotationName.equals("HeaderParam")) {
-            return "@%s(%s) ".formatted(paramAnnotationName, getHeaderNameConstant(parameter.getName(), staticImports));
+            return "@%s(%s)".formatted(paramAnnotationName, getHeaderNameConstant(parameter.getName(), staticImports));
         } else {
-            return "@%s(\"%s\") ".formatted(paramAnnotationName, parameter.getName());
+            return "@%s(\"%s\")".formatted(paramAnnotationName, parameter.getName());
         }
     }
 
@@ -308,7 +306,7 @@ public class MethodInfoCollector {
             contentType = "\"" + contentType + "\"";
         }
         String schemaAnnotation = getSchemaAnnotation(mediaType.getSchema(), imports, staticImports);
-        return "@Content(mediaType = %s, schema = %s)".formatted(contentType, schemaAnnotation);
+        return formatInnerAnnotation("Content(mediaType = %s, schema = %s)", contentType, schemaAnnotation);
     }
 
     private String getSchemaAnnotation(Schema schema, Set<String> imports, Set<String> staticImports) {
@@ -325,7 +323,7 @@ public class MethodInfoCollector {
             bodyType = bodyType.itemType;
         }
 
-        schemaParams.add("implementation = %s.class".formatted(bodyType.name));
+        schemaParams.add("implementation = %s".formatted(formatClassRef(bodyType.name)));
         if (nonBlank(bodyType.schemaFormat)) {
             schemaParams.add("format = \"%s\"".formatted(bodyType.schemaFormat));
         }
@@ -333,7 +331,7 @@ public class MethodInfoCollector {
             schemaParams.add("pattern = \"%s\"".formatted(bodyType.schemaPattern));
         }
 
-        return "@Schema(%s)".formatted(String.join(", ", schemaParams));
+        return formatInnerAnnotation("Schema(%s)", String.join(", ", schemaParams));
     }
 
     private String getHeaderAnnotation(String name, Header header, Set<String> imports, Set<String> staticImports) {
@@ -344,7 +342,7 @@ public class MethodInfoCollector {
 
         imports.add("org.eclipse.microprofile.openapi.annotations.headers.Header");
         String schemaAnnotation = getSchemaAnnotation(realHeader.getSchema(), imports, staticImports);
-        return "@Header(name = \"%s\", description = \"%s\", schema = %s)".formatted(name, normalizeDescription(realHeader.getDescription()), schemaAnnotation);
+        return formatInnerAnnotation("Header(name = \"%s\", description = \"%s\", schema = %s)", name, normalizeDescription(realHeader.getDescription()), schemaAnnotation);
     }
 
     private String toParamName(String paramName) {

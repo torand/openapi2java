@@ -30,16 +30,17 @@ public record NewUserProfileV1Dto (
     String mobileNumber,
 
     @Schema(description="Indicates whether mobile number is successfully authenticated using a verification code", required = true)
+    @NotNull
     Boolean mobileNumberVerified,
 
     @Schema(description="Date and time of user profile creation", required = true, format = "date-time")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @NotNull
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime createdTime,
 
     @Schema(description="Date and time of last user login", required = true, format = "date-time")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @NotNull
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime lastLoginTime,
 
     @Schema(description="National identity number of user", required = true, pattern = "^[0-9]{11}$")

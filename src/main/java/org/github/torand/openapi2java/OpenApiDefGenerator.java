@@ -29,7 +29,7 @@ public class OpenApiDefGenerator {
 
         OpenApiDefInfo openApiDefInfo = openApiDefInfoCollector.getOpenApiDefInfo(openApiDefClassName, openApiDoc.getSecurity());
 
-        String openApiDefFilename = openApiDefClassName + ".java";
+        String openApiDefFilename = openApiDefClassName + opts.getFileExtension();
         try (OpenApiDefWriter openApiDefWriter = createOpenApiDefWriter(openApiDefFilename, opts)) {
             openApiDefWriter.write(openApiDefInfo);
         } catch (IOException e) {

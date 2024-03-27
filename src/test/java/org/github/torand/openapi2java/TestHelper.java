@@ -28,20 +28,42 @@ class TestHelper {
         return openApiDoc;
     }
 
-    static Options getOptions() {
+    static Options getJavaOptions() {
         Options opts = new Options();
         opts.rootPackage = "org.github.torand.test";
-        opts.outputDir = "target/test-output";
+        opts.outputDir = "target/test-output/java";
         opts.includeTags = emptyList();
+        opts.useKotlinSyntax = false;
         opts.verbose = true;
         return opts;
     }
 
-    static void assertMatchingFiles(String filename) {
-        try {
-            Path expectedPath = getResourcePath("expected-output/%s".formatted(filename));
-            Path actualPath = Path.of("target/test-output/%s".formatted(filename));
+    static Options getKotlinOptions() {
+        Options opts = new Options();
+        opts.rootPackage = "org.github.torand.test";
+        opts.outputDir = "target/test-output/kotlin";
+        opts.includeTags = emptyList();
+        opts.useKotlinSyntax = true;
+        opts.verbose = true;
+        return opts;
+    }
 
+    static void assertMatchingJavaFiles(String filename) {
+        Path expectedPath = getResourcePath("expected-output/java/%s".formatted(filename));
+        Path actualPath = Path.of("target/test-output/java/%s".formatted(filename));
+
+        assertMatchingFiles(expectedPath, actualPath);
+    }
+
+    static void assertMatchingKotlinFiles(String filename) {
+        Path expectedPath = getResourcePath("expected-output/kotlin/%s".formatted(filename));
+        Path actualPath = Path.of("target/test-output/kotlin/%s".formatted(filename));
+
+        assertMatchingFiles(expectedPath, actualPath);
+    }
+
+    private static void assertMatchingFiles(Path expectedPath, Path actualPath) {
+        try {
             int mismatchPos = (int)Files.mismatch(expectedPath, actualPath);
             if (mismatchPos != -1) {
                 printDiff(expectedPath, actualPath, mismatchPos);
@@ -56,8 +78,8 @@ class TestHelper {
         String expectedContent = Files.readString(expected);
         String actualContent = Files.readString(actual);
 
-        int printFrom = Math.max(0, mismatchPos - 30);
-        int printTo = Math.min(mismatchPos + 30, Math.min(expectedContent.length(), actualContent.length()));
+        int printFrom = Math.max(0, mismatchPos - 50);
+        int printTo = Math.min(mismatchPos + 60, Math.min(expectedContent.length(), actualContent.length()));
 
         System.out.println("Expected content : %s".formatted(removeLineBreaks(expectedContent.substring(printFrom, printTo))));
         System.out.println("Actual content   : %s".formatted(removeLineBreaks(actualContent.substring(printFrom, printTo))));

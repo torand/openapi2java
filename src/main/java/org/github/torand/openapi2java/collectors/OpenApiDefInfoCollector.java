@@ -15,15 +15,13 @@ import java.util.Set;
 import static java.util.Objects.nonNull;
 import static org.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
 import static org.github.torand.openapi2java.utils.StringHelper.nonBlank;
-import static org.github.torand.openapi2java.utils.StringHelper.normalizeDescription;
 
-public class OpenApiDefInfoCollector {
+public class OpenApiDefInfoCollector extends BaseCollector {
     private final ComponentResolver componentResolver;
-    private final Options opts;
 
     public OpenApiDefInfoCollector(ComponentResolver componentResolver, Options opts) {
+        super(opts);
         this.componentResolver = componentResolver;
-        this.opts = opts;
     }
 
     public OpenApiDefInfo getOpenApiDefInfo(String name, List<SecurityRequirement> securityRequirements) {
@@ -49,7 +47,7 @@ public class OpenApiDefInfoCollector {
             });
         });
 
-        return "@SecuritySchemes({%s})".formatted(String.join(", ", securitySchemeAnnotations));
+        return "@SecuritySchemes(%s)".formatted(formatAnnotationDefaultParam(securitySchemeAnnotations));
     }
 
     private String getSecuritySchemeAnnotation(String name, Set<String> imports) {
@@ -89,7 +87,7 @@ public class OpenApiDefInfoCollector {
         }
 
         imports.add("org.eclipse.microprofile.openapi.annotations.security.SecurityScheme");
-        return "@SecurityScheme(%s)".formatted(String.join(", ", params));
+        return (opts.useKotlinSyntax ? "" : "@") + "SecurityScheme(%s)".formatted(String.join(", ", params));
     }
 
     private String getOAuthFlowsAnnotation(OAuthFlows flows, Set<String> imports) {
@@ -109,7 +107,7 @@ public class OpenApiDefInfoCollector {
         }
 
         imports.add("org.eclipse.microprofile.openapi.annotations.security.OAuthFlows");
-        return "@OAuthFlows(%s)".formatted(String.join(", ", params));
+        return (opts.useKotlinSyntax ? "" : "@") + "OAuthFlows(%s)".formatted(String.join(", ", params));
     }
 
     private String getOAuthFlowAnnotation(OAuthFlow flow, Set<String> imports) {
@@ -125,11 +123,11 @@ public class OpenApiDefInfoCollector {
             params.add("refreshUrl = \"%s\"".formatted(flow.getRefreshUrl()));
         }
         if (nonEmpty(flow.getScopes())) {
-            params.add("scopes = \"%s\"".formatted(getScopesAnnotation(flow.getScopes(), imports)));
+            params.add("scopes = %s".formatted(getScopesAnnotation(flow.getScopes(), imports)));
         }
 
         imports.add("org.eclipse.microprofile.openapi.annotations.security.OAuthFlow");
-        return "@OAuthFlow(%s)".formatted(String.join(", ", params));
+        return (opts.useKotlinSyntax ? "" : "@") + "OAuthFlow(%s)".formatted(String.join(", ", params));
     }
 
     private String getScopesAnnotation(Scopes scopes, Set<String> imports) {
@@ -137,11 +135,11 @@ public class OpenApiDefInfoCollector {
             .map(name -> getScopeAnnotation(name, scopes.get(name), imports))
             .toList();
 
-        return "{ %s }".formatted(String.join(", ", scopeAnnotations));
+        return formatAnnotationNamedParam(scopeAnnotations);
     }
 
     private String getScopeAnnotation(String name, String description, Set<String> imports) {
         imports.add("org.eclipse.microprofile.openapi.annotations.security.OAuthScope");
-        return "@OAuthScope(name = \"%s\", description = \"%s\")".formatted(name, normalizeDescription(description));
+        return (opts.useKotlinSyntax ? "" : "@") + "OAuthScope(name = \"%s\", description = \"%s\")".formatted(name, normalizeDescription(description));
     }
 }

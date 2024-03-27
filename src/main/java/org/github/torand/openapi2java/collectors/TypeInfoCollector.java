@@ -8,22 +8,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Boolean.TRUE;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static org.github.torand.openapi2java.utils.CollectionHelper.containsOneOf;
 import static org.github.torand.openapi2java.utils.CollectionHelper.isEmpty;
 import static org.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
 import static org.github.torand.openapi2java.utils.CollectionHelper.streamSafely;
 import static org.github.torand.openapi2java.utils.Exceptions.illegalStateException;
 import static org.github.torand.openapi2java.utils.StringHelper.nonBlank;
 
-public class TypeInfoCollector {
+public class TypeInfoCollector extends BaseCollector {
 
     private final SchemaResolver schemaResolver;
-    private final Options opts;
 
     public TypeInfoCollector(SchemaResolver schemaResolver, Options opts) {
+        super(opts);
         this.schemaResolver = schemaResolver;
-        this.opts = opts;
     }
 
     public TypeInfo getTypeInfo(JsonSchema schema) {
@@ -42,15 +41,14 @@ public class TypeInfoCollector {
                         typeInfo.annotations.add("@Valid");
                         typeInfo.annotationImports.add("jakarta.validation.Valid");
                     }
+                    if (!isNullable(schema)) {
+                        typeInfo.annotations.add("@NotNull");
+                        typeInfo.annotationImports.add("jakarta.validation.constraints.NotNull");
+                    }
                 }
 
                 if (nonBlank(schema.getDescription())) {
                     typeInfo.description = schema.getDescription();
-                }
-
-                if (!isNullable(schema) && !containsOneOf(typeInfo.annotations, "@NotNull", "@NotBlank")) {
-                    typeInfo.annotations.add("@NotNull");
-                    typeInfo.annotationImports.add("jakarta.validation.constraints.NotNull");
                 }
 
                 return typeInfo;
@@ -67,8 +65,11 @@ public class TypeInfoCollector {
         typeInfo.description = schema.getDescription();
 
         boolean nullable = isNullable(schema);
+        typeInfo.nullable = nullable;
 
-        String jsonType = streamSafely(schema.getTypes()).filter(t -> !"null".equals(t)).findFirst()
+        String jsonType = streamSafely(schema.getTypes())
+            .filter(t -> !"null".equals(t))
+            .findFirst()
             .orElseThrow(illegalStateException("Unexpected types: %s", schema.toString()));
 
         if ("string".equals(jsonType)) {
@@ -92,12 +93,20 @@ public class TypeInfoCollector {
                 typeInfo.name = "LocalDate";
                 typeInfo.schemaFormat = schema.getFormat();
                 typeInfo.typeImports.add("java.time.LocalDate");
+                if (!nullable) {
+                    typeInfo.annotations.add("@NotNull");
+                    typeInfo.annotationImports.add("jakarta.validation.constraints.NotNull");
+                }
                 typeInfo.annotations.add("@JsonFormat(pattern = \"yyyy-MM-dd\")");
                 typeInfo.annotationImports.add("com.fasterxml.jackson.annotation.JsonFormat");
             } else if ("date-time".equals(schema.getFormat())) {
                 typeInfo.name = "LocalDateTime";
                 typeInfo.schemaFormat = schema.getFormat();
                 typeInfo.typeImports.add("java.time.LocalDateTime");
+                if (!nullable) {
+                    typeInfo.annotations.add("@NotNull");
+                    typeInfo.annotationImports.add("jakarta.validation.constraints.NotNull");
+                }
                 typeInfo.annotations.add("@JsonFormat(pattern = \"yyyy-MM-dd'T'HH:mm:ss\")");
                 typeInfo.annotationImports.add("com.fasterxml.jackson.annotation.JsonFormat");
             } else if ("email".equals(schema.getFormat())) {
@@ -108,7 +117,6 @@ public class TypeInfoCollector {
             } else if ("binary".equals(schema.getFormat())) {
                 typeInfo.name = "byte[]";
                 typeInfo.schemaFormat = schema.getFormat();
-
                 if (!nullable) {
                     typeInfo.annotations.add("@NotEmpty");
                     typeInfo.annotationImports.add("jakarta.validation.constraints.NotEmpty");
@@ -140,6 +148,10 @@ public class TypeInfoCollector {
             }
         } else if ("number".equals(jsonType)) {
             typeInfo.name = "Double";
+            if (!nullable) {
+                typeInfo.annotations.add("@NotNull");
+                typeInfo.annotationImports.add("jakarta.validation.constraints.NotNull");
+            }
             // TODO: float/double format
             typeInfo.schemaFormat = schema.getFormat();
         } else if ("integer".equals(jsonType)) {
@@ -149,7 +161,10 @@ public class TypeInfoCollector {
                 typeInfo.name = "Integer";
             }
             typeInfo.schemaFormat = schema.getFormat();
-
+            if (!nullable && isNull(schema.getMinimum()) && isNull(schema.getMaximum())) {
+                typeInfo.annotations.add("@NotNull");
+                typeInfo.annotationImports.add("jakarta.validation.constraints.NotNull");
+            }
             if (nonNull(schema.getMinimum())) {
                 typeInfo.annotations.add("@Min(%d)".formatted(schema.getMinimum().longValue()));
                 typeInfo.annotationImports.add("jakarta.validation.constraints.Min");
@@ -160,6 +175,10 @@ public class TypeInfoCollector {
             }
         } else if ("boolean".equals(jsonType)) {
             typeInfo.name = "Boolean";
+            if (!nullable) {
+                typeInfo.annotations.add("@NotNull");
+                typeInfo.annotationImports.add("jakarta.validation.constraints.NotNull");
+            }
         } else if ("array".equals(jsonType)) {
             typeInfo.name = "List";
             typeInfo.typeImports.add("java.util.List");

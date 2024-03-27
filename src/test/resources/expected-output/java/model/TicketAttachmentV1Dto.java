@@ -19,8 +19,8 @@ public record TicketAttachmentV1Dto (
     String filename,
 
     @Schema(description="Date and time of ticket attachment upload", required = true, format = "date-time")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @NotNull
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime uploadedTime,
 
     @Schema(description="Description of attachment", required = true)
@@ -32,6 +32,7 @@ public record TicketAttachmentV1Dto (
     String contentType,
 
     @Schema(description="Size of attachment in number of bytes", required = true)
+    @NotNull
     Integer contentLength
 ) {
 

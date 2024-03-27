@@ -33,7 +33,7 @@ import static org.github.torand.test.UsersApi.ROOT_PATH;
 
 @SecurityRequirement(name = "basic")
 @Tag(name = "Users", description = "Retrieving and modifying user profiles")
-@RegisterRestClient(configKey="users")
+@RegisterRestClient(configKey = "users")
 @ClientHeaderParam(name = AUTHORIZATION, value = "{basicAuth}")
 @Path(ROOT_PATH)
 public interface UsersApi {
@@ -45,12 +45,12 @@ public interface UsersApi {
     @Consumes({APPLICATION_JSON, "application/vnd.test.api.user-profile-v1+json"})
     @Produces({APPLICATION_JSON, "application/vnd.test.api.user-profile-v1+json"})
     @Operation(operationId = "registerUserProfile", summary = "Register new user profile")
-    @APIResponse(responseCode = "201", description = "User profile was registered", headers = { @Header(name = "Location", description = "URI of registered user profile", schema = @Schema(implementation = URI.class, format = "uri")) }, content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = UserProfileV1Dto.class)), @Content(mediaType = "application/vnd.test.api.user-profile-v1+json", schema = @Schema(implementation = UserProfileV1Dto.class)) })
-    @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "403", description = "Authenticated client or user is not granted access to this resource", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "404", description = "The requested resource was not found", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
+    @APIResponse(responseCode = "201", description = "User profile was registered", headers = @Header(name = "Location", description = "URI of registered user profile", schema = @Schema(implementation = URI.class, format = "uri")), content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = UserProfileV1Dto.class)), @Content(mediaType = "application/vnd.test.api.user-profile-v1+json", schema = @Schema(implementation = UserProfileV1Dto.class)) })
+    @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "403", description = "Authenticated client or user is not granted access to this resource", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "404", description = "The requested resource was not found", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
     Response registerUserProfile(
         NewUserProfileV1Dto newUserProfileV1
     );
@@ -62,11 +62,11 @@ public interface UsersApi {
     @Parameter(in = PATH, name = "userId", description = "Unique user identifier (SHA1 fingerprint)", required = true, schema = @Schema(implementation = String.class))
     @Parameter(in = HEADER, name = ACCEPT_LANGUAGE, description = "Natural language and locale accepted by client", schema = @Schema(implementation = String.class))
     @APIResponse(responseCode = "200", description = "OK", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = UserProfileV1Dto.class)), @Content(mediaType = "application/vnd.test.api.user-profile-v1+json", schema = @Schema(implementation = UserProfileV1Dto.class)) })
-    @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "403", description = "Authenticated client or user is not granted access to this resource", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "404", description = "The requested resource was not found", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
+    @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "403", description = "Authenticated client or user is not granted access to this resource", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "404", description = "The requested resource was not found", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
     Response getUserProfile(
         @PathParam("userId") @NotNull String userId,
         @HeaderParam(ACCEPT_LANGUAGE) String acceptLanguage
@@ -79,11 +79,11 @@ public interface UsersApi {
     @Operation(operationId = "verifyMobileNumber", summary = "Verify user profile mobile number with verification code")
     @Parameter(in = PATH, name = "userId", description = "Unique user identifier (SHA1 fingerprint)", required = true, schema = @Schema(implementation = String.class))
     @APIResponse(responseCode = "200", description = "Verification completed. Outcome in payload", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = UserProfileV1Dto.class)), @Content(mediaType = "application/vnd.test.api.user-profile-v1+json", schema = @Schema(implementation = UserProfileV1Dto.class)) })
-    @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "403", description = "Authenticated client or user is not granted access to this resource", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "404", description = "The requested resource was not found", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
+    @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "403", description = "Authenticated client or user is not granted access to this resource", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "404", description = "The requested resource was not found", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
     Response verifyMobileNumber(
         @PathParam("userId") @NotNull String userId,
         String string // Verification code entered by user

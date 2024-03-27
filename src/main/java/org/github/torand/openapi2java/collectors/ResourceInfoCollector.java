@@ -5,26 +5,23 @@ import io.swagger.v3.oas.models.PathItem;
 import org.github.torand.openapi2java.Options;
 import org.github.torand.openapi2java.model.ResourceInfo;
 
+import java.util.List;
 import java.util.Map;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static org.github.torand.openapi2java.utils.StringHelper.normalizeDescription;
 
-public class ResourceInfoCollector {
+public class ResourceInfoCollector extends BaseCollector {
 
     private final MethodInfoCollector methodInfoCollector;
 
-    private final Options opts;
-
     public ResourceInfoCollector(ComponentResolver componentResolver, Options opts) {
+        super(opts);
         this.methodInfoCollector = new MethodInfoCollector(
             componentResolver,
             new TypeInfoCollector(componentResolver.schemas(), opts),
             opts
         );
-
-        this.opts = opts;
     }
 
     public ResourceInfo getResourceInfo(String resourceName, Map<String, PathItem> paths, String tag, String description) {
@@ -40,11 +37,11 @@ public class ResourceInfoCollector {
         resourceInfo.annotations.add("@Tag(name = \"%s\", description = \"%s\")".formatted(tag, normalizeDescription(description)));
 
         resourceInfo.imports.add("org.eclipse.microprofile.rest.client.inject.RegisterRestClient");
-        resourceInfo.annotations.add("@RegisterRestClient(configKey=\"%s\")".formatted(tag.toLowerCase()));
+        resourceInfo.annotations.add("@RegisterRestClient(configKey = \"%s\")".formatted(tag.toLowerCase()));
 
         resourceInfo.imports.add("org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam");
         resourceInfo.staticImports.add("jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION");
-        resourceInfo.annotations.add("@ClientHeaderParam(name = AUTHORIZATION, value = \"{basicAuth}\")");
+        resourceInfo.annotations.add("@ClientHeaderParam(name = AUTHORIZATION, value = %s)".formatted(formatAnnotationNamedParam(List.of("\"{basicAuth}\""))));
 
         resourceInfo.imports.add("jakarta.ws.rs.Path");
         resourceInfo.staticImports.add("%s.%s.ROOT_PATH".formatted(opts.rootPackage, resourceInfo.name));

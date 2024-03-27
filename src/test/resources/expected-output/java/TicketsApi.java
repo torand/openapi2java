@@ -38,7 +38,7 @@ import static org.github.torand.test.TicketsApi.ROOT_PATH;
 
 @SecurityRequirement(name = "basic")
 @Tag(name = "Tickets", description = "Retrieving and modifying tickets")
-@RegisterRestClient(configKey="tickets")
+@RegisterRestClient(configKey = "tickets")
 @ClientHeaderParam(name = AUTHORIZATION, value = "{basicAuth}")
 @Path(ROOT_PATH)
 public interface TicketsApi {
@@ -52,11 +52,11 @@ public interface TicketsApi {
     @Parameter(in = HEADER, name = ACCEPT_LANGUAGE, description = "Natural language and locale accepted by client", schema = @Schema(implementation = String.class))
     @Parameter(in = HEADER, name = "X-User-ID", description = "Unique user identifier (SHA1 fingerprint)", required = true, schema = @Schema(implementation = String.class))
     @APIResponse(responseCode = "200", description = "OK", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(type = ARRAY, implementation = TicketV1Dto.class)), @Content(mediaType = "application/vnd.test.api.ticket-v1+json", schema = @Schema(implementation = TicketV1Dto.class)) })
-    @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "403", description = "Authenticated client or user is not granted access to this resource", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "404", description = "The requested resource was not found", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
+    @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "403", description = "Authenticated client or user is not granted access to this resource", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "404", description = "The requested resource was not found", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
     Response getTickets(
         @HeaderParam(ACCEPT_LANGUAGE) String acceptLanguage,
         @HeaderParam("X-User-ID") @NotNull String xUserID
@@ -68,12 +68,12 @@ public interface TicketsApi {
     @Produces({APPLICATION_JSON, "application/vnd.test.api.ticket-v1+json"})
     @Operation(operationId = "registerTicket", summary = "Register new ticket")
     @Parameter(in = HEADER, name = "X-User-ID", description = "Unique user identifier (SHA1 fingerprint)", required = true, schema = @Schema(implementation = String.class))
-    @APIResponse(responseCode = "201", description = "Ticket was registered", headers = { @Header(name = "Location", description = "URI of registered ticket", schema = @Schema(implementation = URI.class, format = "uri")) }, content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = TicketV1Dto.class)), @Content(mediaType = "application/vnd.test.api.ticket-v1+json", schema = @Schema(implementation = TicketV1Dto.class)) })
-    @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "403", description = "Authenticated client or user is not granted access to this resource", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "404", description = "The requested resource was not found", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
+    @APIResponse(responseCode = "201", description = "Ticket was registered", headers = @Header(name = "Location", description = "URI of registered ticket", schema = @Schema(implementation = URI.class, format = "uri")), content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = TicketV1Dto.class)), @Content(mediaType = "application/vnd.test.api.ticket-v1+json", schema = @Schema(implementation = TicketV1Dto.class)) })
+    @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "403", description = "Authenticated client or user is not granted access to this resource", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "404", description = "The requested resource was not found", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
     Response registerTicket(
         @HeaderParam("X-User-ID") @NotNull String xUserID,
         TicketV1Dto ticketV1
@@ -87,11 +87,11 @@ public interface TicketsApi {
     @Parameter(in = HEADER, name = ACCEPT_LANGUAGE, description = "Natural language and locale accepted by client", schema = @Schema(implementation = String.class))
     @Parameter(in = HEADER, name = "X-User-ID", description = "Unique user identifier (SHA1 fingerprint)", required = true, schema = @Schema(implementation = String.class))
     @APIResponse(responseCode = "200", description = "OK", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = TicketDetailsV1Dto.class)), @Content(mediaType = "application/vnd.test.api.ticket-v1+json", schema = @Schema(implementation = TicketDetailsV1Dto.class)) })
-    @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "403", description = "Authenticated client or user is not granted access to this resource", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "404", description = "The requested resource was not found", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
+    @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "403", description = "Authenticated client or user is not granted access to this resource", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "404", description = "The requested resource was not found", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
     Response getTicketInfo(
         @PathParam("ticketId") @NotNull String ticketId,
         @HeaderParam(ACCEPT_LANGUAGE) String acceptLanguage,
@@ -107,11 +107,11 @@ public interface TicketsApi {
     @Parameter(in = HEADER, name = ACCEPT_LANGUAGE, description = "Natural language and locale accepted by client", schema = @Schema(implementation = String.class))
     @Parameter(in = HEADER, name = "X-User-ID", description = "Unique user identifier (SHA1 fingerprint)", required = true, schema = @Schema(implementation = String.class))
     @APIResponse(responseCode = "201", description = "Ticket comment was registered")
-    @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "403", description = "Authenticated client or user is not granted access to this resource", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "404", description = "The requested resource was not found", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
+    @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "403", description = "Authenticated client or user is not granted access to this resource", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "404", description = "The requested resource was not found", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
     Response registerTicketComment(
         @PathParam("ticketId") @NotNull String ticketId,
         @HeaderParam(ACCEPT_LANGUAGE) String acceptLanguage,
@@ -128,11 +128,11 @@ public interface TicketsApi {
     @Parameter(in = HEADER, name = ACCEPT_LANGUAGE, description = "Natural language and locale accepted by client", schema = @Schema(implementation = String.class))
     @Parameter(in = HEADER, name = "X-User-ID", description = "Unique user identifier (SHA1 fingerprint)", required = true, schema = @Schema(implementation = String.class))
     @APIResponse(responseCode = "201", description = "Ticket attachment was registered", headers = { @Header(name = "Location", description = "URI of registered attachment", schema = @Schema(implementation = URI.class, format = "uri")), @Header(name = "X-Test-Header", description = "A test header", schema = @Schema(implementation = UUID.class, format = "uuid")) }, content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = TicketAttachmentV1Dto.class)), @Content(mediaType = "application/vnd.test.api.ticket-v1+json", schema = @Schema(implementation = TicketAttachmentV1Dto.class)) })
-    @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "403", description = "Authenticated client or user is not granted access to this resource", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "404", description = "The requested resource was not found", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
+    @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "403", description = "Authenticated client or user is not granted access to this resource", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "404", description = "The requested resource was not found", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
     Response registerTicketAttachment(
         @PathParam("ticketId") @NotNull String ticketId,
         @HeaderParam(ACCEPT_LANGUAGE) String acceptLanguage,
@@ -150,11 +150,11 @@ public interface TicketsApi {
     @Parameter(in = HEADER, name = ACCEPT_LANGUAGE, description = "Natural language and locale accepted by client", schema = @Schema(implementation = String.class))
     @Parameter(in = HEADER, name = "X-User-ID", description = "Unique user identifier (SHA1 fingerprint)", required = true, schema = @Schema(implementation = String.class))
     @APIResponse(responseCode = "201", description = "Ticket attachment content was registered")
-    @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "403", description = "Authenticated client or user is not granted access to this resource", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "404", description = "The requested resource was not found", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
-    @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)) })
+    @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "403", description = "Authenticated client or user is not granted access to this resource", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "404", description = "The requested resource was not found", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
+    @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
     Response uploadTicketAttachmentContent(
         @PathParam("ticketId") @NotNull String ticketId,
         @PathParam("attachmentId") @NotNull String attachmentId,

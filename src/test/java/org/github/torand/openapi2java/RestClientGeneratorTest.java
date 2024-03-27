@@ -3,8 +3,10 @@ package org.github.torand.openapi2java;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.junit.Test;
 
-import static org.github.torand.openapi2java.TestHelper.assertMatchingFiles;
-import static org.github.torand.openapi2java.TestHelper.getOptions;
+import static org.github.torand.openapi2java.TestHelper.assertMatchingJavaFiles;
+import static org.github.torand.openapi2java.TestHelper.assertMatchingKotlinFiles;
+import static org.github.torand.openapi2java.TestHelper.getJavaOptions;
+import static org.github.torand.openapi2java.TestHelper.getKotlinOptions;
 import static org.github.torand.openapi2java.TestHelper.loadOpenApiSpec;
 
 public class RestClientGeneratorTest {
@@ -15,14 +17,26 @@ public class RestClientGeneratorTest {
     };
 
     @Test
-    public void shouldGenerateRestClients() {
-        Options opts = getOptions();
+    public void shouldGenerateJavaRestClients() {
+        Options opts = getJavaOptions();
         OpenAPI openApiDoc = loadOpenApiSpec();
 
         new RestClientGenerator(opts).generate(openApiDoc);
 
         for (String resource : RESOURCES) {
-            assertMatchingFiles("%sApi.java".formatted(resource));
+            assertMatchingJavaFiles("%sApi.java".formatted(resource));
+        }
+    }
+
+    @Test
+    public void shouldGenerateKotlinRestClients() {
+        Options opts = getKotlinOptions();
+        OpenAPI openApiDoc = loadOpenApiSpec();
+
+        new RestClientGenerator(opts).generate(openApiDoc);
+
+        for (String resource : RESOURCES) {
+            assertMatchingKotlinFiles("%sApi.kt".formatted(resource));
         }
     }
 }

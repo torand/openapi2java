@@ -19,8 +19,8 @@ public record TicketCommentV1Dto (
     String author,
 
     @Schema(description="Date and time of ticket comment creation", required = true, format = "date-time")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @NotNull
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime createdTime,
 
     @Schema(description="Subject of this comment", required = true)
@@ -32,6 +32,7 @@ public record TicketCommentV1Dto (
     String description,
 
     @Schema(description="Indicates whether comment is visible for case officer only", required = true)
+    @NotNull
     Boolean internal
 ) {
 

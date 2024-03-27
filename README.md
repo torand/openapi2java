@@ -20,9 +20,9 @@ The OpenAPI document is parsed using the excellent [Swagger Parser](https://gith
 
 ## Output
 
-Pojos for the representation model are output to a 'model' subdirectory.
+Pojos for the representation model are output to a 'model' subdirectory using Java or Kotlin syntax.
 A REST client interface is output for each tag in the OpenAPI file.
-A single OpenApiDefinition Java file is output with annotations describing the security schemes.
+A single OpenApiDefinition file is output with annotations describing the security schemes.
 
 ## Usage in a Maven POM file
 
@@ -73,4 +73,5 @@ $ mvn org.github.torand:openapi2java:1.0.0-SNAPSHOT:generate \
 | pojoNameSuffix     | "Dto"             | Suffix for POJO (model) class names                               |
 | pojosAsRecords     | true              | Whether to output Java records instead of Java classes for models |
 | includeTags        | "" (i.e. all)     | Tags (comma separated) to output resource classes for             |
+| useKotlinSyntax    | false             | Whether to generate Kotlin files                                  |
 | verbose            | false             | Whether to log extra details                                      |

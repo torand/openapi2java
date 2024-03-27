@@ -13,17 +13,15 @@ import java.util.Set;
 import static java.lang.Boolean.TRUE;
 import static org.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
 import static org.github.torand.openapi2java.utils.StringHelper.nonBlank;
-import static org.github.torand.openapi2java.utils.StringHelper.normalizeDescription;
 
-public class PojoInfoCollector {
+public class PojoInfoCollector extends BaseCollector {
     private final PropertyInfoCollector propertyInfoCollector;
     private final SchemaResolver schemaResolver;
-    private final Options opts;
 
     public PojoInfoCollector(SchemaResolver schemaResolver, Options opts) {
+        super(opts);
         this.propertyInfoCollector = new PropertyInfoCollector(schemaResolver, opts);
         this.schemaResolver = schemaResolver;
-        this.opts = opts;
     }
 
     public PojoInfo getPojoInfo(String name, Schema<?> schema) {

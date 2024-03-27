@@ -62,7 +62,7 @@ public class ModelGenerator {
 
                     EnumInfo enumInfo = enumInfoCollector.getEnumInfo(pojoName, entry.getValue());
 
-                    String enumFilename = pojoName + ".java";
+                    String enumFilename = pojoName + opts.getFileExtension();
                     try (EnumWriter enumWriter = createEnumWriter(enumFilename, opts)) {
                         enumWriter.write(enumInfo);
                     } catch (IOException e) {
@@ -78,7 +78,7 @@ public class ModelGenerator {
 
                     PojoInfo pojoInfo = pojoInfoCollector.getPojoInfo(pojoName, entry.getValue());
 
-                    String pojoFilename = pojoName + ".java";
+                    String pojoFilename = pojoName + opts.getFileExtension();
                     try (PojoWriter pojoWriter = createPojoWriter(pojoFilename, opts)) {
                         pojoWriter.write(pojoInfo);
                     } catch (IOException e) {

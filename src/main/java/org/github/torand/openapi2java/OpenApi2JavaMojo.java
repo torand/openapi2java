@@ -12,7 +12,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import java.util.List;
 
 /**
- * Goal which generates Java source code for a REST-API with resource and representation model classes
+ * Goal which generates Java (or Kotlin) source code for a REST-API with resource and representation model classes
  * based on an OpenAPI 3.1 specification.
  */
 @Mojo( name = "generate", defaultPhase = LifecyclePhase.PROCESS_SOURCES )
@@ -67,6 +67,12 @@ public class OpenApi2JavaMojo extends AbstractMojo
     private List<String> includeTags;
 
     /**
+     * Generate Kotlin source code
+     */
+    @Parameter( property = "useKotlinSyntax", defaultValue = "false" )
+    private boolean useKotlinSyntax;
+
+    /**
      * Enables verbose logging
      */
     @Parameter( property = "verbose", defaultValue = "false" )
@@ -84,6 +90,7 @@ public class OpenApi2JavaMojo extends AbstractMojo
         opts.pojoNameSuffix = pojoNameSuffix;
         opts.pojosAsRecords = pojosAsRecords;
         opts.includeTags = includeTags;
+        opts.useKotlinSyntax = useKotlinSyntax;
         opts.verbose = verbose;
 
         ModelGenerator modelGenerator = new ModelGenerator(opts);

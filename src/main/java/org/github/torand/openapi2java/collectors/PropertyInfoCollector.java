@@ -11,12 +11,12 @@ import java.util.Set;
 
 import static java.lang.Boolean.TRUE;
 import static java.util.Objects.nonNull;
-import static org.github.torand.openapi2java.utils.StringHelper.normalizeDescription;
 
-public class PropertyInfoCollector {
+public class PropertyInfoCollector extends BaseCollector {
     private final TypeInfoCollector typeInfoCollector;
 
     public PropertyInfoCollector(SchemaResolver schemaResolver, Options opts) {
+        super(opts);
         this.typeInfoCollector = new TypeInfoCollector(schemaResolver, opts);
     }
 
