@@ -24,8 +24,7 @@ class TestHelper {
     static OpenAPI loadOpenApiSpec() {
         String openApiUri = getResourceUri("openapi.json").toString();
         SwaggerParseResult result = new OpenAPIParser().readLocation(openApiUri, null, null);
-        OpenAPI openApiDoc = result.getOpenAPI();
-        return openApiDoc;
+        return result.getOpenAPI();
     }
 
     static Options getJavaOptions() {
@@ -66,8 +65,9 @@ class TestHelper {
         try {
             int mismatchPos = (int)Files.mismatch(expectedPath, actualPath);
             if (mismatchPos != -1) {
+                System.out.printf("Unexpected content in %s at position %d:%n", actualPath, mismatchPos);
                 printDiff(expectedPath, actualPath, mismatchPos);
-                fail("Unexpected content in %s at position %d".formatted(actualPath, mismatchPos));
+                fail("Actual file %s does not match expected file %s".formatted(actualPath, expectedPath));
             }
         } catch (IOException e) {
             fail(e.toString());
@@ -81,9 +81,9 @@ class TestHelper {
         int printFrom = Math.max(0, mismatchPos - 50);
         int printTo = Math.min(mismatchPos + 60, Math.min(expectedContent.length(), actualContent.length()));
 
-        System.out.println("Expected content : %s".formatted(removeLineBreaks(expectedContent.substring(printFrom, printTo))));
-        System.out.println("Actual content   : %s".formatted(removeLineBreaks(actualContent.substring(printFrom, printTo))));
-        System.out.println("                   %s^%s".formatted("-".repeat(mismatchPos-printFrom), "-".repeat(printTo-mismatchPos)));
+        System.out.printf("Expected content : %s%n", removeLineBreaks(expectedContent.substring(printFrom, printTo)));
+        System.out.printf("Actual content   : %s%n", removeLineBreaks(actualContent.substring(printFrom, printTo)));
+        System.out.printf("                   %s^%s%n", "-".repeat(mismatchPos-printFrom), "-".repeat(printTo-mismatchPos));
     }
 
     private static URI getResourceUri(String name) {
