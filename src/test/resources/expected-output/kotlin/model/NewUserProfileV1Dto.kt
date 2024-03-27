@@ -5,8 +5,8 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
-import org.eclipse.microprofile.openapi.annotations.media.Schema
 import java.time.LocalDateTime
+import org.eclipse.microprofile.openapi.annotations.media.Schema
 
 @Schema(name = "NewUserProfileV1Dto", description="A user profile to be created")
 @JvmRecord
