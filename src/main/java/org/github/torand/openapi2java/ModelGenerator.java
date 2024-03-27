@@ -57,7 +57,7 @@ public class ModelGenerator {
                 if (isEnum(entry.getValue())) {
                     enumCount.incrementAndGet();
                     if (opts.verbose) {
-                        System.out.println("Generating model enum %s".formatted(pojoName));
+                        System.out.printf("Generating model enum %s%n", pojoName);
                     }
 
                     EnumInfo enumInfo = enumInfoCollector.getEnumInfo(pojoName, entry.getValue());
@@ -66,14 +66,14 @@ public class ModelGenerator {
                     try (EnumWriter enumWriter = createEnumWriter(enumFilename, opts)) {
                         enumWriter.write(enumInfo);
                     } catch (IOException e) {
-                        System.out.println("Failed to write file %s: %s".formatted(enumFilename, e.toString()));
+                        System.out.printf("Failed to write file %s: %s%n", enumFilename, e);
                     }
                 }
 
                 if (isClass(entry.getValue())) {
                     pojoCount.incrementAndGet();
                     if (opts.verbose) {
-                        System.out.println("Generating model class %s".formatted(pojoName));
+                        System.out.printf("Generating model class %s%n", pojoName);
                     }
 
                     PojoInfo pojoInfo = pojoInfoCollector.getPojoInfo(pojoName, entry.getValue());
@@ -82,13 +82,13 @@ public class ModelGenerator {
                     try (PojoWriter pojoWriter = createPojoWriter(pojoFilename, opts)) {
                         pojoWriter.write(pojoInfo);
                     } catch (IOException e) {
-                        System.out.println("Failed to write file %s: %s".formatted(pojoFilename, e.toString()));
+                        System.out.printf("Failed to write file %s: %s%n", pojoFilename, e);
                     }
                 }
             }
         });
 
-        System.out.println("Generated %d enum%s, %d pojo%s in directory %s".formatted(enumCount.get(), pluralSuffix(enumCount.get()), pojoCount.get(), pluralSuffix(pojoCount.get()), opts.getModelOutputDir()));
+        System.out.printf("Generated %d enum%s, %d pojo%s in directory %s%n", enumCount.get(), pluralSuffix(enumCount.get()), pojoCount.get(), pluralSuffix(pojoCount.get()), opts.getModelOutputDir());
     }
 
     private Set<String> getRelevantPojos(OpenAPI openApiDoc, ComponentResolver componentResolver) {
@@ -194,9 +194,9 @@ public class ModelGenerator {
             Schema<?> $refSchema = schemaResolver.getOrThrow(parentSchema.get$ref());
             schemaTypes.addAll(getNestedSchemaTypes($refSchema, schemaResolver, typeInfoCollector));
         } else if (nonEmpty(parentSchema.getProperties())) {
-            parentSchema.getProperties().forEach((String k, Schema v) -> {
-                schemaTypes.addAll(getNestedSchemaTypes(v, schemaResolver, typeInfoCollector));
-            });
+            parentSchema.getProperties().forEach((propName, propSchema) ->
+                schemaTypes.addAll(getNestedSchemaTypes(propSchema, schemaResolver, typeInfoCollector))
+            );
         } else if (nonNull(parentSchema.getItems())) {
             schemaTypes.addAll(getNestedSchemaTypes(parentSchema.getItems(), schemaResolver, typeInfoCollector));
         }
@@ -204,7 +204,7 @@ public class ModelGenerator {
         return schemaTypes;
     }
 
-    private String getPojoTypeName(Schema schema, TypeInfoCollector typeInfoCollector) {
+    private String getPojoTypeName(Schema<?> schema, TypeInfoCollector typeInfoCollector) {
         TypeInfo bodyType = typeInfoCollector.getTypeInfo((JsonSchema)schema);
         if (nonNull(bodyType.itemType)) {
             return bodyType.itemType.name;
@@ -217,11 +217,11 @@ public class ModelGenerator {
         return isEmpty(opts.includeTags) || streamSafely(operation.getTags()).anyMatch(tag -> opts.includeTags.contains(tag));
     }
 
-    private boolean isEnum(Schema schema) {
+    private boolean isEnum(Schema<?> schema) {
         return streamSafely(schema.getTypes()).anyMatch("string"::equals) && nonNull(schema.getEnum());
     }
 
-    private boolean isClass(Schema schema) {
+    private boolean isClass(Schema<?> schema) {
         return streamSafely(schema.getTypes()).anyMatch("object"::equals) || nonNull(schema.getAllOf());
     }
 }

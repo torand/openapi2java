@@ -24,7 +24,7 @@ public class OpenApiDefGenerator {
 
         String openApiDefClassName = "OpenApiDefinition";
         if (opts.verbose) {
-            System.out.println("Generating Open-API definition class: %s".formatted(openApiDefClassName));
+            System.out.printf("Generating Open-API definition class: %s%n", openApiDefClassName);
         }
 
         OpenApiDefInfo openApiDefInfo = openApiDefInfoCollector.getOpenApiDefInfo(openApiDefClassName, openApiDoc.getSecurity());
@@ -33,9 +33,9 @@ public class OpenApiDefGenerator {
         try (OpenApiDefWriter openApiDefWriter = createOpenApiDefWriter(openApiDefFilename, opts)) {
             openApiDefWriter.write(openApiDefInfo);
         } catch (IOException e) {
-            System.out.println("Failed to write file %s: %s".formatted(openApiDefFilename, e.toString()));
+            System.out.printf("Failed to write file %s: %s%n", openApiDefFilename, e);
         }
 
-        System.out.println("Generated Open-API definition class in directory %s".formatted(opts.outputDir));
+        System.out.printf("Generated Open-API definition class in directory %s%n", opts.outputDir);
     }
 }

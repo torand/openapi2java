@@ -37,7 +37,7 @@ public class RestClientGenerator {
                 String resourceName = getResourceClassName(tag);
 
                 if (opts.verbose) {
-                    System.out.println("Generating REST client for tag \"%s\": %s".formatted(tag.getName(), resourceName + opts.resourceNameSuffix));
+                    System.out.printf("Generating REST client for tag \"%s\": %s%n", tag.getName(), resourceName + opts.resourceNameSuffix);
                 }
 
                 ResourceInfo resourceInfo = resourceInfoCollector.getResourceInfo(resourceName, openApiDoc.getPaths(), tag.getName(), tag.getDescription());
@@ -45,17 +45,17 @@ public class RestClientGenerator {
                 String resourceFilename = resourceInfo.name + opts.getFileExtension();
                 try (ResourceWriter resourceWriter = createResourceWriter(resourceFilename, opts)) {
                     if (resourceInfo.isEmpty()) {
-                        System.out.println("No paths found for tag \"%s\"".formatted(tag.getName()));
+                        System.out.printf("No paths found for tag \"%s\"%n", tag.getName());
                     } else {
                         resourceWriter.write(resourceInfo);
                     }
                 } catch (IOException e) {
-                    System.out.println("Failed to write file %s: %s".formatted(resourceFilename, e.toString()));
+                    System.out.printf("Failed to write file %s: %s%n", resourceFilename, e);
                 }
             }
         });
 
-        System.out.println("Generated %d REST client%s in directory %s".formatted(clientCount.get(), pluralSuffix(clientCount.get()), opts.outputDir));
+        System.out.printf("Generated %d REST client%s in directory %s%n", clientCount.get(), pluralSuffix(clientCount.get()), opts.outputDir);
     }
 
     private String getResourceClassName(Tag tag) {
