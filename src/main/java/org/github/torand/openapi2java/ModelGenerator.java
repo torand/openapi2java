@@ -16,6 +16,8 @@ import org.github.torand.openapi2java.model.PojoInfo;
 import org.github.torand.openapi2java.model.TypeInfo;
 import org.github.torand.openapi2java.writers.EnumWriter;
 import org.github.torand.openapi2java.writers.PojoWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -33,7 +35,7 @@ import static org.github.torand.openapi2java.writers.WriterFactory.createEnumWri
 import static org.github.torand.openapi2java.writers.WriterFactory.createPojoWriter;
 
 public class ModelGenerator {
-
+    private static final Logger logger = LoggerFactory.getLogger(ModelGenerator.class);
     private final Options opts;
 
     public ModelGenerator(Options opts) {
@@ -57,7 +59,7 @@ public class ModelGenerator {
                 if (isEnum(entry.getValue())) {
                     enumCount.incrementAndGet();
                     if (opts.verbose) {
-                        System.out.printf("Generating model enum %s%n", pojoName);
+                        logger.info("Generating model enum {}", pojoName);
                     }
 
                     EnumInfo enumInfo = enumInfoCollector.getEnumInfo(pojoName, entry.getValue());
@@ -66,14 +68,14 @@ public class ModelGenerator {
                     try (EnumWriter enumWriter = createEnumWriter(enumFilename, opts)) {
                         enumWriter.write(enumInfo);
                     } catch (IOException e) {
-                        System.out.printf("Failed to write file %s: %s%n", enumFilename, e);
+                        logger.error("Failed to write file {}", enumFilename, e);
                     }
                 }
 
                 if (isClass(entry.getValue())) {
                     pojoCount.incrementAndGet();
                     if (opts.verbose) {
-                        System.out.printf("Generating model class %s%n", pojoName);
+                        logger.info("Generating model class {}", pojoName);
                     }
 
                     PojoInfo pojoInfo = pojoInfoCollector.getPojoInfo(pojoName, entry.getValue());
@@ -82,13 +84,13 @@ public class ModelGenerator {
                     try (PojoWriter pojoWriter = createPojoWriter(pojoFilename, opts)) {
                         pojoWriter.write(pojoInfo);
                     } catch (IOException e) {
-                        System.out.printf("Failed to write file %s: %s%n", pojoFilename, e);
+                        logger.error("Failed to write file {}", pojoFilename, e);
                     }
                 }
             }
         });
 
-        System.out.printf("Generated %d enum%s, %d pojo%s in directory %s%n", enumCount.get(), pluralSuffix(enumCount.get()), pojoCount.get(), pluralSuffix(pojoCount.get()), opts.getModelOutputDir());
+        logger.info("Generated {} enum{}, {} pojo{} in directory {}", enumCount.get(), pluralSuffix(enumCount.get()), pojoCount.get(), pluralSuffix(pojoCount.get()), opts.getModelOutputDir());
     }
 
     private Set<String> getRelevantPojos(OpenAPI openApiDoc, ComponentResolver componentResolver) {

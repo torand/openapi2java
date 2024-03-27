@@ -5,13 +5,15 @@ import org.github.torand.openapi2java.collectors.ComponentResolver;
 import org.github.torand.openapi2java.collectors.OpenApiDefInfoCollector;
 import org.github.torand.openapi2java.model.OpenApiDefInfo;
 import org.github.torand.openapi2java.writers.OpenApiDefWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 import static org.github.torand.openapi2java.writers.WriterFactory.createOpenApiDefWriter;
 
 public class OpenApiDefGenerator {
-
+    private static final Logger logger = LoggerFactory.getLogger(OpenApiDefGenerator.class);
     private final Options opts;
 
     public OpenApiDefGenerator(Options opts) {
@@ -24,7 +26,7 @@ public class OpenApiDefGenerator {
 
         String openApiDefClassName = "OpenApiDefinition";
         if (opts.verbose) {
-            System.out.printf("Generating Open-API definition class: %s%n", openApiDefClassName);
+            logger.info("Generating Open-API definition class: {}", openApiDefClassName);
         }
 
         OpenApiDefInfo openApiDefInfo = openApiDefInfoCollector.getOpenApiDefInfo(openApiDefClassName, openApiDoc.getSecurity());
@@ -33,9 +35,9 @@ public class OpenApiDefGenerator {
         try (OpenApiDefWriter openApiDefWriter = createOpenApiDefWriter(openApiDefFilename, opts)) {
             openApiDefWriter.write(openApiDefInfo);
         } catch (IOException e) {
-            System.out.printf("Failed to write file %s: %s%n", openApiDefFilename, e);
+            logger.error("Failed to write file {}", openApiDefFilename, e);
         }
 
-        System.out.printf("Generated Open-API definition class in directory %s%n", opts.outputDir);
+        logger.info("Generated Open-API definition class in directory {}", opts.outputDir);
     }
 }

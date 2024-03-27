@@ -7,6 +7,8 @@ import org.github.torand.openapi2java.collectors.ResourceInfoCollector;
 import org.github.torand.openapi2java.model.ResourceInfo;
 import org.github.torand.openapi2java.utils.StringHelper;
 import org.github.torand.openapi2java.writers.ResourceWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,7 +20,7 @@ import static org.github.torand.openapi2java.utils.StringHelper.pluralSuffix;
 import static org.github.torand.openapi2java.writers.WriterFactory.createResourceWriter;
 
 public class RestClientGenerator {
-
+    private static final Logger logger = LoggerFactory.getLogger(RestClientGenerator.class);
     private final Options opts;
 
     public RestClientGenerator(Options opts) {
@@ -37,7 +39,7 @@ public class RestClientGenerator {
                 String resourceName = getResourceClassName(tag);
 
                 if (opts.verbose) {
-                    System.out.printf("Generating REST client for tag \"%s\": %s%n", tag.getName(), resourceName + opts.resourceNameSuffix);
+                    logger.info("Generating REST client for tag \"{}\": {}", tag.getName(), resourceName + opts.resourceNameSuffix);
                 }
 
                 ResourceInfo resourceInfo = resourceInfoCollector.getResourceInfo(resourceName, openApiDoc.getPaths(), tag.getName(), tag.getDescription());
@@ -45,17 +47,17 @@ public class RestClientGenerator {
                 String resourceFilename = resourceInfo.name + opts.getFileExtension();
                 try (ResourceWriter resourceWriter = createResourceWriter(resourceFilename, opts)) {
                     if (resourceInfo.isEmpty()) {
-                        System.out.printf("No paths found for tag \"%s\"%n", tag.getName());
+                        logger.warn("No paths found for tag \"{}\"", tag.getName());
                     } else {
                         resourceWriter.write(resourceInfo);
                     }
                 } catch (IOException e) {
-                    System.out.printf("Failed to write file %s: %s%n", resourceFilename, e);
+                    logger.error("Failed to write file {}", resourceFilename, e);
                 }
             }
         });
 
-        System.out.printf("Generated %d REST client%s in directory %s%n", clientCount.get(), pluralSuffix(clientCount.get()), opts.outputDir);
+        logger.info("Generated {} REST client{} in directory {}", clientCount.get(), pluralSuffix(clientCount.get()), opts.outputDir);
     }
 
     private String getResourceClassName(Tag tag) {
