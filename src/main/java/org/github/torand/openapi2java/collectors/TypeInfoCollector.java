@@ -153,13 +153,16 @@ public class TypeInfoCollector extends BaseCollector {
                 }
             }
         } else if ("number".equals(jsonType)) {
-            typeInfo.name = "Double";
+            if ("double".equals(schema.getFormat())) {
+                typeInfo.name = "Double";
+            } else {
+                typeInfo.name = "Float";
+            }
+            typeInfo.schemaFormat = schema.getFormat();
             if (!nullable) {
                 typeInfo.annotations.add("@NotNull");
                 typeInfo.annotationImports.add("jakarta.validation.constraints.NotNull");
             }
-            // TODO: float/double format
-            typeInfo.schemaFormat = schema.getFormat();
         } else if ("integer".equals(jsonType)) {
             if ("int64".equals(schema.getFormat())) {
                 typeInfo.name = "Long";
