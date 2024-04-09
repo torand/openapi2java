@@ -28,7 +28,7 @@ public class OpenApi2JavaMojo extends AbstractMojo
      * Root directory of output
      */
     @Parameter( property = "outputDir", defaultValue = "${project.build.directory}" )
-    private String outputDirectory;
+    private String outputDir;
 
     /**
      * Root package of classes and enums
@@ -84,7 +84,7 @@ public class OpenApi2JavaMojo extends AbstractMojo
 
         Options opts = new Options();
         opts.rootPackage = rootPackage;
-        opts.outputDir = outputDirectory.toString();
+        opts.outputDir = outputDir;
         opts.rootUrlPath = rootUrlPath;
         opts.resourceNameSuffix = resourceNameSuffix;
         opts.pojoNameSuffix = pojoNameSuffix;

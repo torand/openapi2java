@@ -36,17 +36,17 @@ A single OpenApiDefinition file is output with annotations describing the securi
       <executions>
         <execution>
          <id>generate</id>
-         <phase>validate</phase>
+         <phase>generate-sources</phase>
          <goals>
             <goal>generate</goal>
           </goals>
-          <configuration>
-            <openApiFile>openapi.json</openApiFile>  
-            <outputDir>target/openapi2java</outputDir>
-            <rootPackage>org.github.torand.myapi</rootPackage>  
-          </configuration>
         </execution>
       </executions>
+      <configuration>
+        <openApiFile>openapi.json</openApiFile>
+        <outputDir>target/openapi2java</outputDir>
+        <rootPackage>org.github.torand.myapi</rootPackage>
+      </configuration>
     </plugin>
   </plugins>
 </build>

@@ -90,7 +90,7 @@
         <version>3.11.0</version>
         <configuration>
           <goalPrefix>openapi2java</goalPrefix>
-          <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+          <skipErrorNoDescriptorsFound>false</skipErrorNoDescriptorsFound>
         </configuration>
         <executions>
           <execution>
