@@ -142,7 +142,7 @@ public interface TicketsApi {
 
     @POST
     @Path("tickets/{ticketId}/attachments/{attachmentId}/content")
-    @Consumes({APPLICATION_JSON, "application/octet-stream"})
+    @Consumes("application/octet-stream")
     @Produces(APPLICATION_JSON)
     @Operation(operationId = "uploadTicketAttachmentContent", summary = "Upload content of an attachment")
     @Parameter(in = PATH, name = "ticketId", description = "Unique ticket identifier (ticketing system specific)", required = true, schema = @Schema(implementation = String.class))

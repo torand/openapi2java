@@ -139,16 +139,19 @@ public class MethodInfoCollector extends BaseCollector {
 
     private String getConsumesAnnotation(RequestBody requestBody, Set<String> imports, Set<String> staticImports) {
         imports.add("jakarta.ws.rs.Consumes");
-        staticImports.add("jakarta.ws.rs.core.MediaType.APPLICATION_JSON");
 
         List<String> mediaTypes = new ArrayList<>();
-        mediaTypes.add("APPLICATION_JSON");
 
         if (nonEmpty(requestBody.getContent())) {
             requestBody.getContent().keySet().stream()
-                .filter(mt -> !CONTENT_TYPE_JSON.equals(mt))
-                .map(mt -> "\"" + mt + "\"")
-                .forEach(mediaTypes::add);
+                .forEach(mt -> {
+                    if (CONTENT_TYPE_JSON.equals(mt)) {
+                        staticImports.add("jakarta.ws.rs.core.MediaType.APPLICATION_JSON");
+                        mediaTypes.add("APPLICATION_JSON");
+                    } else {
+                        mediaTypes.add("\"" + mt + "\"");
+                    }
+                });
         }
 
         String mediaTypesString = formatAnnotationDefaultParam(mediaTypes);
@@ -161,6 +164,7 @@ public class MethodInfoCollector extends BaseCollector {
 
         List<String> mediaTypes = new ArrayList<>();
         mediaTypes.add("APPLICATION_JSON");
+
         getSuccessResponse(responses).ifPresent(apiResponse -> {
             if (nonNull(apiResponse.getContent())) {
                 apiResponse.getContent().keySet().stream()
