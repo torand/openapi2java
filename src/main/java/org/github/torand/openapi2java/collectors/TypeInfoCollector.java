@@ -17,6 +17,7 @@ import static org.github.torand.openapi2java.utils.Exceptions.illegalStateExcept
 import static org.github.torand.openapi2java.utils.StringHelper.nonBlank;
 
 public class TypeInfoCollector extends BaseCollector {
+    public enum NullabilityResolution {FROM_SCHEMA, FORCE_NULLABLE, FORCE_NOT_NULLABLE};
 
     private final SchemaResolver schemaResolver;
 
@@ -26,10 +27,15 @@ public class TypeInfoCollector extends BaseCollector {
     }
 
     public TypeInfo getTypeInfo(JsonSchema schema) {
+        return getTypeInfo(schema, NullabilityResolution.FROM_SCHEMA);
+    }
+
+    public TypeInfo getTypeInfo(JsonSchema schema, NullabilityResolution nullabilityResolution) {
         if (isEmpty(schema.getTypes())) {
             String $ref = schema.get$ref();
             if (nonBlank($ref)) {
                 TypeInfo typeInfo = new TypeInfo();
+                boolean nullable = isNullable(schema, nullabilityResolution);
 
                 if (schemaResolver.isPrimitiveType($ref)) {
                     JsonSchema $refSchema = schemaResolver.getOrThrow($ref);
@@ -41,7 +47,7 @@ public class TypeInfoCollector extends BaseCollector {
                         typeInfo.annotations.add("@Valid");
                         typeInfo.annotationImports.add("jakarta.validation.Valid");
                     }
-                    if (!isNullable(schema)) {
+                    if (!nullable) {
                         typeInfo.annotations.add("@NotNull");
                         typeInfo.annotationImports.add("jakarta.validation.constraints.NotNull");
                     }
@@ -57,14 +63,14 @@ public class TypeInfoCollector extends BaseCollector {
             }
         }
 
-        return getJsonType(schema);
+        return getJsonType(schema, nullabilityResolution);
     }
 
-    private TypeInfo getJsonType(JsonSchema schema) {
+    private TypeInfo getJsonType(JsonSchema schema, NullabilityResolution nullabilityResolution) {
         TypeInfo typeInfo = new TypeInfo();
         typeInfo.description = schema.getDescription();
 
-        boolean nullable = isNullable(schema);
+        boolean nullable = isNullable(schema, nullabilityResolution);
         typeInfo.nullable = nullable;
 
         String jsonType = streamSafely(schema.getTypes())
@@ -204,6 +210,14 @@ public class TypeInfoCollector extends BaseCollector {
         }
 
         return typeInfo;
+    }
+
+    private boolean isNullable(JsonSchema schema, NullabilityResolution resolution) {
+        return switch(resolution) {
+            case FROM_SCHEMA -> isNullable(schema);
+            case FORCE_NULLABLE -> true;
+            case FORCE_NOT_NULLABLE -> false;
+        };
     }
 
     public boolean isNullable(JsonSchema schema) {

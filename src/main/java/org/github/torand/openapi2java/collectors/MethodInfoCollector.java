@@ -23,6 +23,8 @@ import static java.lang.Boolean.TRUE;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
+import static org.github.torand.openapi2java.collectors.TypeInfoCollector.NullabilityResolution.FORCE_NOT_NULLABLE;
+import static org.github.torand.openapi2java.collectors.TypeInfoCollector.NullabilityResolution.FORCE_NULLABLE;
 import static org.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
 import static org.github.torand.openapi2java.utils.StringHelper.nonBlank;
 import static org.github.torand.openapi2java.utils.StringHelper.stripTail;
@@ -86,29 +88,24 @@ public class MethodInfoCollector extends BaseCollector {
                 }
 
                 MethodParamInfo paramInfo = new MethodParamInfo();
+                paramInfo.nullable = !TRUE.equals(realParam.getRequired());
 
                 String methodParamAnnotation = getMethodParameterAnnotation(realParam, paramInfo.imports, paramInfo.staticImports);
                 paramInfo.annotations.add(methodParamAnnotation);
-
-                if (TRUE.equals(realParam.getRequired())) {
-                    paramInfo.nullable = false;
-                    paramInfo.imports.add("jakarta.validation.constraints.NotNull");
-                    paramInfo.annotations.add("@NotNull");
-                } else {
-                    paramInfo.nullable = true;
-                }
 
                 Schema realSchema = realParam.getSchema();
                 if (isNull(realSchema)) {
                     throw new IllegalStateException("No schema found for ApiParameter %s".formatted(realParam.getName()));
                 }
 
-                TypeInfo paramType = typeInfoCollector.getTypeInfo((JsonSchema)realParam.getSchema());
+                TypeInfo paramType = typeInfoCollector.getTypeInfo((JsonSchema)realParam.getSchema(), paramInfo.nullable ? FORCE_NULLABLE : FORCE_NOT_NULLABLE);
                 paramInfo.type = paramType;
 
-                // TODO: @Valid ?
                 paramInfo.name = toParamName(realParam.getName());
                 paramInfo.comment = paramType.description;
+
+                paramInfo.annotations.addAll(paramType.annotations);
+                paramInfo.imports.addAll(paramType.annotationImports);
 
                 methodInfo.parameters.add(paramInfo);
             });
@@ -122,12 +119,17 @@ public class MethodInfoCollector extends BaseCollector {
                     .ifPresent(mt -> {
                         if (nonNull(mt.getSchema())) {
                             MethodParamInfo paramInfo = new MethodParamInfo();
-                            TypeInfo bodyType = typeInfoCollector.getTypeInfo((JsonSchema) mt.getSchema());
+                            paramInfo.nullable = false;
+
+                            TypeInfo bodyType = typeInfoCollector.getTypeInfo((JsonSchema)mt.getSchema(), FORCE_NOT_NULLABLE);
                             paramInfo.type = bodyType;
 
-                            // TODO: @Valid @NotNull ?
                             paramInfo.name = toParamName(bodyType.name);
                             paramInfo.comment = bodyType.description;
+
+                            paramInfo.annotations.addAll(bodyType.annotations);
+                            paramInfo.imports.addAll(bodyType.annotationImports);
+
                             methodInfo.parameters.add(paramInfo);
                         }
                     });

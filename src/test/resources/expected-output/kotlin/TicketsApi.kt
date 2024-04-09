@@ -1,5 +1,7 @@
 package org.github.torand.test
 
+import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
@@ -56,7 +58,7 @@ interface TicketsApi {
     @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     fun getTickets(
         @HeaderParam(ACCEPT_LANGUAGE) acceptLanguage: String?,
-        @HeaderParam("X-User-ID") @NotNull xUserID: String
+        @HeaderParam("X-User-ID") @NotBlank xUserID: String
     ): Response
 
     @POST
@@ -72,8 +74,8 @@ interface TicketsApi {
     @APIResponse(responseCode = "404", description = "The requested resource was not found", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     fun registerTicket(
-        @HeaderParam("X-User-ID") @NotNull xUserID: String,
-        ticketV1: TicketV1Dto
+        @HeaderParam("X-User-ID") @NotBlank xUserID: String,
+        @Valid @NotNull ticketV1: TicketV1Dto
     ): Response
 
     @GET
@@ -90,9 +92,9 @@ interface TicketsApi {
     @APIResponse(responseCode = "404", description = "The requested resource was not found", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     fun getTicketInfo(
-        @PathParam("ticketId") @NotNull ticketId: String,
+        @PathParam("ticketId") @NotBlank ticketId: String,
         @HeaderParam(ACCEPT_LANGUAGE) acceptLanguage: String?,
-        @HeaderParam("X-User-ID") @NotNull xUserID: String
+        @HeaderParam("X-User-ID") @NotBlank xUserID: String
     ): Response
 
     @POST
@@ -110,10 +112,10 @@ interface TicketsApi {
     @APIResponse(responseCode = "404", description = "The requested resource was not found", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     fun registerTicketComment(
-        @PathParam("ticketId") @NotNull ticketId: String,
+        @PathParam("ticketId") @NotBlank ticketId: String,
         @HeaderParam(ACCEPT_LANGUAGE) acceptLanguage: String?,
-        @HeaderParam("X-User-ID") @NotNull xUserID: String,
-        ticketCommentV1: TicketCommentV1Dto
+        @HeaderParam("X-User-ID") @NotBlank xUserID: String,
+        @Valid @NotNull ticketCommentV1: TicketCommentV1Dto
     ): Response
 
     @POST
@@ -131,10 +133,10 @@ interface TicketsApi {
     @APIResponse(responseCode = "404", description = "The requested resource was not found", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     fun registerTicketAttachment(
-        @PathParam("ticketId") @NotNull ticketId: String,
+        @PathParam("ticketId") @NotBlank ticketId: String,
         @HeaderParam(ACCEPT_LANGUAGE) acceptLanguage: String?,
-        @HeaderParam("X-User-ID") @NotNull xUserID: String,
-        ticketAttachmentV1: TicketAttachmentV1Dto
+        @HeaderParam("X-User-ID") @NotBlank xUserID: String,
+        @Valid @NotNull ticketAttachmentV1: TicketAttachmentV1Dto
     ): Response
 
     @POST
@@ -153,10 +155,10 @@ interface TicketsApi {
     @APIResponse(responseCode = "404", description = "The requested resource was not found", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     fun uploadTicketAttachmentContent(
-        @PathParam("ticketId") @NotNull ticketId: String,
-        @PathParam("attachmentId") @NotNull attachmentId: String,
+        @PathParam("ticketId") @NotBlank ticketId: String,
+        @PathParam("attachmentId") @NotBlank attachmentId: String,
         @HeaderParam(ACCEPT_LANGUAGE) acceptLanguage: String?,
-        @HeaderParam("X-User-ID") @NotNull xUserID: String
+        @HeaderParam("X-User-ID") @NotBlank xUserID: String
     ): Response
 
     fun basicAuth() {

@@ -1,5 +1,7 @@
 package org.github.torand.test
 
+import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
@@ -50,7 +52,7 @@ interface UsersApi {
     @APIResponse(responseCode = "404", description = "The requested resource was not found", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     fun registerUserProfile(
-        newUserProfileV1: NewUserProfileV1Dto
+        @Valid @NotNull newUserProfileV1: NewUserProfileV1Dto
     ): Response
 
     @GET
@@ -66,7 +68,7 @@ interface UsersApi {
     @APIResponse(responseCode = "404", description = "The requested resource was not found", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     fun getUserProfile(
-        @PathParam("userId") @NotNull userId: String,
+        @PathParam("userId") @NotBlank userId: String,
         @HeaderParam(ACCEPT_LANGUAGE) acceptLanguage: String?
     ): Response
 
@@ -83,8 +85,8 @@ interface UsersApi {
     @APIResponse(responseCode = "404", description = "The requested resource was not found", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     fun verifyMobileNumber(
-        @PathParam("userId") @NotNull userId: String,
-        string: String // Verification code entered by user
+        @PathParam("userId") @NotBlank userId: String,
+        @NotBlank string: String // Verification code entered by user
     ): Response
 
     fun basicAuth() {

@@ -1,5 +1,7 @@
 package org.github.torand.test;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -52,7 +54,7 @@ public interface UsersApi {
     @APIResponse(responseCode = "404", description = "The requested resource was not found", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
     @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
     Response registerUserProfile(
-        NewUserProfileV1Dto newUserProfileV1
+        @Valid @NotNull NewUserProfileV1Dto newUserProfileV1
     );
 
     @GET
@@ -68,7 +70,7 @@ public interface UsersApi {
     @APIResponse(responseCode = "404", description = "The requested resource was not found", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
     @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
     Response getUserProfile(
-        @PathParam("userId") @NotNull String userId,
+        @PathParam("userId") @NotBlank String userId,
         @HeaderParam(ACCEPT_LANGUAGE) String acceptLanguage
     );
 
@@ -85,8 +87,8 @@ public interface UsersApi {
     @APIResponse(responseCode = "404", description = "The requested resource was not found", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
     @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
     Response verifyMobileNumber(
-        @PathParam("userId") @NotNull String userId,
-        String string // Verification code entered by user
+        @PathParam("userId") @NotBlank String userId,
+        @NotBlank String string // Verification code entered by user
     );
 
     @SuppressWarnings("unused") // Used by @ClientHeaderParam
