@@ -17,6 +17,8 @@ public class ResourceInfo {
 
     public List<MethodInfo> methods = new ArrayList<>();
 
+    public MethodInfo authMethod = null;
+
     public boolean isEmpty() {
         return CollectionHelper.isEmpty(methods);
     }

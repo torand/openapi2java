@@ -10,6 +10,7 @@ import java.io.Writer;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static java.util.Objects.nonNull;
 import static org.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
 import static org.github.torand.openapi2java.utils.StringHelper.nonBlank;
 
@@ -83,6 +84,22 @@ public class JavaResourceWriter extends BaseWriter implements ResourceWriter {
             writeIndent(1);
             writeLine(");");
         });
+
+        if (nonNull(resourceInfo.authMethod)) {
+            writeNewLine();
+
+            resourceInfo.authMethod.annotations.forEach(a -> {
+                writeIndent(1);
+                writeLine(a);
+            });
+
+            writeIndent(1);
+            writeLine("default String %s() {".formatted(resourceInfo.authMethod.name));
+            writeIndent(2);
+            writeLine("return \"TODO\";");
+            writeIndent(1);
+            writeLine("}");
+        }
 
         writeLine("}");
     }

@@ -158,4 +158,8 @@ interface TicketsApi {
         @HeaderParam(ACCEPT_LANGUAGE) acceptLanguage: String?,
         @HeaderParam("X-User-ID") @NotNull xUserID: String
     ): Response
+
+    fun basicAuth() {
+        return "TODO"
+    }: String
 }

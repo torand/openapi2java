@@ -86,4 +86,8 @@ interface UsersApi {
         @PathParam("userId") @NotNull userId: String,
         string: String // Verification code entered by user
     ): Response
+
+    fun basicAuth() {
+        return "TODO"
+    }: String
 }

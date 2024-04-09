@@ -161,4 +161,9 @@ public interface TicketsApi {
         @HeaderParam(ACCEPT_LANGUAGE) String acceptLanguage,
         @HeaderParam("X-User-ID") @NotNull String xUserID
     );
+
+    @SuppressWarnings("unused") // Used by @ClientHeaderParam
+    default String basicAuth() {
+        return "TODO";
+    }
 }

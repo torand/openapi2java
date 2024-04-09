@@ -3,6 +3,7 @@ package org.github.torand.openapi2java.collectors;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import org.github.torand.openapi2java.Options;
+import org.github.torand.openapi2java.model.MethodInfo;
 import org.github.torand.openapi2java.model.ResourceInfo;
 
 import java.util.List;
@@ -43,6 +44,8 @@ public class ResourceInfoCollector extends BaseCollector {
         resourceInfo.staticImports.add("jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION");
         resourceInfo.annotations.add("@ClientHeaderParam(name = AUTHORIZATION, value = %s)".formatted(formatAnnotationNamedParam(List.of("\"{basicAuth}\""))));
 
+        resourceInfo.authMethod = getAuthMethodInfo();
+
         resourceInfo.imports.add("jakarta.ws.rs.Path");
         resourceInfo.staticImports.add("%s.%s.ROOT_PATH".formatted(opts.rootPackage, resourceInfo.name));
         resourceInfo.annotations.add("@Path(ROOT_PATH)");
@@ -66,6 +69,17 @@ public class ResourceInfoCollector extends BaseCollector {
         });
 
         return resourceInfo;
+    }
+
+    private MethodInfo getAuthMethodInfo() {
+        MethodInfo authMethod = new MethodInfo();
+
+        if (!opts.useKotlinSyntax) {
+            authMethod.annotations.add("@SuppressWarnings(\"unused\") // Used by @ClientHeaderParam");
+        }
+        authMethod.name = "basicAuth";
+
+        return authMethod;
     }
 
     private boolean shouldProcessOperation(Operation operation, String tag) {

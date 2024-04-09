@@ -88,4 +88,9 @@ public interface UsersApi {
         @PathParam("userId") @NotNull String userId,
         String string // Verification code entered by user
     );
+
+    @SuppressWarnings("unused") // Used by @ClientHeaderParam
+    default String basicAuth() {
+        return "TODO";
+    }
 }
