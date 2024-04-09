@@ -37,7 +37,7 @@ public class PropertyInfoCollector extends BaseCollector {
 
     private String getSchemaAnnotation(JsonSchema property, TypeInfo typeInfo, Set<String> imports) {
         String description = property.getDescription();
-        boolean required = !typeInfoCollector.isNullable(property);
+        boolean required = !typeInfoCollector.isNullable(property) && !typeInfo.nullable;
 
         imports.add("org.eclipse.microprofile.openapi.annotations.media.Schema");
         List<String> schemaParams = new ArrayList<>();
