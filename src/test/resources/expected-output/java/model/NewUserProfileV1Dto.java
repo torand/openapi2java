@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import java.time.LocalDateTime;
+import no.tensio.coreit.test.MobileNo;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Schema(name = "NewUserProfileV1Dto", description="A user profile to be created")
@@ -27,6 +28,7 @@ public record NewUserProfileV1Dto (
     @Schema(description="Mobile number of user", required = true, pattern = "^[0-9]{10,15}$")
     @NotBlank
     @Pattern(regexp = "^[0-9]{10,15}$")
+    @MobileNo
     String mobileNumber,
 
     @Schema(description="Indicates whether mobile number is successfully authenticated using a verification code", required = true)

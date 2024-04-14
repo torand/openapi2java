@@ -17,6 +17,9 @@ import static org.github.torand.openapi2java.utils.Exceptions.illegalStateExcept
 import static org.github.torand.openapi2java.utils.StringHelper.nonBlank;
 
 public class TypeInfoCollector extends BaseCollector {
+    private static final String EXT_JSON_SERIALIZER = "x-json-serializer";
+    private static final String EXT_VALIDATION_CONSTRAINT = "x-validation-constraint";
+
     public enum NullabilityResolution {FROM_SCHEMA, FORCE_NULLABLE, FORCE_NOT_NULLABLE};
 
     private final SchemaResolver schemaResolver;
@@ -212,7 +215,34 @@ public class TypeInfoCollector extends BaseCollector {
             throw new IllegalStateException("Unexpected schema: %s".formatted(schema.toString()));
         }
 
+        if (nonNull(schema.getExtensions())) {
+            String jsonSerializer = (String)schema.getExtensions().get(EXT_JSON_SERIALIZER);
+            if (nonBlank(jsonSerializer)) {
+                typeInfo.annotations.add("@JsonSerialize(using = %s)".formatted(getJsonSerializerClass(jsonSerializer)));
+                typeInfo.annotationImports.add("com.fasterxml.jackson.databind.annotation.JsonSerialize");
+                typeInfo.annotationImports.add(jsonSerializer);
+            }
+            String validationConstraint = (String)schema.getExtensions().get(EXT_VALIDATION_CONSTRAINT);
+            if (nonBlank(validationConstraint)) {
+                typeInfo.annotations.add("@%s".formatted(getClassNameFromFqn(validationConstraint)));
+                typeInfo.annotationImports.add(validationConstraint);
+            }
+        }
+
         return typeInfo;
+    }
+
+    private String getClassNameFromFqn(String fqn) {
+        int lastDot = fqn.lastIndexOf(".");
+        if (lastDot == -1) {
+            throw new IllegalStateException("Unexpected fully qualified class name: %s".formatted(fqn));
+        }
+        return fqn.substring(lastDot+1);
+    }
+
+    private String getJsonSerializerClass(String jsonSerializerFqn) {
+        String className = getClassNameFromFqn(jsonSerializerFqn);
+        return opts.useKotlinSyntax ? className+"::class" : className+".class";
     }
 
     private boolean isNullable(JsonSchema schema, NullabilityResolution resolution) {
