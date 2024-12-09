@@ -3,9 +3,9 @@ package io.github.torand.test.model
 import com.fasterxml.jackson.annotation.JsonFormat
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
-import org.eclipse.microprofile.openapi.annotations.media.Schema
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
+import org.eclipse.microprofile.openapi.annotations.media.Schema
 
 @Schema(name = "TicketAttachmentV1Dto", description="A media file or document attached to a ticket by reporter, case officer or other parties")
 @JvmRecord

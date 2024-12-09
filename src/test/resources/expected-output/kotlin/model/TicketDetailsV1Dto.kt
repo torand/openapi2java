@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
-import org.eclipse.microprofile.openapi.annotations.media.Schema
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
+import org.eclipse.microprofile.openapi.annotations.media.Schema
 
 @Schema(name = "TicketDetailsV1Dto", description="Details for a ticket or issue registered by a user")
 @JvmRecord

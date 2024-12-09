@@ -17,6 +17,7 @@ import jakarta.ws.rs.core.HttpHeaders.ACCEPT_LANGUAGE
 import jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION
 import jakarta.ws.rs.core.MediaType.APPLICATION_JSON
 import jakarta.ws.rs.core.Response
+import java.net.URI
 import org.eclipse.microprofile.openapi.annotations.Operation
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.HEADER
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.PATH
@@ -29,7 +30,6 @@ import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement
 import org.eclipse.microprofile.openapi.annotations.tags.Tag
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
-import java.net.URI
 
 const val ROOT_PATH: String = "api"
 
