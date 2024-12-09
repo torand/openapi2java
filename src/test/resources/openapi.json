@@ -582,7 +582,7 @@
         "pattern": "^[0-9]{10,15}$",
         "description": "Mobile phone number using the E.164 standard (includes country code), without an international call prefix",
         "example": "4791356234",
-        "x-validation-constraint": "no.tensio.coreit.test.MobileNo"
+        "x-validation-constraint": "io.github.torand.test.annotation.MobileNo"
       },
       "AddressV1": {
         "type": "object",

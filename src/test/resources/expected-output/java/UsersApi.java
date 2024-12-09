@@ -1,5 +1,8 @@
-package org.github.torand.test;
+package io.github.torand.test;
 
+import io.github.torand.test.model.ErrorDto;
+import io.github.torand.test.model.NewUserProfileV1Dto;
+import io.github.torand.test.model.UserProfileV1Dto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,16 +25,13 @@ import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
-import org.github.torand.test.model.ErrorDto;
-import org.github.torand.test.model.NewUserProfileV1Dto;
-import org.github.torand.test.model.UserProfileV1Dto;
 
+import static io.github.torand.test.UsersApi.ROOT_PATH;
 import static jakarta.ws.rs.core.HttpHeaders.ACCEPT_LANGUAGE;
 import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.HEADER;
 import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.PATH;
-import static org.github.torand.test.UsersApi.ROOT_PATH;
 
 @SecurityRequirement(name = "basic")
 @Tag(name = "Users", description = "Retrieving and modifying user profiles")

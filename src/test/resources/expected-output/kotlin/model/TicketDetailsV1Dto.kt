@@ -1,12 +1,12 @@
-package org.github.torand.test.model
+package io.github.torand.test.model
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
-import java.time.LocalDateTime
-import java.util.UUID
 import org.eclipse.microprofile.openapi.annotations.media.Schema
+import java.time.LocalDateTime
+import java.util.*
 
 @Schema(name = "TicketDetailsV1Dto", description="Details for a ticket or issue registered by a user")
 @JvmRecord

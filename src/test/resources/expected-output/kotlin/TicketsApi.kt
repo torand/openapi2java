@@ -1,5 +1,10 @@
-package org.github.torand.test
+package io.github.torand.test
 
+import io.github.torand.test.model.ErrorDto
+import io.github.torand.test.model.TicketAttachmentV1Dto
+import io.github.torand.test.model.TicketCommentV1Dto
+import io.github.torand.test.model.TicketDetailsV1Dto
+import io.github.torand.test.model.TicketV1Dto
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
@@ -14,8 +19,6 @@ import jakarta.ws.rs.core.HttpHeaders.ACCEPT_LANGUAGE
 import jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION
 import jakarta.ws.rs.core.MediaType.APPLICATION_JSON
 import jakarta.ws.rs.core.Response
-import java.net.URI
-import java.util.UUID
 import org.eclipse.microprofile.openapi.annotations.Operation
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.HEADER
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.PATH
@@ -29,11 +32,8 @@ import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement
 import org.eclipse.microprofile.openapi.annotations.tags.Tag
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
-import org.github.torand.test.model.ErrorDto
-import org.github.torand.test.model.TicketAttachmentV1Dto
-import org.github.torand.test.model.TicketCommentV1Dto
-import org.github.torand.test.model.TicketDetailsV1Dto
-import org.github.torand.test.model.TicketV1Dto
+import java.net.URI
+import java.util.*
 
 const val ROOT_PATH: String = "api"
 

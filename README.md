@@ -1,4 +1,4 @@
-openapi2java
+OpenAPI2Java
 ============
 
 [![openapi2java CI](https://github.com/torand/openapi2java/actions/workflows/build-snapshot.yml/badge.svg)](https://github.com/torand/openapi2java/actions/workflows/build-snapshot.yml)

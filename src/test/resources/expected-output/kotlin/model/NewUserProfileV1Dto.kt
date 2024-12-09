@@ -1,13 +1,13 @@
-package org.github.torand.test.model
+package io.github.torand.test.model
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import io.github.torand.test.annotation.MobileNo
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
-import java.time.LocalDateTime
-import no.tensio.coreit.test.MobileNo
 import org.eclipse.microprofile.openapi.annotations.media.Schema
+import java.time.LocalDateTime
 
 @Schema(name = "NewUserProfileV1Dto", description="A user profile to be created")
 @JvmRecord

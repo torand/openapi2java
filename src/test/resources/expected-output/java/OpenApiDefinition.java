@@ -1,4 +1,4 @@
-package org.github.torand.test;
+package io.github.torand.test;
 
 import jakarta.ws.rs.core.Application;
 import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
