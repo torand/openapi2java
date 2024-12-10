@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2024 Tore Eide Andersen
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.github.torand.openapi2java.writers.kotlin;
 
 import io.github.torand.openapi2java.Options;
@@ -11,6 +26,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import static io.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
+import static io.github.torand.openapi2java.utils.KotlinTypeMapper.toKotlinNative;
 import static io.github.torand.openapi2java.utils.StringHelper.nonBlank;
 import static java.util.Objects.nonNull;
 
@@ -26,6 +42,7 @@ public class KotlinResourceWriter extends BaseWriter implements ResourceWriter {
         writeNewLine();
 
         Set<String> imports = new TreeSet<>();
+
         imports.addAll(resourceInfo.imports);
         imports.addAll(resourceInfo.staticImports);
         resourceInfo.methods.forEach(m -> {
@@ -35,14 +52,18 @@ public class KotlinResourceWriter extends BaseWriter implements ResourceWriter {
                 imports.addAll(p.imports);
                 imports.addAll(p.staticImports);
                 imports.addAll(p.type.typeImports);
+                if (nonNull(p.type.keyType)) {
+                    imports.addAll(p.type.keyType.typeImports);
+                }
+                if (nonNull(p.type.itemType)) {
+                    imports.addAll(p.type.itemType.typeImports);
+                }
             });
         });
 
         imports.removeIf(i -> i.equals("java.util.List") || i.contains("ROOT_PATH"));
+        imports.add("%s.%s.Companion.ROOT_PATH".formatted(opts.rootPackage, resourceInfo.name));
         imports.forEach(i -> writeLine("import %s".formatted(i)));
-        writeNewLine();
-
-        writeLine("const val ROOT_PATH: String = \"%s\"", opts.rootUrlPath);
         writeNewLine();
 
         resourceInfo.annotations.forEach(a -> writeLine(a));
@@ -50,6 +71,10 @@ public class KotlinResourceWriter extends BaseWriter implements ResourceWriter {
 
         resourceInfo.methods.forEach(m -> {
             writeNewLine();
+            if (m.isDeprecated()) {
+                writeIndent(1);
+                writeLine("@Deprecated(\"%s\")".formatted(m.deprecationMessage));
+            }
 
             m.annotations.forEach(a -> {
                 writeIndent(1);
@@ -65,9 +90,9 @@ public class KotlinResourceWriter extends BaseWriter implements ResourceWriter {
                     write(String.join(" ", paramInfo.annotations) + " ");
                 }
                 write(paramInfo.name + ": ");
-                write(paramInfo.type.getFullName());
+                write(toKotlinNative(paramInfo.type.getFullName()));
                 if (paramInfo.nullable) {
-                    write("?");
+                    write("? = null");
                 }
                 if (i < (m.parameters.size()-1)) {
                     write(",");
@@ -79,24 +104,33 @@ public class KotlinResourceWriter extends BaseWriter implements ResourceWriter {
             }
 
             writeIndent(1);
-            writeLine("): Response");
+            if (opts.useResteasyResponse) {
+                writeLine("): RestResponse<%s>".formatted(nonNull(m.returnType) ? m.returnType : "Unit"));
+            } else {
+                writeLine("): Response");
+            }
         });
 
-        if (nonNull(resourceInfo.authMethod)) {
-            writeNewLine();
+        writeNewLine();
 
+        writeIndent(1);
+        writeLine("companion object {");
+
+        writeIndent(2);
+        writeLine("const val ROOT_PATH: String = \"%s\"", opts.rootUrlPath);
+
+        if (nonNull(resourceInfo.authMethod)) {
             resourceInfo.authMethod.annotations.forEach(a -> {
-                writeIndent(1);
+                writeIndent(2);
                 writeLine(a);
             });
 
-            writeIndent(1);
-            writeLine("fun %s() {".formatted(resourceInfo.authMethod.name));
             writeIndent(2);
-            writeLine("return \"TODO\"");
-            writeIndent(1);
-            writeLine("}: String");
+            writeLine("fun %s() = \"TODO\"".formatted(resourceInfo.authMethod.name));
         }
+
+        writeIndent(1);
+        writeLine("}");
 
         writeLine("}");
     }

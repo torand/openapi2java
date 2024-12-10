@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2024 Tore Eide Andersen
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.github.torand.openapi2java.writers.java;
 
 import io.github.torand.openapi2java.Options;
@@ -9,6 +24,7 @@ import io.github.torand.openapi2java.writers.ResourceWriter;
 import java.io.Writer;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 
 import static io.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
 import static io.github.torand.openapi2java.utils.StringHelper.nonBlank;
@@ -25,17 +41,34 @@ public class JavaResourceWriter extends BaseWriter implements ResourceWriter {
         writeLine("package %s;", opts.rootPackage);
         writeNewLine();
 
-        Set<String> imports = new TreeSet<>();
-        imports.addAll(resourceInfo.imports);
+        Set<String> nonJavaImports = new TreeSet<>();
+        Set<String> javaImports = new TreeSet<>();
+
+        Consumer<String> importConsumer = qt -> { if (isJavaPackage(qt)) javaImports.add(qt); else nonJavaImports.add(qt);};
+
+        resourceInfo.imports.forEach(importConsumer);
         resourceInfo.methods.forEach(m -> {
-            imports.addAll(m.imports);
+            m.imports.forEach(importConsumer);
             m.parameters.forEach(p -> {
-                imports.addAll(p.imports);
-                imports.addAll(p.type.typeImports);
+                p.imports.forEach(importConsumer);
+                p.type.typeImports.forEach(importConsumer);
+                if (nonNull(p.type.keyType)) {
+                    p.type.keyType.typeImports.forEach(importConsumer);
+                }
+                if (nonNull(p.type.itemType)) {
+                    p.type.itemType.typeImports.forEach(importConsumer);
+                }
             });
         });
-        imports.forEach(i -> writeLine("import %s;".formatted(i)));
-        writeNewLine();
+
+        if (nonEmpty(nonJavaImports)) {
+            nonJavaImports.forEach(ti -> writeLine("import %s;".formatted(ti)));
+            writeNewLine();
+        }
+        if (nonEmpty(javaImports)) {
+            javaImports.forEach(ti -> writeLine("import %s;".formatted(ti)));
+            writeNewLine();
+        }
 
         Set<String> staticImports = new TreeSet<>();
         staticImports.addAll(resourceInfo.staticImports);
@@ -55,6 +88,12 @@ public class JavaResourceWriter extends BaseWriter implements ResourceWriter {
 
         resourceInfo.methods.forEach(m -> {
             writeNewLine();
+            if (m.isDeprecated()) {
+                writeIndent(1);
+                writeLine("/// @deprecated %s".formatted(m.deprecationMessage));
+                writeIndent(1);
+                writeLine("@Deprecated");
+            }
 
             m.annotations.forEach(a -> {
                 writeIndent(1);
@@ -62,11 +101,19 @@ public class JavaResourceWriter extends BaseWriter implements ResourceWriter {
             });
 
             writeIndent(1);
-            writeLine("Response %s(".formatted(m.name));
+            if (opts.useResteasyResponse) {
+                writeLine("RestResponse<%s> %s(".formatted(nonNull(m.returnType) ? m.returnType : "Void", m.name));
+            } else {
+                writeLine("Response %s(".formatted(m.name));
+            }
 
             for (int i=0; i<m.parameters.size(); i++) {
                 MethodParamInfo paramInfo = m.parameters.get(i);
                 writeIndent(2);
+                if (paramInfo.isDeprecated()) {
+                    write("@Deprecated ");
+                }
+
                 if (nonEmpty(paramInfo.annotations)) {
                     write(String.join(" ", paramInfo.annotations) + " ");
                 }
@@ -102,5 +149,9 @@ public class JavaResourceWriter extends BaseWriter implements ResourceWriter {
         }
 
         writeLine("}");
+    }
+
+    private boolean isJavaPackage(String qualifiedType) {
+        return qualifiedType.startsWith("java.");
     }
 }

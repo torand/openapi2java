@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2024 Tore Eide Andersen
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.github.torand.openapi2java.writers.java;
 
 import io.github.torand.openapi2java.Options;
@@ -11,6 +26,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import static io.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
 import static io.github.torand.openapi2java.utils.CollectionHelper.streamConcat;
@@ -26,23 +43,40 @@ public class JavaPojoWriter extends BaseWriter implements PojoWriter {
 
     @Override
     public void write(PojoInfo pojoInfo) {
-        writeLine("package %s;", opts.getModelPackage());
+        writeLine("package %s;", opts.getModelPackage(pojoInfo.modelSubpackage));
         writeNewLine();
 
-        Set<String> imports = new TreeSet<>();
-        imports.addAll(pojoInfo.imports);
+        Set<String> nonJavaImports = new TreeSet<>();
+        Set<String> javaImports = new TreeSet<>();
+
+        Consumer<String> collectImport = qt -> { if (isJavaPackage(qt)) javaImports.add(qt); else nonJavaImports.add(qt);};
+        Predicate<String> isModelType = qt -> isModelPackage(qt, pojoInfo.modelSubpackage);
+
+        pojoInfo.imports.forEach(collectImport);
+        pojoInfo.properties.stream()
+            .flatMap(p -> p.imports.stream())
+            .forEach(collectImport);
         pojoInfo.properties.stream()
             .flatMap(p -> p.type.typeImports())
-            .filter(not(this::isModelPackage))
-            .forEach(imports::add);
+            .filter(not(isModelType))
+            .forEach(collectImport);
         pojoInfo.properties.stream()
             .flatMap(p -> p.type.annotationImports())
-            .filter(not(this::isModelPackage))
-            .forEach(imports::add);
+            .filter(not(isModelType))
+            .forEach(collectImport);
 
-        if (nonEmpty(imports)) {
-            imports.forEach(ti -> writeLine("import %s;".formatted(ti)));
+        if (nonEmpty(nonJavaImports)) {
+            nonJavaImports.forEach(ti -> writeLine("import %s;".formatted(ti)));
             writeNewLine();
+        }
+        if (nonEmpty(javaImports)) {
+            javaImports.forEach(ti -> writeLine("import %s;".formatted(ti)));
+            writeNewLine();
+        }
+
+        if (pojoInfo.isDeprecated()) {
+            writeLine("/// @deprecated %s".formatted(pojoInfo.deprecationMessage));
+            writeLine("@Deprecated");
         }
 
         pojoInfo.annotations.forEach(this::writeLine);
@@ -63,10 +97,17 @@ public class JavaPojoWriter extends BaseWriter implements PojoWriter {
                 String itemTypeWithAnnotations = streamConcat(propInfo.type.itemType.annotations, List.of(propInfo.type.itemType.name))
                     .collect(joining(" "));
 
-                if (opts.pojosAsRecords) {
-                    write("%s<%s> %s".formatted(propInfo.type.name, itemTypeWithAnnotations, propInfo.name));
+                if (!opts.pojosAsRecords) {
+                    write("public ");
+                }
+
+                if (nonNull(propInfo.type.keyType)) {
+                    String keyTypeWithAnnotations = streamConcat(propInfo.type.keyType.annotations, List.of(propInfo.type.keyType.name))
+                        .collect(joining(" "));
+
+                    write("%s<%s, %s> %s".formatted(propInfo.type.name, keyTypeWithAnnotations, itemTypeWithAnnotations, propInfo.name));
                 } else {
-                    write("public %s<%s> %s".formatted(propInfo.type.name, itemTypeWithAnnotations, propInfo.name));
+                    write("%s<%s> %s".formatted(propInfo.type.name, itemTypeWithAnnotations, propInfo.name));
                 }
             } else {
                 if (opts.pojosAsRecords) {
@@ -119,6 +160,12 @@ public class JavaPojoWriter extends BaseWriter implements PojoWriter {
     }
 
     private void writePropertyAnnotationLines(PropertyInfo propInfo) {
+        if (propInfo.isDeprecated()) {
+            writeIndent(1);
+            writeLine("/// @deprecated %s".formatted(propInfo.deprecationMessage));
+            writeIndent(1);
+            writeLine("@Deprecated");
+        }
         propInfo.annotations.forEach(a -> {
             writeIndent(1);
             writeLine(a);
@@ -129,9 +176,15 @@ public class JavaPojoWriter extends BaseWriter implements PojoWriter {
         });
     }
 
-    private boolean isModelPackage(String qualifiedType) {
-        int lastDotPos = qualifiedType.lastIndexOf(".");
-        String typePackage = qualifiedType.substring(0, lastDotPos);
-        return opts.getModelPackage().equals(typePackage);
+    private boolean isModelPackage(String qualifiedType, String pojoModelSubpackage) {
+        // Remove class name from qualifiedType value
+        int lastDotIdx = qualifiedType.lastIndexOf(".");
+        String typePackage = qualifiedType.substring(0, lastDotIdx);
+
+        return opts.getModelPackage(pojoModelSubpackage).equals(typePackage);
+    }
+
+    private boolean isJavaPackage(String qualifiedType) {
+        return qualifiedType.startsWith("java.");
     }
 }

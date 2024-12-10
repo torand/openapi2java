@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2024 Tore Eide Andersen
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.github.torand.openapi2java;
 
 import io.swagger.parser.OpenAPIParser;
@@ -15,11 +30,17 @@ import java.nio.file.Paths;
 import static io.github.torand.openapi2java.utils.StringHelper.removeLineBreaks;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 class TestHelper {
 
     private TestHelper() {}
+
+    enum ConfigVariant {
+        Resteasy,
+        NoHeaderParam;
+    }
 
     static OpenAPI loadOpenApiSpec() {
         String openApiUri = getResourceUri("openapi.json").toString();
@@ -29,22 +50,41 @@ class TestHelper {
 
     static Options getJavaOptions() {
         Options opts = new Options();
-        opts.rootPackage = "io.github.torand.test";
+        opts.rootPackage = "no.tensio.coreit.test";
         opts.outputDir = "target/test-output/java";
         opts.includeTags = emptyList();
         opts.useKotlinSyntax = false;
+        opts.useResteasyResponse = false;
         opts.verbose = true;
         return opts;
     }
 
     static Options getKotlinOptions() {
         Options opts = new Options();
-        opts.rootPackage = "io.github.torand.test";
+        opts.rootPackage = "no.tensio.coreit.test";
         opts.outputDir = "target/test-output/kotlin";
         opts.includeTags = emptyList();
         opts.useKotlinSyntax = true;
+        opts.useResteasyResponse = false;
         opts.verbose = true;
         return opts;
+    }
+
+    static Options withResteasyResponse(Options baseOptions) {
+        baseOptions.resourceNameSuffix += "_" + ConfigVariant.Resteasy;
+        baseOptions.useResteasyResponse = true;
+        baseOptions.addJsonPropertyAnnotations = true;
+        return baseOptions;
+    }
+
+    public static void assertSnippet(String path, String expectedSnippet) {
+        try {
+            Path actualPath = Path.of("target/test-output/" + path);
+            String content = Files.readString(actualPath);
+            assertThat(content).contains(expectedSnippet);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not find file by name %s".formatted(path), e);
+        }
     }
 
     static void assertMatchingJavaFiles(String filename) {
@@ -54,11 +94,19 @@ class TestHelper {
         assertMatchingFiles(expectedPath, actualPath);
     }
 
+    static void assertMatchingJavaFilesVariant(String filename, ConfigVariant variant) {
+        assertMatchingJavaFiles("%s%s.java".formatted(filename, "_" + variant));
+    }
+
     static void assertMatchingKotlinFiles(String filename) {
         Path expectedPath = getResourcePath("expected-output/kotlin/%s".formatted(filename));
         Path actualPath = Path.of("target/test-output/kotlin/%s".formatted(filename));
 
         assertMatchingFiles(expectedPath, actualPath);
+    }
+
+    static void assertMatchingKotlinFilesVariant(String filename, ConfigVariant variant) {
+        assertMatchingKotlinFiles("%s%s.kt".formatted(filename, "_" + variant));
     }
 
     private static void assertMatchingFiles(Path expectedPath, Path actualPath) {

@@ -1,8 +1,8 @@
-package io.github.torand.test.model
+package no.tensio.coreit.test.model
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema
 
-@Schema(name = "TicketStatusV1Dto", description="Processing status of a ticket")
+@Schema(name = "TicketStatusV1", description = "Processing status of a ticket")
 enum class TicketStatusV1Dto {
     Registered, InProgress, Completed
 }

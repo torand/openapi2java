@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2024 Tore Eide Andersen
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.github.torand.openapi2java.collectors;
 
 import io.github.torand.openapi2java.Options;
@@ -13,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 import static io.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
+import static io.github.torand.openapi2java.utils.StringHelper.joinCsv;
 import static io.github.torand.openapi2java.utils.StringHelper.nonBlank;
 import static java.util.Objects.nonNull;
 
@@ -87,7 +103,7 @@ public class OpenApiDefInfoCollector extends BaseCollector {
         }
 
         imports.add("org.eclipse.microprofile.openapi.annotations.security.SecurityScheme");
-        return (opts.useKotlinSyntax ? "" : "@") + "SecurityScheme(%s)".formatted(String.join(", ", params));
+        return (opts.useKotlinSyntax ? "" : "@") + "SecurityScheme(%s)".formatted(joinCsv(params));
     }
 
     private String getOAuthFlowsAnnotation(OAuthFlows flows, Set<String> imports) {
@@ -107,7 +123,7 @@ public class OpenApiDefInfoCollector extends BaseCollector {
         }
 
         imports.add("org.eclipse.microprofile.openapi.annotations.security.OAuthFlows");
-        return (opts.useKotlinSyntax ? "" : "@") + "OAuthFlows(%s)".formatted(String.join(", ", params));
+        return (opts.useKotlinSyntax ? "" : "@") + "OAuthFlows(%s)".formatted(joinCsv(params));
     }
 
     private String getOAuthFlowAnnotation(OAuthFlow flow, Set<String> imports) {
@@ -127,7 +143,7 @@ public class OpenApiDefInfoCollector extends BaseCollector {
         }
 
         imports.add("org.eclipse.microprofile.openapi.annotations.security.OAuthFlow");
-        return (opts.useKotlinSyntax ? "" : "@") + "OAuthFlow(%s)".formatted(String.join(", ", params));
+        return (opts.useKotlinSyntax ? "" : "@") + "OAuthFlow(%s)".formatted(joinCsv(params));
     }
 
     private String getScopesAnnotation(Scopes scopes, Set<String> imports) {

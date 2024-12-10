@@ -1,16 +1,34 @@
+/*
+ * Copyright (c) 2024 Tore Eide Andersen
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.github.torand.openapi2java.collectors;
 
 import io.github.torand.openapi2java.Options;
 import io.github.torand.openapi2java.model.PojoInfo;
 import io.github.torand.openapi2java.model.PropertyInfo;
-import io.swagger.v3.oas.models.media.JsonSchema;
 import io.swagger.v3.oas.models.media.Schema;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
+import static io.github.torand.openapi2java.collectors.Extensions.EXT_MODEL_SUBDIR;
+import static io.github.torand.openapi2java.collectors.Extensions.extensions;
 import static io.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
+import static io.github.torand.openapi2java.utils.StringHelper.joinCsv;
 import static io.github.torand.openapi2java.utils.StringHelper.nonBlank;
 import static java.lang.Boolean.TRUE;
 
@@ -28,10 +46,16 @@ public class PojoInfoCollector extends BaseCollector {
         PojoInfo pojoInfo = new PojoInfo();
         pojoInfo.name = name;
 
-        pojoInfo.annotations.add(getSchemaAnnotation(name, schema, pojoInfo.imports));
+        Optional<String> maybeModelSubdir = extensions(schema.getExtensions()).getString(EXT_MODEL_SUBDIR);
+        pojoInfo.modelSubdir = maybeModelSubdir.orElse(null);
+        pojoInfo.modelSubpackage = maybeModelSubdir.map(this::dirPath2PackagePath).orElse(null);
+
+        if (opts.addMpOpenApiAnnotations) {
+            pojoInfo.annotations.add(getSchemaAnnotation(name, schema, pojoInfo.imports));
+        }
 
         if (TRUE.equals(schema.getDeprecated())) {
-            pojoInfo.annotations.add("@Deprecated");
+            pojoInfo.deprecationMessage = formatDeprecationMessage(schema.getExtensions());
         }
 
         pojoInfo.properties = getSchemaProperties(schema);
@@ -44,12 +68,12 @@ public class PojoInfoCollector extends BaseCollector {
 
         imports.add("org.eclipse.microprofile.openapi.annotations.media.Schema");
         List<String> schemaParams = new ArrayList<>();
-        schemaParams.add("name = \"%s\"".formatted(name));
-        schemaParams.add("description=\"%s\"".formatted(normalizeDescription(description)));
+        schemaParams.add("name = \"%s\"".formatted(modelName2SchemaName(name)));
+        schemaParams.add("description = \"%s\"".formatted(normalizeDescription(description)));
         if (TRUE.equals(pojo.getDeprecated())) {
             schemaParams.add("deprecated = true");
         }
-        return "@Schema(%s)".formatted(String.join(", ", schemaParams));
+        return "@Schema(%s)".formatted(joinCsv(schemaParams));
     }
 
     private List<PropertyInfo> getSchemaProperties(Schema<?> schema) {
@@ -61,11 +85,15 @@ public class PojoInfoCollector extends BaseCollector {
             Schema<?> $refSchema = schemaResolver.getOrThrow(schema.get$ref());
             return getSchemaProperties($refSchema);
         } else {
-            schema.getProperties().forEach((String k, Schema v) ->
-                props.add(propertyInfoCollector.getPropertyInfo(k, (JsonSchema)v))
-            );
+            schema.getProperties().forEach((propName, propSchema) -> {
+                props.add(propertyInfoCollector.getPropertyInfo(propName, propSchema, isRequired(schema, propName)));
+            });
         }
 
         return props;
+    }
+
+    private boolean isRequired(Schema<?> schema, String propName) {
+        return nonEmpty(schema.getRequired()) && schema.getRequired().contains(propName);
     }
 }

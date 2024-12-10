@@ -4,9 +4,9 @@
     "title": "Test API Specification",
     "description": "OpenAPI specification for testing",
     "contact": {
-      "name": "Tore",
+      "name": "Tore Eide Andersen",
       "url": "https://github.com/torand/openapi2java",
-      "email": "tore@email.no"
+      "email": "tore@nordmyrvegen.net"
     },
     "license": {
       "name": "Proprietary software",
@@ -27,7 +27,8 @@
   "tags": [
     {
       "name": "Tickets",
-      "description": "Retrieving and modifying tickets"
+      "description": "Retrieving and modifying tickets",
+      "x-restclient-configkey": "ticketing-api"
     },
     {
       "name": "Users",
@@ -348,7 +349,14 @@
         "operationId": "uploadTicketAttachmentContent",
         "requestBody": {
           "content": {
-            "application/octet-stream": {}
+            "application/octet-stream": {
+              "description": "Attachment content.",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
           }
         },
         "parameters": [
@@ -368,6 +376,94 @@
         "responses": {
           "201": {
             "description": "Ticket attachment content was registered"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/tickets/{ticketId}/attachments/multipart": {
+      "post": {
+        "tags": [
+          "Tickets"
+        ],
+        "summary": "Upload new attachment with metadata",
+        "operationId": "uploadTicketAttachmentMultipart",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "filename": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "commentId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "file": {
+                    "type": "string",
+                    "contentMediaType": "application/octet-stream"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/TicketId"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/X-User-ID"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Ticket attachment was registered",
+            "headers": {
+              "Location": {
+                "description": "URI of registered attachment",
+                "schema": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketAttachmentV1"
+                }
+              },
+              "application/vnd.test.api.ticket-v1+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketAttachmentV1"
+                }
+              }
+            }
           },
           "400": {
             "$ref": "#/components/responses/BadRequest"
@@ -582,7 +678,7 @@
         "pattern": "^[0-9]{10,15}$",
         "description": "Mobile phone number using the E.164 standard (includes country code), without an international call prefix",
         "example": "4791356234",
-        "x-validation-constraint": "io.github.torand.test.annotation.MobileNo"
+        "x-validation-constraint": "no.tensio.coreit.test.MobileNo"
       },
       "AddressV1": {
         "type": "object",
@@ -604,7 +700,9 @@
             "pattern": "^[A-Z]{3}$",
             "description": "ISO 3166-alpha-3 three-letter country code. Examples: NOR, SWE, DEU"
           }
-        }
+        },
+        "required": ["streetAddress", "zipCode", "city", "countryCode"],
+        "x-model-subdir": "common"
       },
       "Error": {
         "description": "Error message response for failed requests",
@@ -618,7 +716,9 @@
             "type": "string",
             "description": "The error message"
           }
-        }
+        },
+        "required": ["code", "message"],
+        "x-model-subdir": "common"
       },
       "DateTimeV1": {
         "type": "string",
@@ -648,9 +748,14 @@
         "type": "object",
         "properties": {
           "id": {
-            "$ref": "#/components/schemas/UuidV1",
-            "description": "Unique ticket identifier",
-            "nullable": true
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UuidV1"
+              }, {
+                "type": "null"
+              }
+            ],
+            "description": "Unique ticket identifier"
           },
           "type": {
             "$ref": "#/components/schemas/TicketTypeV1"
@@ -666,7 +771,8 @@
             "$ref": "#/components/schemas/DateTimeV1",
             "description": "Date and time of ticket resolution"
           }
-        }
+        },
+        "required": ["type", "status", "createdTime", "resolvedTime"]
       },
       "TicketAttributeV1": {
         "description": "A ticket type specific form field value entered by the user",
@@ -680,16 +786,22 @@
             "type": "string",
             "description": "Value entered for the form field"
           }
-        }
+        },
+        "required": ["key", "value"]
       },
       "TicketCommentV1": {
         "description": "A comment on a ticket made by reporter, case officer or other parties",
         "type": "object",
         "properties": {
           "id": {
-            "$ref": "#/components/schemas/UuidV1",
-            "description": "Unique ticket comment identifier",
-            "nullable": true
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UuidV1"
+              }, {
+                "type": "null"
+              }
+            ],
+            "description": "Unique ticket comment identifier"
           },
           "author": {
             "type": "string",
@@ -711,7 +823,8 @@
             "type": "boolean",
             "description": "Indicates whether comment is visible for case officer only"
           }
-        }
+        },
+        "required": ["author", "createdTime", "subject", "description", "internal"]
       },
       "TicketAttachmentV1": {
         "description": "A media file or document attached to a ticket by reporter, case officer or other parties",
@@ -720,7 +833,7 @@
           "id": {
             "$ref": "#/components/schemas/UuidV1",
             "description": "Unique ticket attachment identifier",
-            "nullable": true
+            "x-nullable": true
           },
           "filename": {
             "type": "string",
@@ -742,15 +855,15 @@
             "type": "integer",
             "description": "Size of attachment in number of bytes"
           }
-        }
+        },
+        "required": ["filename", "uploadedTime", "description", "contentType", "contentLength"]
       },
       "TicketDetailsV1": {
         "description": "Details for a ticket or issue registered by a user",
         "allOf": [
           {
             "$ref": "#/components/schemas/TicketV1"
-          },
-          {
+          }, {
             "type": "object",
             "properties": {
               "attributes": {
@@ -773,8 +886,20 @@
                   "$ref": "#/components/schemas/TicketAttachmentV1"
                 },
                 "description": "Media files or documents attached to ticket by reporter, case officer or other parties"
+              },
+              "metadata": {
+                "type": "object",
+                "description": "Generic key/value metadata",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "testNumber": {
+                "type": "number",
+                "description": "Generic number, may be float or decimal?"
               }
-            }
+            },
+            "required": ["attributes", "comments", "attachments", "metadata", "testNumber"]
           }
         ]
       },
@@ -794,6 +919,12 @@
             "$ref": "#/components/schemas/AddressV1",
             "description": "Address of user"
           },
+          "emailAddress": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address of user",
+            "x-nullable": true
+          },
           "mobileNumber": {
             "$ref": "#/components/schemas/MobileNumberV1",
             "description": "Mobile number of user"
@@ -807,11 +938,17 @@
             "description": "Date and time of user profile creation"
           },
           "lastLoginTime": {
-            "$ref": "#/components/schemas/DateTimeV1",
-            "description": "Date and time of last user login",
-            "nullable": true
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/DateTimeV1"
+              }, {
+                "type": "null"
+              }
+            ],
+            "description": "Date and time of last user login"
           }
-        }
+        },
+        "required": ["firstName", "lastName", "address", "mobileNumber", "mobileNumberVerified", "createdTime"]
       },
       "NationalIdentityNumberV1": {
         "type": "string",
@@ -824,15 +961,15 @@
         "allOf": [
           {
             "$ref": "#/components/schemas/UserProfileV1"
-          },
-          {
+          }, {
             "type": "object",
             "properties": {
               "nationalIdentityNumber": {
                 "$ref": "#/components/schemas/NationalIdentityNumberV1",
                 "description": "National identity number of user"
               }
-            }
+            },
+            "required": ["nationalIdentityNumber"]
           }
         ]
       }
@@ -845,7 +982,8 @@
         "description": "Natural language and locale accepted by client",
         "schema": {
           "type": "string",
-          "example": "en-US"
+          "example": "en-US",
+          "default": "nb-NO"
         }
       },
       "X-User-ID": {
