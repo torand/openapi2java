@@ -15,6 +15,9 @@
  */
 package io.github.torand.openapi2java;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
@@ -33,22 +36,22 @@ import static java.util.Objects.isNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
-class TestHelper {
+public class TestHelper {
 
     private TestHelper() {}
 
-    enum ConfigVariant {
+    public enum ConfigVariant {
         Resteasy,
         NoHeaderParam;
     }
 
-    static OpenAPI loadOpenApiSpec() {
+    public static OpenAPI loadOpenApiSpec() {
         String openApiUri = getResourceUri("openapi.json").toString();
         SwaggerParseResult result = new OpenAPIParser().readLocation(openApiUri, null, null);
         return result.getOpenAPI();
     }
 
-    static Options getJavaOptions() {
+    public static Options getJavaOptions() {
         Options opts = new Options();
         opts.rootPackage = "no.tensio.coreit.test";
         opts.outputDir = "target/test-output/java";
@@ -59,7 +62,7 @@ class TestHelper {
         return opts;
     }
 
-    static Options getKotlinOptions() {
+    public static Options getKotlinOptions() {
         Options opts = new Options();
         opts.rootPackage = "no.tensio.coreit.test";
         opts.outputDir = "target/test-output/kotlin";
@@ -70,7 +73,7 @@ class TestHelper {
         return opts;
     }
 
-    static Options withResteasyResponse(Options baseOptions) {
+    public static Options withResteasyResponse(Options baseOptions) {
         baseOptions.resourceNameSuffix += "_" + ConfigVariant.Resteasy;
         baseOptions.useResteasyResponse = true;
         baseOptions.addJsonPropertyAnnotations = true;
@@ -87,26 +90,35 @@ class TestHelper {
         }
     }
 
-    static void assertMatchingJavaFiles(String filename) {
+    public static void assertMatchingJavaFiles(String filename) {
         Path expectedPath = getResourcePath("expected-output/java/%s".formatted(filename));
         Path actualPath = Path.of("target/test-output/java/%s".formatted(filename));
 
         assertMatchingFiles(expectedPath, actualPath);
     }
 
-    static void assertMatchingJavaFilesVariant(String filename, ConfigVariant variant) {
+    public static void assertMatchingJavaFilesVariant(String filename, ConfigVariant variant) {
         assertMatchingJavaFiles("%s%s.java".formatted(filename, "_" + variant));
     }
 
-    static void assertMatchingKotlinFiles(String filename) {
+    public static void assertMatchingKotlinFiles(String filename) {
         Path expectedPath = getResourcePath("expected-output/kotlin/%s".formatted(filename));
         Path actualPath = Path.of("target/test-output/kotlin/%s".formatted(filename));
 
         assertMatchingFiles(expectedPath, actualPath);
     }
 
-    static void assertMatchingKotlinFilesVariant(String filename, ConfigVariant variant) {
+    public static void assertMatchingKotlinFilesVariant(String filename, ConfigVariant variant) {
         assertMatchingKotlinFiles("%s%s.kt".formatted(filename, "_" + variant));
+    }
+
+    public static JsonNode parseJson(String json) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.reader().readTree(json);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to parse JSON", e);
+        }
     }
 
     private static void assertMatchingFiles(Path expectedPath, Path actualPath) {

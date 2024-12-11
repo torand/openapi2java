@@ -24,7 +24,7 @@ A Maven plugin to generate Java models and REST clients from an [OpenAPI](https:
 ## Overview
 
 Include this Maven plugin in any Java project implementing a REST client (or server) to enable a [Contract First](https://dzone.com/articles/designing-rest-api-what-is-contract-first) build workflow.
-The current version supports the OpenAPI 3.1 specification, using either YAML or JSON formats.
+The current version supports the OpenAPI 3.1.x specification, using either YAML or JSON formats.
 
 The OpenAPI specification file is read, parsed and validated using the excellent [Swagger Parser](https://github.com/swagger-api/swagger-parser/) library.
 POJOs (classes or enums) for the representation model are output to a 'model' subdirectory using Java or Kotlin syntax.
@@ -99,14 +99,14 @@ $ mvn io.github.torand:openapi2java:1.0.0:generate \
 | addMpOpenApiAnnotations             | true              | Whether to generate files with Microprofile OpenAPI annotations                           |
 | addMpRestClientAnnotations          | true              | Whether to generate resource files with Microprofile Rest Client annotations              |
 | useKotlinSyntax                     | false             | Whether to generate files with Kotlin syntax                                              |
-| useResteasyResponse                 | false             | Whether to use RESTEasys `RestResponse<>` as return type for generated resource methods.  |
+| useResteasyResponse                 | false             | Whether to use RESTEasy's `RestResponse<>` as return type for generated resource methods  |
 | indentWithTab                       | false             | Whether to output indents with the tab character                                          |
 | indentSize                          | 4                 | Number of spaces in one indentation level. Relevant only when 'indentWithTab' is false.   |
 | verbose                             | false             | Whether to log extra details                                                              |
 
 ## Type Mapping
 
-JSON schema types and formats map to the following Java and Kotlin types in generated source code:
+Schema types and formats map to the following Java and Kotlin types in generated source code:
 
 | Type                                         | Format            | Java type               | Kotlin type             |
 |----------------------------------------------|-------------------|-------------------------|-------------------------|
@@ -139,7 +139,7 @@ JSON schema types and formats map to the following Java and Kotlin types in gene
 
 ## Constraint Mapping
 
-JSON schema restriction properties map to the following Jakarta Bean Validation annotations (when enabled):
+Schema restriction properties map to the following Jakarta Bean Validation annotations (when enabled):
 
 | Type      | Restriction                         | Annotation                |
 |-----------|-------------------------------------|---------------------------|
@@ -171,11 +171,21 @@ JSON schema restriction properties map to the following Jakarta Bean Validation 
 
 ### General
 
-TBD
+As OpenAPI schemas are based on the [JSON Schema](https://json-schema.org/) standard, they can be expressed in a relaxed, abstract manner.
+This makes a powerful tool for validation, but complicates code generation. As a general rule, to produce meaningful POJOs, strict schemas are necessary.
+Hence, the "type" property is mandatory.
 
-### Ids and Refs
+### References
 
-TBD
+Only local references are supported at the moment:
+
+```json
+{
+  "$ref": "#/components/schemas/Address"
+}
+```
+
+References outside the OpenAPI specification file are currently not resolved by the plugin.
 
 ### Customizing Code Generation
 
@@ -193,23 +203,27 @@ The code generation can be customized by using the following extension propertie
 ### Nullability
 
 Mandatory properties are (optionally) decorated with @NonNull and similar Jakarta Bean Validation annotations during code generation.
-For a JSON Schema property to be considered mandatory, i.e. present and with a non-null value, it must be mentioned in the "required" list
+For a schema property to be considered mandatory, i.e. present and with a non-null value, it must be mentioned in the "required" list
 AND NOT have a "nullable" indicator.
 
 The standard way to represent mandatory properties is as follows:
 
 ```json
 {
-  "type": "object",
-  "properties": {
-    "name": {
-      "type": "string"
-    },
-    "address": {
-      "$ref": "#/components/schemas/Address"
+  "schemas": {
+    "Person": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "$ref": "#/components/schemas/Address"
+        }
+      },
+      "required": [ "name", "address" ]
     }
-  },
-  "required": [ "name", "address" ]
+  }
 }
 ```
 
@@ -217,23 +231,27 @@ Correspondingly, the standard way to represent non-mandatory (nullable) properti
 
 ```json
 {
-  "type": "object",
-  "properties": {
-    "name": {
-      "type": ["string", "null"]
-    },
-    "address": {
-      "oneOf": [
-        {
-          "$ref": "#/components/schemas/Address"
+  "schemas": {
+    "Person": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": [ "string", "null" ]
         },
-        {
-          "type": "null"
+        "address": {
+          "oneOf": [
+            {
+              "$ref": "#/components/schemas/Address"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
-      ]
+      },
+      "required": []
     }
-  },
-  "required": []
+  }
 }
 ```
 
@@ -243,70 +261,74 @@ For convenience, a non-standard [schema extension](#customizing-code-generation)
 
 ```json
 {
-  "type": "object",
-  "properties": {
-    "name": {
-      "type": "string",
-      "x-nullable": true
-    },
-    "address": {
-      "$ref": "#/components/schemas/Address",
-      "x-nullable": true
+  "schemas": {
+    "Person": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "address": {
+          "$ref": "#/components/schemas/Address",
+          "x-nullable": true
+        }
+      },
+      "required": []
     }
-  },
-  "required": []
+  }
 }
 ```
 
 ### Inheritance
 
-Inheritance is not supported, nor has JSON Schema such a construct. Inheritance can be "simulated" with composition using "allOf" on the root schema:
+Inheritance is not supported, per se, by OpenAPI schemas (which relies on the [JSON Schema](https://json-schema.org/) standard). However, inheritance can be "simulated" with composition by referencing a base schema in an "allOf" clause:
 
 ```json
 {
-  "type": "object",
-  "properties": {
-    "brand": {
-      "type": "string"
-    }
-  },
-  "required": [ "brand" ]
-}
-```
-```json
-{
-  "allOf" : [
-    {
-      "$ref": "#/components/schemas/Vehicle"
-    },
-    {
+  "schemas": {
+    "Vehicle": {
       "type": "object",
       "properties": {
-        "doors": {
-          "type": "integer"
+        "brand": {
+          "type": "string"
         }
       },
-      "required": [ "doors" ]
-    }
-  ]
-}
-```
-```json
-{
-  "allOf" : [
-    {
-      "$ref": "#/components/schemas/Vehicle"
+      "required": [ "brand" ]
     },
-    {
-      "type": "object",
-      "properties": {
-        "sidekick": {
-          "type": "boolean"
+    "Car": {
+      "allOf": [
+        {
+          "$ref": "#/components/schemas/Vehicle"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "doors": {
+              "type": "integer"
+            }
+          },
+          "required": [ "doors" ]
         }
-      },
-      "required": [ "sidekick" ]
+      ]
+    },
+    "MotorCycle": {
+      "allOf": [
+        {
+          "$ref": "#/components/schemas/Vehicle"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "sidekick": {
+              "type": "boolean"
+            }
+          },
+          "required": [ "sidekick" ]
+        }
+      ]
     }
-  ]
+  }
 }
 ```
 
@@ -316,37 +338,40 @@ This produces the following Java records:
 public record VehicleDto (
     @NotBlank String brand
 ) {}
-```
-```java
+
 public record CarDto (
     @NotBlank String brand,
     @NotNull Integer doors
 ) {}
-```
-```java
+
 public record MotorCycleDto (
     @NotBlank String brand,
     @NotNull Boolean sidekick
 ) {}
 ```
 
-Note that this is not the correct interpretation of the "allOf" clause in a JSON Schema,
-and as such, the output from the code generation is non-standard. A future release will support [inheritance using the "$ref" property](https://json-schema.org/blog/posts/modelling-inheritance).
-
 ## Limitations
 
-The following JSON Schema constructs are currently not supported:
+* The OpenAPI specification must be contained in a single file. To bundle a multi-file OpenAPI specification use a tool like [Redocly](https://redocly.com/) e.a.
+* Assumes same request body schema for all content types consumed. While OpenAPI allows different body schema for different content types, this plugin uses the request body schema of the first content type specified for all.
+* Supports "oneOf" with two subschemas only, one of which must be {"type": "null"}.
+* Allows a single security requirement only, both at specification root and operation level.
+* Supports single file upload requests only, using a "multipart/form-data" payload (in addition to zero or more additional metadata parts). Assumes file part is named "file".
+  All other parts are considered primitive or complex metadata properties. Complex (type object) metadata parts are supported using "$ref" only.
+
+The following schema constructs (based on the [JSON Schema](https://json-schema.org/) standard) are currently not supported,
+and for the most part silently omitted during code generation:
 
 * Restrictions on the "number" type: "multipleOf".
 * Properties with "const".
 * "string" properties with: "contentMediaType", "contentEncoding", "contentSchema".
 * Dynamic objects: "if", "then", "unevaluatedProperties".
-* Nested inline objects. Creating a separate JSON Schema and referencing it with "$ref" is recommended.
+* Nested inline objects. Creating a separate schema and referencing it with "$ref" is recommended.
 * Extended schema validation features: "patternProperties", "propertyNames", "minProperties", "maxProperties".
 * Restrictions on arrays: tuple validation with "prefixItems".
 * Dynamic arrays: "unevaluatedItems", "contains", "minContains", "maxContains".
 * Documentation: "readOnly", "writeOnly".
-* Property schema composition: "allOf", "anyOf", "not". Only supports two subschemas for "oneOf", one of which must be {"type": "null"}.
+* Property schema composition: "anyOf", "not".
 * Conditional subschemas: "dependentRequired", "dependentSchemas", "if"-"then"-"else".
 * Structuring: "$anchor", "$defs", recursion using "$ref".
 
