@@ -26,9 +26,13 @@
   ],
   "tags": [
     {
-      "name": "Tickets",
-      "description": "Retrieving and modifying tickets",
-      "x-restclient-configkey": "ticketing-api"
+      "name": "Products",
+      "description": "Retrieving and modifying products"
+    },
+    {
+      "name": "Orders",
+      "description": "Retrieving and modifying orders",
+      "x-restclient-configkey": "order-api"
     },
     {
       "name": "Users",
@@ -36,13 +40,13 @@
     }
   ],
   "paths": {
-    "/tickets": {
+    "/orders": {
       "get": {
         "tags": [
-          "Tickets"
+          "Orders"
         ],
-        "summary": "Get list of tickets",
-        "operationId": "getTickets",
+        "summary": "Get list of orders",
+        "operationId": "getOrders",
         "parameters": [
           {
             "$ref": "#/components/parameters/AcceptLanguage"
@@ -59,13 +63,13 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/TicketV1"
+                    "$ref": "#/components/schemas/OrderV1"
                   }
                 }
               },
-              "application/vnd.test.api.ticket-v1+json": {
+              "application/vnd.test.api.order-v1+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TicketV1"
+                  "$ref": "#/components/schemas/OrderV1"
                 }
               }
             }
@@ -89,20 +93,15 @@
       },
       "post": {
         "tags": [
-          "Tickets"
+          "Orders"
         ],
-        "summary": "Register new ticket",
-        "operationId": "registerTicket",
+        "summary": "Create new (empty) order",
+        "operationId": "createOrder",
         "requestBody": {
           "content": {
-            "application/json": {
+            "application/vnd.test.api.order-v1+json": {
               "schema": {
-                "$ref": "#/components/schemas/TicketV1"
-              }
-            },
-            "application/vnd.test.api.ticket-v1+json": {
-              "schema": {
-                "$ref": "#/components/schemas/TicketV1"
+                "$ref": "#/components/schemas/OrderV1"
               }
             }
           }
@@ -114,25 +113,16 @@
         ],
         "responses": {
           "201": {
-            "description": "Ticket was registered",
+            "description": "Order was created",
             "headers": {
               "Location": {
-                "description": "URI of registered ticket",
-                "schema": {
-                  "type": "string",
-                  "format": "uri"
-                }
+                "$ref": "#/components/headers/Location"
               }
             },
             "content": {
-              "application/json": {
+              "application/vnd.test.api.order-v1+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TicketV1"
-                }
-              },
-              "application/vnd.test.api.ticket-v1+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TicketV1"
+                  "$ref": "#/components/schemas/OrderV1"
                 }
               }
             }
@@ -155,16 +145,16 @@
         }
       }
     },
-    "/tickets/{ticketId}": {
+    "/orders/{orderId}": {
       "get": {
         "tags": [
-          "Tickets"
+          "Orders"
         ],
-        "summary": "Get information about a ticket",
-        "operationId": "getTicketInfo",
+        "summary": "Get information about an order",
+        "operationId": "getOrderInfo",
         "parameters": [
           {
-            "$ref": "#/components/parameters/TicketId"
+            "$ref": "#/components/parameters/OrderId"
           },
           {
             "$ref": "#/components/parameters/AcceptLanguage"
@@ -179,12 +169,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TicketDetailsV1"
+                  "$ref": "#/components/schemas/OrderV1"
                 }
               },
-              "application/vnd.test.api.ticket-v1+json": {
+              "application/vnd.test.api.order-v1+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TicketDetailsV1"
+                  "$ref": "#/components/schemas/OrderV1"
                 }
               }
             }
@@ -207,30 +197,25 @@
         }
       }
     },
-    "/tickets/{ticketId}/comments": {
+    "/orders/{orderId}/items": {
       "post": {
         "tags": [
-          "Tickets"
+          "Orders"
         ],
-        "summary": "Register new comment on a ticket",
-        "operationId": "registerTicketComment",
+        "summary": "Register new item in an order",
+        "operationId": "registerOrderItem",
         "requestBody": {
           "content": {
-            "application/json": {
+            "application/vnd.test.api.order-v1+json": {
               "schema": {
-                "$ref": "#/components/schemas/TicketCommentV1"
-              }
-            },
-            "application/vnd.test.api.ticket-v1+json": {
-              "schema": {
-                "$ref": "#/components/schemas/TicketCommentV1"
+                "$ref": "#/components/schemas/OrderItemV1"
               }
             }
           }
         },
         "parameters": [
           {
-            "$ref": "#/components/parameters/TicketId"
+            "$ref": "#/components/parameters/OrderId"
           },
           {
             "$ref": "#/components/parameters/AcceptLanguage"
@@ -241,7 +226,7 @@
         ],
         "responses": {
           "201": {
-            "description": "Ticket comment was registered"
+            "description": "Order item was registered"
           },
           "400": {
             "$ref": "#/components/responses/BadRequest"
@@ -261,63 +246,90 @@
         }
       }
     },
-    "/tickets/{ticketId}/attachments": {
-      "post": {
+    "/products": {
+      "get": {
         "tags": [
-          "Tickets"
+          "Products"
         ],
-        "summary": "Register new attachment on a ticket",
-        "description": "Registers metadata for an attachment only. To upload the attachment content use the .../content endpoint.",
-        "operationId": "registerTicketAttachment",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TicketAttachmentV1"
-              }
-            },
-            "application/vnd.test.api.ticket-v1+json": {
-              "schema": {
-                "$ref": "#/components/schemas/TicketAttachmentV1"
-              }
-            }
-          }
-        },
+        "summary": "Get list of products",
+        "operationId": "getProducts",
         "parameters": [
-          {
-            "$ref": "#/components/parameters/TicketId"
-          },
           {
             "$ref": "#/components/parameters/AcceptLanguage"
           },
           {
             "$ref": "#/components/parameters/X-User-ID"
+          },
+          {
+            "$ref": "#/components/parameters/PageOffset"
+          },
+          {
+            "$ref": "#/components/parameters/PageLimit"
           }
         ],
         "responses": {
-          "201": {
-            "description": "Ticket attachment was registered",
-            "headers": {
-              "Location": {
-                "description": "URI of registered attachment",
-                "schema": {
-                  "type": "string",
-                  "format": "uri"
-                }
-              },
-              "X-Test-Header": {
-                "$ref": "#/components/headers/X-Test-Header"
-              }
-            },
+          "200": {
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TicketAttachmentV1"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductV1"
+                  }
                 }
               },
-              "application/vnd.test.api.ticket-v1+json": {
+              "application/vnd.test.api.product-v1+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TicketAttachmentV1"
+                  "$ref": "#/components/schemas/ProductV1"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Register a new product",
+        "operationId": "registerProduct",
+        "requestBody": {
+          "content": {
+            "application/vnd.test.api.product-v1+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductV1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product was registered",
+            "headers": {
+              "Location": {
+                "$ref": "#/components/headers/Location"
+              }
+            },
+            "content": {
+              "application/vnd.test.api.product-v1+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductV1"
                 }
               }
             }
@@ -340,18 +352,16 @@
         }
       }
     },
-    "/tickets/{ticketId}/attachments/{attachmentId}/content": {
+    "/products/{productNo}/image": {
       "post": {
         "tags": [
-          "Tickets"
+          "Products"
         ],
-        "summary": "Upload content of an attachment",
-        "operationId": "uploadTicketAttachmentContent",
+        "summary": "Upload product image",
+        "operationId": "uploadProductImage",
         "requestBody": {
           "content": {
             "application/octet-stream": {
-              "description": "Attachment content.",
-              "required": true,
               "schema": {
                 "type": "string",
                 "format": "binary"
@@ -361,10 +371,7 @@
         },
         "parameters": [
           {
-            "$ref": "#/components/parameters/TicketId"
-          },
-          {
-            "$ref": "#/components/parameters/AttachmentId"
+            "$ref": "#/components/parameters/ProductNo"
           },
           {
             "$ref": "#/components/parameters/AcceptLanguage"
@@ -375,7 +382,7 @@
         ],
         "responses": {
           "201": {
-            "description": "Ticket attachment content was registered"
+            "description": "Product image was registered"
           },
           "400": {
             "$ref": "#/components/responses/BadRequest"
@@ -395,13 +402,64 @@
         }
       }
     },
-    "/tickets/{ticketId}/attachments/multipart": {
+    "/products/{productNo}/datasheet": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Download product datasheet",
+        "operationId": "downloadProductDatasheet",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ProductNo"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/X-User-ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            },
+            "headers": {
+              "Content-Disposition": {
+                "$ref": "#/components/headers/ContentDisposition"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
       "post": {
         "tags": [
-          "Tickets"
+          "Products"
         ],
-        "summary": "Upload new attachment with metadata",
-        "operationId": "uploadTicketAttachmentMultipart",
+        "summary": "Upload product data sheet",
+        "operationId": "uploadProductDatasheet",
         "requestBody": {
           "content": {
             "multipart/form-data": {
@@ -414,12 +472,6 @@
                   "description": {
                     "type": "string"
                   },
-                  "commentId": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
                   "file": {
                     "type": "string",
                     "contentMediaType": "application/octet-stream"
@@ -431,7 +483,7 @@
         },
         "parameters": [
           {
-            "$ref": "#/components/parameters/TicketId"
+            "$ref": "#/components/parameters/ProductNo"
           },
           {
             "$ref": "#/components/parameters/AcceptLanguage"
@@ -442,28 +494,7 @@
         ],
         "responses": {
           "201": {
-            "description": "Ticket attachment was registered",
-            "headers": {
-              "Location": {
-                "description": "URI of registered attachment",
-                "schema": {
-                  "type": "string",
-                  "format": "uri"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TicketAttachmentV1"
-                }
-              },
-              "application/vnd.test.api.ticket-v1+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TicketAttachmentV1"
-                }
-              }
-            }
+            "description": "Product datasheet was registered"
           },
           "400": {
             "$ref": "#/components/responses/BadRequest"
@@ -488,15 +519,10 @@
         "tags": [
           "Users"
         ],
-        "summary": "Register new user profile",
-        "operationId": "registerUserProfile",
+        "summary": "Create new user profile",
+        "operationId": "createUserProfile",
         "requestBody": {
           "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewUserProfileV1"
-              }
-            },
             "application/vnd.test.api.user-profile-v1+json": {
               "schema": {
                 "$ref": "#/components/schemas/NewUserProfileV1"
@@ -506,22 +532,13 @@
         },
         "responses": {
           "201": {
-            "description": "User profile was registered",
+            "description": "User profile was created",
             "headers": {
               "Location": {
-                "description": "URI of registered user profile",
-                "schema": {
-                  "type": "string",
-                  "format": "uri"
-                }
+                "$ref": "#/components/headers/Location"
               }
             },
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserProfileV1"
-                }
-              },
               "application/vnd.test.api.user-profile-v1+json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserProfileV1"
@@ -610,12 +627,6 @@
         ],
         "requestBody": {
           "content": {
-            "application/json": {
-              "schema": {
-                "type": "string",
-                "description": "Verification code entered by user"
-              }
-            },
             "application/vnd.test.api.user-profile-v1+json": {
               "schema": {
                 "type": "string",
@@ -628,11 +639,6 @@
           "200": {
             "description": "Verification completed. Outcome in payload",
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserProfileV1"
-                }
-              },
               "application/vnd.test.api.user-profile-v1+json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserProfileV1"
@@ -678,7 +684,7 @@
         "pattern": "^[0-9]{10,15}$",
         "description": "Mobile phone number using the E.164 standard (includes country code), without an international call prefix",
         "example": "4791356234",
-        "x-validation-constraint": "no.tensio.coreit.test.MobileNo"
+        "x-validation-constraint": "io.github.torand.openapi2java.test.annotation.MobileNo"
       },
       "AddressV1": {
         "type": "object",
@@ -726,25 +732,17 @@
         "description": "ISO-8601 formatted date and time",
         "example": "2023‐09‐26T07:23:32Z"
       },
-      "TicketTypeV1": {
-        "description": "Type of ticket",
+      "OrderStatusV1": {
+        "description": "Processing status of an order",
         "enum": [
-          "Change",
-          "Incident"
+          "Created",
+          "Processing",
+          "Dispatched"
         ],
         "type": "string"
       },
-      "TicketStatusV1": {
-        "description": "Processing status of a ticket",
-        "enum": [
-          "Registered",
-          "InProgress",
-          "Completed"
-        ],
-        "type": "string"
-      },
-      "TicketV1": {
-        "description": "A ticket or issue registered by a user",
+      "OrderV1": {
+        "description": "An order registered by a user",
         "type": "object",
         "properties": {
           "id": {
@@ -755,153 +753,97 @@
                 "type": "null"
               }
             ],
-            "description": "Unique ticket identifier"
+            "description": "Unique order identifier"
           },
-          "type": {
-            "$ref": "#/components/schemas/TicketTypeV1"
+          "placedBy": {
+            "$ref": "#/components/schemas/UserProfileV1"
           },
           "status": {
-            "$ref": "#/components/schemas/TicketStatusV1"
+            "$ref": "#/components/schemas/OrderStatusV1"
           },
           "createdTime": {
             "$ref": "#/components/schemas/DateTimeV1",
             "description": "Date and time of ticket creation"
           },
-          "resolvedTime": {
-            "$ref": "#/components/schemas/DateTimeV1",
-            "description": "Date and time of ticket resolution"
-          }
-        },
-        "required": ["type", "status", "createdTime", "resolvedTime"]
-      },
-      "TicketAttributeV1": {
-        "description": "A ticket type specific form field value entered by the user",
-        "type": "object",
-        "properties": {
-          "key": {
-            "type": "string",
-            "description": "Unique form field name"
-          },
-          "value": {
-            "type": "string",
-            "description": "Value entered for the form field"
-          }
-        },
-        "required": ["key", "value"]
-      },
-      "TicketCommentV1": {
-        "description": "A comment on a ticket made by reporter, case officer or other parties",
-        "type": "object",
-        "properties": {
-          "id": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/UuidV1"
-              }, {
-                "type": "null"
-              }
-            ],
-            "description": "Unique ticket comment identifier"
-          },
-          "author": {
-            "type": "string",
-            "description": "Author of this comment"
-          },
-          "createdTime": {
-            "$ref": "#/components/schemas/DateTimeV1",
-            "description": "Date and time of ticket comment creation"
-          },
-          "subject": {
-            "type": "string",
-            "description": "Subject of this comment"
-          },
-          "description": {
-            "type": "string",
-            "description": "Main content of this comment"
-          },
-          "internal": {
-            "type": "boolean",
-            "description": "Indicates whether comment is visible for case officer only"
-          }
-        },
-        "required": ["author", "createdTime", "subject", "description", "internal"]
-      },
-      "TicketAttachmentV1": {
-        "description": "A media file or document attached to a ticket by reporter, case officer or other parties",
-        "type": "object",
-        "properties": {
-          "id": {
-            "$ref": "#/components/schemas/UuidV1",
-            "description": "Unique ticket attachment identifier",
-            "x-nullable": true
-          },
-          "filename": {
-            "type": "string",
-            "description": "Filename of attachment"
-          },
-          "uploadedTime": {
-            "$ref": "#/components/schemas/DateTimeV1",
-            "description": "Date and time of ticket attachment upload"
-          },
-          "description": {
-            "type": "string",
-            "description": "Description of attachment"
-          },
-          "contentType": {
-            "type": "string",
-            "description": "IANA media type descriptor for attachment content"
-          },
-          "contentLength": {
-            "type": "integer",
-            "description": "Size of attachment in number of bytes"
-          }
-        },
-        "required": ["filename", "uploadedTime", "description", "contentType", "contentLength"]
-      },
-      "TicketDetailsV1": {
-        "description": "Details for a ticket or issue registered by a user",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/TicketV1"
-          }, {
-            "type": "object",
-            "properties": {
-              "attributes": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/TicketAttributeV1"
-                },
-                "description": "Form field values for the ticket"
-              },
-              "comments": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/TicketCommentV1"
-                },
-                "description": "Comments on a ticket made by reporter, case officer or other parties"
-              },
-              "attachments": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/TicketAttachmentV1"
-                },
-                "description": "Media files or documents attached to ticket by reporter, case officer or other parties"
-              },
-              "metadata": {
-                "type": "object",
-                "description": "Generic key/value metadata",
-                "additionalProperties": {
-                  "type": "string"
-                }
-              },
-              "testNumber": {
-                "type": "number",
-                "description": "Generic number, may be float or decimal?"
-              }
+          "items":{
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderItemV1"
             },
-            "required": ["attributes", "comments", "attachments", "metadata", "testNumber"]
+            "minItems": 1,
+            "description": "Order items"
+          },
+          "comment": {
+            "type": ["string", "null"],
+            "description": "Additional comment from customer"
           }
-        ]
+        },
+        "required": ["placedBy", "status", "createdTime", "items"]
+      },
+      "OrderItemV1": {
+        "description": "An order item",
+        "type": "object",
+        "properties": {
+          "product": {
+            "$ref": "#/components/schemas/ProductV1",
+            "description": "The product ordered"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "The quantity ordered"
+          }
+        },
+        "required": ["product", "quantity"]
+      },
+      "ProductCategoryV1": {
+        "description": "Product categories",
+        "enum": [
+          "HomeAppliance",
+          "Electronics",
+          "Computers"
+        ],
+        "type": "string"
+      },
+      "ProductV1": {
+        "description": "A product available in the web shop",
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "string",
+            "description": "Product number",
+            "x-json-serializer": "io.github.torand.test.serialization.ProductNoSerializer"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Product name"
+          },
+          "category": {
+            "$ref": "#/components/schemas/ProductCategoryV1",
+            "description": "Product category"
+          },
+          "price": {
+            "type": "number",
+            "format": "float",
+            "description": "Product price (NOK)"
+          },
+          "comment": {
+            "type": ["string", "null"],
+            "description": "Product comment",
+            "deprecated": true,
+            "x-deprecation-message": "To be removed in next version"
+          }
+        },
+        "required": ["number", "name", "category", "price"]
+      },
+      "UserTypeV1": {
+        "description": "User types",
+        "enum": [
+          "Private",
+          "Business"
+        ],
+        "type": "string"
       },
       "UserProfileV1": {
         "description": "A user profile",
@@ -933,6 +875,10 @@
             "type": "boolean",
             "description": "Indicates whether mobile number is successfully authenticated using a verification code"
           },
+          "type": {
+            "$ref": "#/components/schemas/UserTypeV1",
+            "description": "Type of user"
+          },
           "createdTime": {
             "$ref": "#/components/schemas/DateTimeV1",
             "description": "Date and time of user profile creation"
@@ -948,7 +894,7 @@
             "description": "Date and time of last user login"
           }
         },
-        "required": ["firstName", "lastName", "address", "mobileNumber", "mobileNumberVerified", "createdTime"]
+        "required": ["firstName", "lastName", "address", "mobileNumber", "mobileNumberVerified", "type", "createdTime"]
       },
       "NationalIdentityNumberV1": {
         "type": "string",
@@ -996,23 +942,24 @@
           "example": "5a27363f823ecf20a7722f445a35aa77bd5ea236"
         }
       },
-      "TicketId": {
-        "name": "ticketId",
+      "OrderId": {
+        "name": "orderId",
         "in": "path",
         "required": true,
-        "description": "Unique ticket identifier (ticketing system specific)",
+        "description": "Unique order identifier",
         "schema": {
           "type": "string",
           "example": "987654321"
         }
       },
-      "AttachmentId": {
-        "name": "attachmentId",
+      "ProductNo": {
+        "name": "productNo",
         "in": "path",
         "required": true,
-        "description": "Unique attachment identifier (ticketing system specific)",
+        "description": "Unique product number",
         "schema": {
-          "type": "string"
+          "type": "string",
+          "example": "987654321"
         }
       },
       "UserId": {
@@ -1024,14 +971,42 @@
           "type": "string",
           "example": "5a27363f823ecf20a7722f445a35aa77bd5ea236"
         }
+      },
+      "PageOffset": {
+        "name": "offset",
+        "in": "query",
+        "required": false,
+        "description": "Offset of first result in returned page",
+        "schema": {
+          "type": "integer",
+          "default": "0",
+          "minimum": 0
+        }
+      },
+      "PageLimit": {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "description": "Number of results in returned page",
+        "schema": {
+          "type": "integer",
+          "default": "10",
+          "minimum": 1
+        }
       }
     },
     "headers": {
-      "X-Test-Header": {
-        "description": "A test header",
+      "ContentDisposition": {
+        "description": "File information ([documentation](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition))",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "Location": {
+        "description": "URI of created resource",
         "schema": {
           "type": "string",
-          "format": "uuid"
+          "format": "uri"
         }
       }
     },

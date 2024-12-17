@@ -53,7 +53,7 @@ public class TestHelper {
 
     public static Options getJavaOptions() {
         Options opts = new Options();
-        opts.rootPackage = "no.tensio.coreit.test";
+        opts.rootPackage = "io.github.torand.openapi2java.test";
         opts.outputDir = "target/test-output/java";
         opts.includeTags = emptyList();
         opts.useKotlinSyntax = false;
@@ -64,7 +64,7 @@ public class TestHelper {
 
     public static Options getKotlinOptions() {
         Options opts = new Options();
-        opts.rootPackage = "no.tensio.coreit.test";
+        opts.rootPackage = "io.github.torand.openapi2java.test";
         opts.outputDir = "target/test-output/kotlin";
         opts.includeTags = emptyList();
         opts.useKotlinSyntax = true;

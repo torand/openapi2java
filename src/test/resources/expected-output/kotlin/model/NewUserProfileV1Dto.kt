@@ -1,14 +1,14 @@
-package no.tensio.coreit.test.model
+package io.github.torand.openapi2java.test.model
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import io.github.torand.openapi2java.test.annotation.MobileNo
+import io.github.torand.openapi2java.test.model.common.AddressV1Dto
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
 import java.time.LocalDateTime
-import no.tensio.coreit.test.MobileNo
-import no.tensio.coreit.test.model.common.AddressV1Dto
 import org.eclipse.microprofile.openapi.annotations.media.Schema
 
 @Schema(name = "NewUserProfileV1", description = "A user profile to be created")
@@ -41,6 +41,10 @@ data class NewUserProfileV1Dto (
     @field:Schema(description = "Indicates whether mobile number is successfully authenticated using a verification code", required = true)
     @field:NotNull
     val mobileNumberVerified: Boolean,
+
+    @field:Schema(description = "Type of user", required = true)
+    @field:NotNull
+    val type: UserTypeV1Dto,
 
     @field:Schema(description = "Date and time of user profile creation", required = true, format = "date-time")
     @field:NotNull

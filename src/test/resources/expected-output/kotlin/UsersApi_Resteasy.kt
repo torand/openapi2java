@@ -1,5 +1,9 @@
-package no.tensio.coreit.test
+package io.github.torand.openapi2java.test
 
+import io.github.torand.openapi2java.test.UsersApi_Resteasy.Companion.ROOT_PATH
+import io.github.torand.openapi2java.test.model.NewUserProfileV1Dto
+import io.github.torand.openapi2java.test.model.UserProfileV1Dto
+import io.github.torand.openapi2java.test.model.common.ErrorDto
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
@@ -14,10 +18,6 @@ import jakarta.ws.rs.core.HttpHeaders.ACCEPT_LANGUAGE
 import jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION
 import jakarta.ws.rs.core.MediaType.APPLICATION_JSON
 import java.net.URI
-import no.tensio.coreit.test.UsersApi_Resteasy.Companion.ROOT_PATH
-import no.tensio.coreit.test.model.NewUserProfileV1Dto
-import no.tensio.coreit.test.model.UserProfileV1Dto
-import no.tensio.coreit.test.model.common.ErrorDto
 import org.eclipse.microprofile.openapi.annotations.Operation
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.HEADER
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.PATH
@@ -41,16 +41,16 @@ interface UsersApi_Resteasy {
 
     @POST
     @Path("users")
-    @Consumes(APPLICATION_JSON, "application/vnd.test.api.user-profile-v1+json")
+    @Consumes("application/vnd.test.api.user-profile-v1+json")
     @Produces(APPLICATION_JSON, "application/vnd.test.api.user-profile-v1+json")
-    @Operation(operationId = "registerUserProfile", summary = "Register new user profile")
-    @APIResponse(responseCode = "201", description = "User profile was registered", headers = [ Header(name = "Location", description = "URI of registered user profile", schema = Schema(implementation = URI::class, format = "uri")) ], content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = UserProfileV1Dto::class)), Content(mediaType = "application/vnd.test.api.user-profile-v1+json", schema = Schema(implementation = UserProfileV1Dto::class)) ])
+    @Operation(operationId = "createUserProfile", summary = "Create new user profile")
+    @APIResponse(responseCode = "201", description = "User profile was created", headers = [ Header(name = "Location", description = "URI of created resource", schema = Schema(implementation = URI::class, format = "uri")) ], content = [ Content(mediaType = "application/vnd.test.api.user-profile-v1+json", schema = Schema(implementation = UserProfileV1Dto::class)) ])
     @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     @APIResponse(responseCode = "403", description = "Authenticated client or user is not granted access to this resource", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     @APIResponse(responseCode = "404", description = "The requested resource was not found", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     @APIResponse(responseCode = "500", description = "Internal server error while processing request", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
-    fun registerUserProfile(
+    fun createUserProfile(
         @Valid @NotNull newUserProfileV1: NewUserProfileV1Dto
     ): RestResponse<UserProfileV1Dto>
 
@@ -73,11 +73,11 @@ interface UsersApi_Resteasy {
 
     @POST
     @Path("users/{userId}/verify")
-    @Consumes(APPLICATION_JSON, "application/vnd.test.api.user-profile-v1+json")
+    @Consumes("application/vnd.test.api.user-profile-v1+json")
     @Produces(APPLICATION_JSON, "application/vnd.test.api.user-profile-v1+json")
     @Operation(operationId = "verifyMobileNumber", summary = "Verify user profile mobile number with verification code")
     @Parameter(`in` = PATH, name = "userId", description = "Unique user identifier (SHA1 fingerprint)", required = true, schema = Schema(implementation = String::class))
-    @APIResponse(responseCode = "200", description = "Verification completed. Outcome in payload", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = UserProfileV1Dto::class)), Content(mediaType = "application/vnd.test.api.user-profile-v1+json", schema = Schema(implementation = UserProfileV1Dto::class)) ])
+    @APIResponse(responseCode = "200", description = "Verification completed. Outcome in payload", content = [ Content(mediaType = "application/vnd.test.api.user-profile-v1+json", schema = Schema(implementation = UserProfileV1Dto::class)) ])
     @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     @APIResponse(responseCode = "403", description = "Authenticated client or user is not granted access to this resource", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])

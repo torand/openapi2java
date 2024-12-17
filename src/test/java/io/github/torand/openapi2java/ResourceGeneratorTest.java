@@ -32,7 +32,8 @@ public class ResourceGeneratorTest {
 
     private static final String[] RESOURCES = {
         "Users",
-        "Tickets"
+        "Products",
+        "Orders"
     };
 
     @Test

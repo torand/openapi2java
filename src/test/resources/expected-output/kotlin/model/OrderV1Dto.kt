@@ -1,33 +1,40 @@
-package no.tensio.coreit.test.model
+package io.github.torand.openapi2java.test.model
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import jakarta.validation.Valid
 import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Size
 import java.time.LocalDateTime
 import java.util.UUID
 import org.eclipse.microprofile.openapi.annotations.media.Schema
 
-@Schema(name = "TicketV1", description = "A ticket or issue registered by a user")
+@Schema(name = "OrderV1", description = "An order registered by a user")
 @JvmRecord
-data class TicketV1Dto (
+data class OrderV1Dto (
 
-    @field:Schema(description = "Unique ticket identifier", format = "uuid")
+    @field:Schema(description = "Unique order identifier", format = "uuid")
     val id: UUID? = null,
 
     @field:Schema(description = "TBD", required = true)
+    @field:Valid
     @field:NotNull
-    val type: TicketTypeV1Dto,
+    val placedBy: UserProfileV1Dto,
 
     @field:Schema(description = "TBD", required = true)
     @field:NotNull
-    val status: TicketStatusV1Dto,
+    val status: OrderStatusV1Dto,
 
     @field:Schema(description = "Date and time of ticket creation", required = true, format = "date-time")
     @field:NotNull
     @field:JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     val createdTime: LocalDateTime,
 
-    @field:Schema(description = "Date and time of ticket resolution", required = true, format = "date-time")
+    @field:Schema(description = "Order items", required = true)
+    @field:Valid
     @field:NotNull
-    @field:JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    val resolvedTime: LocalDateTime
+    @field:Size(min = 1)
+    val items: List<@NotNull OrderItemV1Dto>,
+
+    @field:Schema(description = "Additional comment from customer")
+    val comment: String? = null
 )

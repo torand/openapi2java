@@ -1,4 +1,4 @@
-package no.tensio.coreit.test;
+package io.github.torand.openapi2java.test;
 
 import jakarta.ws.rs.core.Application;
 import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;

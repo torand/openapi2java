@@ -1,4 +1,4 @@
-package no.tensio.coreit.test.model.common
+package io.github.torand.openapi2java.test.model.common
 
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull

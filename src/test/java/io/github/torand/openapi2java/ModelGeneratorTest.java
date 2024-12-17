@@ -34,16 +34,13 @@ public class ModelGeneratorTest {
         "Error"
     );
 
-    private static final Set<String> TICKET_POJOS = Set.of(
-        "TicketTypeV1",
-        "TicketStatusV1",
-        "TicketV1",
-        "TicketCommentV1",
-        "TicketAttachmentV1",
-        "TicketDetailsV1"
-    );
-
-    private static final Set<String> USER_POJOS = Set.of(
+    private static final Set<String> DOMAIN_POJOS = Set.of(
+        "OrderStatusV1",
+        "OrderV1",
+        "OrderItemV1",
+        "ProductCategoryV1",
+        "ProductV1",
+        "UserTypeV1",
         "UserProfileV1",
         "NewUserProfileV1"
     );
@@ -59,11 +56,7 @@ public class ModelGeneratorTest {
             assertMatchingJavaFiles("model/common/%sDto.java".formatted(pojo));
         }
 
-        for (String pojo : TICKET_POJOS) {
-            assertMatchingJavaFiles("model/%sDto.java".formatted(pojo));
-        }
-
-        for (String pojo : USER_POJOS) {
+        for (String pojo : DOMAIN_POJOS) {
             assertMatchingJavaFiles("model/%sDto.java".formatted(pojo));
         }
     }
@@ -79,11 +72,7 @@ public class ModelGeneratorTest {
             assertMatchingKotlinFiles("model/common/%sDto.kt".formatted(pojo));
         }
 
-        for (String pojo : TICKET_POJOS) {
-            assertMatchingKotlinFiles("model/%sDto.kt".formatted(pojo));
-        }
-
-        for (String pojo : USER_POJOS) {
+        for (String pojo : DOMAIN_POJOS) {
             assertMatchingKotlinFiles("model/%sDto.kt".formatted(pojo));
         }
     }
@@ -97,25 +86,25 @@ public class ModelGeneratorTest {
         javaOpts.addJsonPropertyAnnotations = true;
 
         new ModelGenerator(javaOpts).generate(openApiDoc);
-        assertSnippet("java/model/TicketDetailsV1Dto.java", """
-                    @Schema(description = "TBD", required = true)
-                    @JsonProperty("type")
-                    @NotNull
-                    TicketTypeV1Dto type,
-                """);
-        assertSnippet("java/model/TicketDetailsV1Dto.java", "import com.fasterxml.jackson.annotation.JsonProperty");
+        assertSnippet("java/model/OrderV1Dto.java", """
+            @Schema(description = "TBD", required = true)
+            @JsonProperty("status")
+            @NotNull
+            OrderStatusV1Dto status,
+        """);
+        assertSnippet("java/model/OrderV1Dto.java", "import com.fasterxml.jackson.annotation.JsonProperty");
 
         Options kotlinOpts = getKotlinOptions();
         kotlinOpts.useResteasyResponse = true;
         kotlinOpts.addJsonPropertyAnnotations = true;
 
         new ModelGenerator(kotlinOpts).generate(openApiDoc);
-        assertSnippet("kotlin/model/TicketDetailsV1Dto.kt", """
-                    @field:Schema(description = "TBD", required = true)
-                    @JsonProperty("type")
-                    @field:NotNull
-                    val type: TicketTypeV1Dto,
-                """);
-        assertSnippet("kotlin/model/TicketDetailsV1Dto.kt", "import com.fasterxml.jackson.annotation.JsonProperty");
+        assertSnippet("kotlin/model/OrderV1Dto.kt", """
+            @field:Schema(description = "TBD", required = true)
+            @JsonProperty("status")
+            @field:NotNull
+            val status: OrderStatusV1Dto,
+        """);
+        assertSnippet("kotlin/model/OrderV1Dto.kt", "import com.fasterxml.jackson.annotation.JsonProperty");
     }
 }
