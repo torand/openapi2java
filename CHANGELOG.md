@@ -22,6 +22,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - ...
 
-## [1.0.0] - 2024-12-xx
+## [1.0.0] - 2024-12-18
 ### Added
 - Initial version
