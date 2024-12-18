@@ -22,7 +22,6 @@ import java.util.Set;
 
 import static io.github.torand.openapi2java.TestHelper.assertMatchingJavaFiles;
 import static io.github.torand.openapi2java.TestHelper.assertMatchingKotlinFiles;
-import static io.github.torand.openapi2java.TestHelper.assertSnippet;
 import static io.github.torand.openapi2java.TestHelper.getJavaOptions;
 import static io.github.torand.openapi2java.TestHelper.getKotlinOptions;
 import static io.github.torand.openapi2java.TestHelper.loadOpenApiSpec;
@@ -75,36 +74,5 @@ public class ModelGeneratorTest {
         for (String pojo : DOMAIN_POJOS) {
             assertMatchingKotlinFiles("model/%sDto.kt".formatted(pojo));
         }
-    }
-
-    @Test
-    public void shouldIncludeJsonPropertyOnPropertiesIfUsingRestResponse() {
-        OpenAPI openApiDoc = loadOpenApiSpec();
-
-        Options javaOpts = getJavaOptions();
-        javaOpts.useResteasyResponse = true;
-        javaOpts.addJsonPropertyAnnotations = true;
-
-        new ModelGenerator(javaOpts).generate(openApiDoc);
-        assertSnippet("java/model/OrderV1Dto.java", """
-            @Schema(description = "TBD", required = true)
-            @JsonProperty("status")
-            @NotNull
-            OrderStatusV1Dto status,
-        """);
-        assertSnippet("java/model/OrderV1Dto.java", "import com.fasterxml.jackson.annotation.JsonProperty");
-
-        Options kotlinOpts = getKotlinOptions();
-        kotlinOpts.useResteasyResponse = true;
-        kotlinOpts.addJsonPropertyAnnotations = true;
-
-        new ModelGenerator(kotlinOpts).generate(openApiDoc);
-        assertSnippet("kotlin/model/OrderV1Dto.kt", """
-            @field:Schema(description = "TBD", required = true)
-            @JsonProperty("status")
-            @field:NotNull
-            val status: OrderStatusV1Dto,
-        """);
-        assertSnippet("kotlin/model/OrderV1Dto.kt", "import com.fasterxml.jackson.annotation.JsonProperty");
     }
 }

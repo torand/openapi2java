@@ -94,7 +94,7 @@ $ mvn io.github.torand:openapi2java:1.0.0:generate \
 | includeTags                         | "" (i.e. all)     | Tags (comma separated) to output resource classes for                                     |
 | generateResourceClasses             | true              | Whether to generate resource classes                                                      |
 | generateOpenApiDefClass             | true              | Whether to generate OpenAPI definition class                                              |
-| addJsonPropertyAnnotations          | false             | Whether to generate model files with JSON property annotations                            |
+| addJsonPropertyAnnotations          | true              | Whether to generate model files with JSON property annotations                            |
 | addJakartaBeanValidationAnnotations | true              | Whether to generate model files with Jakarta Bean Validation annotations                  |
 | addMpOpenApiAnnotations             | true              | Whether to generate files with Microprofile OpenAPI annotations                           |
 | addMpRestClientAnnotations          | true              | Whether to generate resource files with Microprofile Rest Client annotations              |

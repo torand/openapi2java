@@ -100,7 +100,7 @@ public class OpenApi2JavaMojo extends AbstractMojo {
     /**
      * Generate Jackson JSON property annotations.
      */
-    @Parameter( property = "addJsonPropertyAnnotations", defaultValue = "false" )
+    @Parameter( property = "addJsonPropertyAnnotations", defaultValue = "true" )
     private boolean addJsonPropertyAnnotations;
 
     /**

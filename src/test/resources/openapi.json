@@ -812,7 +812,7 @@
           "number": {
             "type": "string",
             "description": "Product number",
-            "x-json-serializer": "io.github.torand.test.serialization.ProductNoSerializer"
+            "x-json-serializer": "io.github.torand.openapi2java.test.serialization.ProductNoSerializer"
           },
           "name": {
             "type": "string",

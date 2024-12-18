@@ -29,7 +29,7 @@ public class Options {
     public List<String> includeTags;
     public boolean generateResourceClasses = true;
     public boolean generateOpenApiDefClass = true;
-    public boolean addJsonPropertyAnnotations = false;
+    public boolean addJsonPropertyAnnotations = true;
     public boolean addJakartaBeanValidationAnnotations = true;
     public boolean addMpOpenApiAnnotations = true;
     public boolean addMpRestClientAnnotations = true;

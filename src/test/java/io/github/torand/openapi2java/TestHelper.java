@@ -76,7 +76,6 @@ public class TestHelper {
     public static Options withResteasyResponse(Options baseOptions) {
         baseOptions.resourceNameSuffix += "_" + ConfigVariant.Resteasy;
         baseOptions.useResteasyResponse = true;
-        baseOptions.addJsonPropertyAnnotations = true;
         return baseOptions;
     }
 
