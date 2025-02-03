@@ -360,7 +360,7 @@ public record MotorCycleDto (
   All other parts are considered primitive or complex metadata properties. Complex (type object) metadata parts are supported using "$ref" only.
 
 The following schema constructs (based on the [JSON Schema](https://json-schema.org/) standard) are currently not supported,
-and for the most part silently omitted during code generation:
+and for the most part silently ignored during code generation:
 
 * Restrictions on the "number" type: "multipleOf".
 * Properties with "const".
