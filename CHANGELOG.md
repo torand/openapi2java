@@ -22,9 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - ...
 
-## [1.0.1] - 2025-02-04
+## [1.0.1] - 2025-02-05
 ### Changed
-- Bump bump io.swagger.parser.v3:swagger-parser to v2.1.25
+- Bump dependency io.swagger.parser.v3:swagger-parser to v2.1.25
 
 ## [1.0.0] - 2024-12-18
 ### Added
