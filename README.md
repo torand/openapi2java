@@ -51,7 +51,7 @@ The package is available from the [Maven Central Repository](https://central.son
     <plugin>
       <groupId>io.github.torand</groupId>
       <artifactId>openapi2java</artifactId>
-      <version>1.0.0</version>
+      <version>1.0.1</version>
       <executions>
         <execution>
          <id>generate</id>
@@ -74,7 +74,7 @@ The package is available from the [Maven Central Repository](https://central.son
 ### Run from the Command Line
 
 ```bash
-$ mvn io.github.torand:openapi2java:1.0.0:generate \
+$ mvn io.github.torand:openapi2java:1.0.1:generate \
   -DopenApiFile=openapi.json \
   -DoutputDir=target/openapi2java \
   -DrootPackage=io.github.torand.myapi
@@ -360,7 +360,7 @@ public record MotorCycleDto (
   All other parts are considered primitive or complex metadata properties. Complex (type object) metadata parts are supported using "$ref" only.
 
 The following schema constructs (based on the [JSON Schema](https://json-schema.org/) standard) are currently not supported,
-and for the most part silently omitted during code generation:
+and for the most part silently ignored during code generation:
 
 * Restrictions on the "number" type: "multipleOf".
 * Properties with "const".
