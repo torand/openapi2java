@@ -119,23 +119,23 @@ Schema types and formats map to the following Java and Kotlin types in generated
 | "number"                                     |                   | java.math.BigDecimal    | java.math.BigDecimal    |
 | "number"                                     | "double"          | Double                  | Double                  |
 | "number"                                     | "float"           | Float                   | Float                   |
-| "object"                                     | N/A               | 1)                      | 1)                      |
+| "object"                                     | N/A               | [^1]                    | [^1]                    |
 | "object" with "additionalProperties" = {...} | N/A               | java.util.Map           | java.util.Map           |
 | "string"                                     |                   | String                  | String                  |
 | "string"                                     | "uri"             | java.net.URI            | java.net.URI            |
 | "string"                                     | "uuid"            | java.util.UUID          | java.util.UUID          |
-| "string"                                     | "duration" 2)     | java.time.Duration      | java.time.Duration      |
-| "string"                                     | "date" 3)         | java.time.LocalDate     | java.time.LocalDate     |
-| "string"                                     | "date-time" 4)    | java.time.LocalDateTime | java.time.LocalDateTime |
+| "string"                                     | "duration"[^2]    | java.time.Duration      | java.time.Duration      |
+| "string"                                     | "date"[^3]        | java.time.LocalDate     | java.time.LocalDate     |
+| "string"                                     | "date-time"[^4]   | java.time.LocalDateTime | java.time.LocalDateTime |
 | "string"                                     | "binary"          | byte[]                  | ByteArray               |
 | "string"                                     | All other formats | String                  | String                  |
 
 ### Footnotes
 
-1. Inline objects not supported.
-2. Expects string in the [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html) duration format.
-3. Expects string in the [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html) local date format.
-4. Expects string in the [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html) local date time format (without milliseconds).
+[^1]: Inline objects not supported.
+[^2]: Expects string in the [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html) duration format.
+[^3]: Expects string in the [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html) local date format.
+[^4]: Expects string in the [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html) local date time format (without milliseconds).
 
 ## Constraint Mapping
 
@@ -152,8 +152,8 @@ Schema restriction properties map to the following Jakarta Bean Validation annot
 | "integer" | "minimum": n                        | @Min(n)                   |
 | "integer" | "maximum": n                        | @Max(n)                   |
 | "number"  | Not nullable                        | @NotNull                  |
-| "number"  | "minimum": n 1)                     | @Min(n)                   |
-| "number"  | "maximum": n 1)                     | @Max(n)                   |
+| "number"  | "minimum": n[^1]                    | @Min(n)                   |
+| "number"  | "maximum": n[^1]                    | @Max(n)                   |
 | "object"  |                                     | @Valid                    |
 | "object"  | Not nullable                        | @Valid @NotNull           |
 | "string"  | Not nullable                        | @NotBlank                 |
@@ -165,7 +165,7 @@ Schema restriction properties map to the following Jakarta Bean Validation annot
 
 ### Footnotes
 
-1. When "format" is unspecified (i.e. BigDecimal).
+[^1]: When "format" is unspecified (i.e. BigDecimal).
 
 ## Guidelines
 
