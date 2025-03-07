@@ -130,8 +130,6 @@ Schema types and formats map to the following Java and Kotlin types in generated
 | "string"                                     | "binary"          | byte[]                  | ByteArray               |
 | "string"                                     | All other formats | String                  | String                  |
 
-### Footnotes
-
 [^1]: Inline objects not supported.
 [^2]: Expects string in the [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html) duration format.
 [^3]: Expects string in the [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html) local date format.
@@ -152,8 +150,8 @@ Schema restriction properties map to the following Jakarta Bean Validation annot
 | "integer" | "minimum": n                        | @Min(n)                   |
 | "integer" | "maximum": n                        | @Max(n)                   |
 | "number"  | Not nullable                        | @NotNull                  |
-| "number"  | "minimum": n[^1]                    | @Min(n)                   |
-| "number"  | "maximum": n[^1]                    | @Max(n)                   |
+| "number"  | "minimum": n[^5]                    | @Min(n)                   |
+| "number"  | "maximum": n[^5]                    | @Max(n)                   |
 | "object"  |                                     | @Valid                    |
 | "object"  | Not nullable                        | @Valid @NotNull           |
 | "string"  | Not nullable                        | @NotBlank                 |
@@ -163,9 +161,7 @@ Schema restriction properties map to the following Jakarta Bean Validation annot
 | "string"  | "maxLength": n                      | @Size(max = n)            |
 | "string"  | "format": "email"                   | @Email                    |
 
-### Footnotes
-
-[^1]: When "format" is unspecified (i.e. BigDecimal).
+[^5]: When "format" is unspecified (i.e. BigDecimal).
 
 ## Guidelines
 
