@@ -25,7 +25,8 @@ import static io.github.torand.openapi2java.TestHelper.assertMatchingKotlinFiles
 import static io.github.torand.openapi2java.TestHelper.assertMatchingKotlinFilesVariant;
 import static io.github.torand.openapi2java.TestHelper.getJavaOptions;
 import static io.github.torand.openapi2java.TestHelper.getKotlinOptions;
-import static io.github.torand.openapi2java.TestHelper.loadOpenApiSpec;
+import static io.github.torand.openapi2java.TestHelper.loadOpenApi30Spec;
+import static io.github.torand.openapi2java.TestHelper.loadOpenApi31Spec;
 import static io.github.torand.openapi2java.TestHelper.withResteasyResponse;
 
 public class ResourceGeneratorTest {
@@ -39,7 +40,19 @@ public class ResourceGeneratorTest {
     @Test
     public void shouldGenerateJavaResources() {
         Options opts = getJavaOptions();
-        OpenAPI openApiDoc = loadOpenApiSpec();
+        OpenAPI openApiDoc = loadOpenApi31Spec();
+
+        new ResourceGenerator(opts).generate(openApiDoc);
+
+        for (String resource : RESOURCES) {
+            assertMatchingJavaFiles("%sApi.java".formatted(resource));
+        }
+    }
+
+    @Test
+    public void shouldGenerateJavaResources_OpenApi30() {
+        Options opts = getJavaOptions();
+        OpenAPI openApiDoc = loadOpenApi30Spec();
 
         new ResourceGenerator(opts).generate(openApiDoc);
 
@@ -51,7 +64,7 @@ public class ResourceGeneratorTest {
     @Test
     public void shouldGenerateJavaResources_withResteasyResponses() {
         Options opts = withResteasyResponse(getJavaOptions());
-        OpenAPI openApiDoc = loadOpenApiSpec();
+        OpenAPI openApiDoc = loadOpenApi31Spec();
 
         new ResourceGenerator(opts).generate(openApiDoc);
 
@@ -63,7 +76,19 @@ public class ResourceGeneratorTest {
     @Test
     public void shouldGenerateKotlinResources() {
         Options opts = getKotlinOptions();
-        OpenAPI openApiDoc = loadOpenApiSpec();
+        OpenAPI openApiDoc = loadOpenApi31Spec();
+
+        new ResourceGenerator(opts).generate(openApiDoc);
+
+        for (String resource : RESOURCES) {
+            assertMatchingKotlinFiles("%sApi.kt".formatted(resource));
+        }
+    }
+
+    @Test
+    public void shouldGenerateKotlinResources_OpenApi30() {
+        Options opts = getKotlinOptions();
+        OpenAPI openApiDoc = loadOpenApi30Spec();
 
         new ResourceGenerator(opts).generate(openApiDoc);
 
@@ -75,7 +100,7 @@ public class ResourceGeneratorTest {
     @Test
     public void shouldGenerateKotlinResources_withResteasyResponses() {
         Options opts = withResteasyResponse(getKotlinOptions());
-        OpenAPI openApiDoc = loadOpenApiSpec();
+        OpenAPI openApiDoc = loadOpenApi31Spec();
 
         new ResourceGenerator(opts).generate(openApiDoc);
 

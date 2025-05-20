@@ -21,10 +21,14 @@ import org.junit.jupiter.api.Test;
 import java.util.Set;
 
 import static io.github.torand.openapi2java.TestHelper.assertMatchingJavaFiles;
+import static io.github.torand.openapi2java.TestHelper.assertMatchingJavaFilesForOpenApi30;
+import static io.github.torand.openapi2java.TestHelper.assertMatchingJavaFilesVariant;
 import static io.github.torand.openapi2java.TestHelper.assertMatchingKotlinFiles;
+import static io.github.torand.openapi2java.TestHelper.assertMatchingKotlinFilesForOpenApi30;
 import static io.github.torand.openapi2java.TestHelper.getJavaOptions;
 import static io.github.torand.openapi2java.TestHelper.getKotlinOptions;
-import static io.github.torand.openapi2java.TestHelper.loadOpenApiSpec;
+import static io.github.torand.openapi2java.TestHelper.loadOpenApi30Spec;
+import static io.github.torand.openapi2java.TestHelper.loadOpenApi31Spec;
 
 public class ModelGeneratorTest {
 
@@ -44,10 +48,19 @@ public class ModelGeneratorTest {
         "NewUserProfileV1"
     );
 
+    // These POJOs generate different model for OpenAPI 3.0 than for OpenAPI 3.1
+    private static final Set<String> POJOS_WITH_30_MODEL = Set.of(
+        "OrderV1",
+        "OrderItemV1",
+        "ProductV1",
+        "UserProfileV1",
+        "NewUserProfileV1"
+    );
+
     @Test
     public void shouldGenerateJavaPojos() {
         Options opts = getJavaOptions();
-        OpenAPI openApiDoc = loadOpenApiSpec();
+        OpenAPI openApiDoc = loadOpenApi31Spec();
 
         new ModelGenerator(opts).generate(openApiDoc);
 
@@ -61,9 +74,35 @@ public class ModelGeneratorTest {
     }
 
     @Test
+    public void shouldGenerateJavaPojos_OpenApi30() {
+        Options opts = getJavaOptions();
+        OpenAPI openApiDoc = loadOpenApi30Spec();
+
+        new ModelGenerator(opts).generate(openApiDoc);
+
+        for (String pojo : COMMON_POJOS) {
+            String filename = "model/common/%sDto.java".formatted(pojo);
+            if (POJOS_WITH_30_MODEL.contains(pojo)) {
+                assertMatchingJavaFilesForOpenApi30(filename);
+            } else {
+                assertMatchingJavaFiles(filename);
+            }
+        }
+
+        for (String pojo : DOMAIN_POJOS) {
+            String filename = "model/%sDto.java".formatted(pojo);
+            if (POJOS_WITH_30_MODEL.contains(pojo)) {
+                assertMatchingJavaFilesForOpenApi30(filename);
+            } else {
+                assertMatchingJavaFiles(filename);
+            }
+        }
+    }
+
+    @Test
     public void shouldGenerateKotlinPojos() {
         Options opts = getKotlinOptions();
-        OpenAPI openApiDoc = loadOpenApiSpec();
+        OpenAPI openApiDoc = loadOpenApi31Spec();
 
         new ModelGenerator(opts).generate(openApiDoc);
 
@@ -73,6 +112,32 @@ public class ModelGeneratorTest {
 
         for (String pojo : DOMAIN_POJOS) {
             assertMatchingKotlinFiles("model/%sDto.kt".formatted(pojo));
+        }
+    }
+
+    @Test
+    public void shouldGenerateKotlinPojos_OpenApi30() {
+        Options opts = getKotlinOptions();
+        OpenAPI openApiDoc = loadOpenApi30Spec();
+
+        new ModelGenerator(opts).generate(openApiDoc);
+
+        for (String pojo : COMMON_POJOS) {
+            String filename = "model/common/%sDto.kt".formatted(pojo);
+            if (POJOS_WITH_30_MODEL.contains(pojo)) {
+                assertMatchingKotlinFilesForOpenApi30(filename);
+            } else {
+                assertMatchingKotlinFiles(filename);
+            }
+        }
+
+        for (String pojo : DOMAIN_POJOS) {
+            String filename = "model/%sDto.kt".formatted(pojo);
+            if (POJOS_WITH_30_MODEL.contains(pojo)) {
+                assertMatchingKotlinFilesForOpenApi30(filename);
+            } else {
+                assertMatchingKotlinFiles(filename);
+            }
         }
     }
 }

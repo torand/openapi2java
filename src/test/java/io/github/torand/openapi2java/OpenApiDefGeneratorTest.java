@@ -22,14 +22,25 @@ import static io.github.torand.openapi2java.TestHelper.assertMatchingJavaFiles;
 import static io.github.torand.openapi2java.TestHelper.assertMatchingKotlinFiles;
 import static io.github.torand.openapi2java.TestHelper.getJavaOptions;
 import static io.github.torand.openapi2java.TestHelper.getKotlinOptions;
-import static io.github.torand.openapi2java.TestHelper.loadOpenApiSpec;
+import static io.github.torand.openapi2java.TestHelper.loadOpenApi30Spec;
+import static io.github.torand.openapi2java.TestHelper.loadOpenApi31Spec;
 
 public class OpenApiDefGeneratorTest {
 
     @Test
     public void shouldGenerateJavaOpenApiDef() {
         Options opts = getJavaOptions();
-        OpenAPI openApiDoc = loadOpenApiSpec();
+        OpenAPI openApiDoc = loadOpenApi31Spec();
+
+        new OpenApiDefGenerator(opts).generate(openApiDoc);
+
+        assertMatchingJavaFiles("OpenApiDefinition.java");
+    }
+
+    @Test
+    public void shouldGenerateJavaOpenApiDef_OpenApi30() {
+        Options opts = getJavaOptions();
+        OpenAPI openApiDoc = loadOpenApi30Spec();
 
         new OpenApiDefGenerator(opts).generate(openApiDoc);
 
@@ -39,7 +50,17 @@ public class OpenApiDefGeneratorTest {
     @Test
     public void shouldGenerateKotlinOpenApiDef() {
         Options opts = getKotlinOptions();
-        OpenAPI openApiDoc = loadOpenApiSpec();
+        OpenAPI openApiDoc = loadOpenApi31Spec();
+
+        new OpenApiDefGenerator(opts).generate(openApiDoc);
+
+        assertMatchingKotlinFiles("OpenApiDefinition.kt");
+    }
+
+    @Test
+    public void shouldGenerateKotlinOpenApiDef_OpenApi30() {
+        Options opts = getKotlinOptions();
+        OpenAPI openApiDoc = loadOpenApi30Spec();
 
         new OpenApiDefGenerator(opts).generate(openApiDoc);
 

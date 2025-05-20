@@ -399,7 +399,8 @@ public class TypeInfoCollector extends BaseCollector {
             }
         }
 
-        return schema.getTypes().contains("null") || isNullableByExtension(schema);
+        // schema.getNullable() populated by OpenAPI 3.0.x only
+        return schema.getTypes().contains("null") || TRUE.equals(schema.getNullable()) || isNullableByExtension(schema);
     }
 
     private boolean isNullableByExtension(Schema<?> schema) {
