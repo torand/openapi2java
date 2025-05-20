@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - ...
 
+## [1.1.0] - 2025-05-20
+### Added
+- Support for OpenAPI 3.0.x specifications.
+
 ## [1.0.1] - 2025-02-05
 ### Changed
 - Bump dependency io.swagger.parser.v3:swagger-parser to v2.1.25

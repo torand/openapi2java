@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 
 import java.io.IOException;
@@ -45,9 +46,15 @@ public class TestHelper {
         NoHeaderParam;
     }
 
-    public static OpenAPI loadOpenApiSpec() {
-        String openApiUri = getResourceUri("openapi.json").toString();
-        SwaggerParseResult result = new OpenAPIParser().readLocation(openApiUri, null, null);
+    public static OpenAPI loadOpenApi31Spec() {
+        String openApiUri = getResourceUri("openapi-3.1.json").toString();
+        SwaggerParseResult result = new OpenAPIV3Parser().readLocation(openApiUri, null, null);
+        return result.getOpenAPI();
+    }
+
+    public static OpenAPI loadOpenApi30Spec() {
+        String openApiUri = getResourceUri("openapi-3.0.json").toString();
+        SwaggerParseResult result = new OpenAPIV3Parser().readLocation(openApiUri, null, null);
         return result.getOpenAPI();
     }
 
@@ -96,12 +103,26 @@ public class TestHelper {
         assertMatchingFiles(expectedPath, actualPath);
     }
 
+    public static void assertMatchingJavaFilesForOpenApi30(String filename) {
+        Path expectedPath = getResourcePath("expected-output-30/java/%s".formatted(filename));
+        Path actualPath = Path.of("target/test-output/java/%s".formatted(filename));
+
+        assertMatchingFiles(expectedPath, actualPath);
+    }
+
     public static void assertMatchingJavaFilesVariant(String filename, ConfigVariant variant) {
         assertMatchingJavaFiles("%s%s.java".formatted(filename, "_" + variant));
     }
 
     public static void assertMatchingKotlinFiles(String filename) {
         Path expectedPath = getResourcePath("expected-output/kotlin/%s".formatted(filename));
+        Path actualPath = Path.of("target/test-output/kotlin/%s".formatted(filename));
+
+        assertMatchingFiles(expectedPath, actualPath);
+    }
+
+    public static void assertMatchingKotlinFilesForOpenApi30(String filename) {
+        Path expectedPath = getResourcePath("expected-output-30/kotlin/%s".formatted(filename));
         Path actualPath = Path.of("target/test-output/kotlin/%s".formatted(filename));
 
         assertMatchingFiles(expectedPath, actualPath);

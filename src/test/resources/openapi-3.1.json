@@ -677,13 +677,13 @@
         "type": "string",
         "format": "uuid",
         "description": "Universally unique identifier",
-        "example": "015f24f8-f0c9-445f-af95-81ad8008d37c"
+        "examples": ["015f24f8-f0c9-445f-af95-81ad8008d37c"]
       },
       "MobileNumberV1": {
         "type": "string",
         "pattern": "^[0-9]{10,15}$",
         "description": "Mobile phone number using the E.164 standard (includes country code), without an international call prefix",
-        "example": "4791356234",
+        "examples": ["4791356234"],
         "x-validation-constraint": "io.github.torand.openapi2java.test.annotation.MobileNo"
       },
       "AddressV1": {
@@ -730,7 +730,7 @@
         "type": "string",
         "format": "date-time",
         "description": "ISO-8601 formatted date and time",
-        "example": "2023‐09‐26T07:23:32Z"
+        "examples": ["2023‐09‐26T07:23:32Z"]
       },
       "OrderStatusV1": {
         "description": "Processing status of an order",
@@ -900,7 +900,7 @@
         "type": "string",
         "pattern": "^[0-9]{11}$",
         "description": "Identifies a Norwegian citizen",
-        "example": "17016898765"
+        "examples": ["17016898765"]
       },
       "NewUserProfileV1": {
         "description": "A user profile to be created",
@@ -928,7 +928,7 @@
         "description": "Natural language and locale accepted by client",
         "schema": {
           "type": "string",
-          "example": "en-US",
+          "examples": ["en-US"],
           "default": "nb-NO"
         }
       },
@@ -939,7 +939,7 @@
         "description": "Unique user identifier (SHA1 fingerprint)",
         "schema": {
           "type": "string",
-          "example": "5a27363f823ecf20a7722f445a35aa77bd5ea236"
+          "examples": ["5a27363f823ecf20a7722f445a35aa77bd5ea236"]
         }
       },
       "OrderId": {
@@ -949,7 +949,7 @@
         "description": "Unique order identifier",
         "schema": {
           "type": "string",
-          "example": "987654321"
+          "examples": ["987654321"]
         }
       },
       "ProductNo": {
@@ -959,7 +959,7 @@
         "description": "Unique product number",
         "schema": {
           "type": "string",
-          "example": "987654321"
+          "examples": ["987654321"]
         }
       },
       "UserId": {
@@ -969,7 +969,7 @@
         "description": "Unique user identifier (SHA1 fingerprint)",
         "schema": {
           "type": "string",
-          "example": "5a27363f823ecf20a7722f445a35aa77bd5ea236"
+          "examples": ["5a27363f823ecf20a7722f445a35aa77bd5ea236"]
         }
       },
       "PageOffset": {

@@ -270,9 +270,11 @@ public class MethodInfoCollector extends BaseCollector {
             }
         }
 
+        // OpenAPI 3.1.x only
         if (nonBlank(schema.getContentMediaType())) {
             partMediaType = schema.getContentMediaType();
         }
+
         partMediaType = toMediaTypeConstant(partMediaType, paramInfo.staticImports);
 
         paramInfo.nullable = bodyType.nullable;

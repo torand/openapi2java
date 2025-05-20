@@ -24,7 +24,7 @@ A Maven plugin to generate Java models and REST clients from an [OpenAPI](https:
 ## Overview
 
 Include this Maven plugin in any Java project implementing a REST client (or server) to enable a [Contract First](https://dzone.com/articles/designing-rest-api-what-is-contract-first) build workflow.
-The current version supports the OpenAPI 3.1.x specification, using either YAML or JSON formats.
+The current version supports OpenAPI 3.0.x and 3.1.x specifications, using either YAML or JSON formats.
 
 The OpenAPI specification file is read, parsed and validated using the excellent [Swagger Parser](https://github.com/swagger-api/swagger-parser/) library.
 POJOs (classes or enums) for the representation model are output to a 'model' subdirectory using Java or Kotlin syntax.
@@ -51,7 +51,7 @@ The package is available from the [Maven Central Repository](https://central.son
     <plugin>
       <groupId>io.github.torand</groupId>
       <artifactId>openapi2java</artifactId>
-      <version>1.0.1</version>
+      <version>1.1.0</version>
       <executions>
         <execution>
          <id>generate</id>
@@ -74,7 +74,7 @@ The package is available from the [Maven Central Repository](https://central.son
 ### Run from the Command Line
 
 ```bash
-$ mvn io.github.torand:openapi2java:1.0.1:generate \
+$ mvn io.github.torand:openapi2java:1.1.0:generate \
   -DopenApiFile=openapi.json \
   -DoutputDir=target/openapi2java \
   -DrootPackage=io.github.torand.myapi
@@ -167,7 +167,8 @@ Schema restriction properties map to the following Jakarta Bean Validation annot
 
 ### General
 
-As OpenAPI schemas are based on the [JSON Schema](https://json-schema.org/) standard, they can be expressed in a relaxed, abstract manner.
+As OpenAPI 3.1.x schemas are based on the [JSON Schema](https://json-schema.org/) standard (3.0.x to a lesser degree), they can be expressed in a relaxed, abstract manner.
+JSON Schema is [a constraint system, not a data definition system](https://modern-json-schema.com/json-schema-is-a-constraint-system).
 This makes a powerful tool for validation, but complicates code generation. As a general rule, to produce meaningful POJOs, strict schemas are necessary.
 Hence, the "type" property is mandatory.
 
@@ -196,7 +197,7 @@ The code generation can be customized by using the following extension propertie
 | x-model-subdir          | String  | In a component schema               | Subdirectory to place the generated DTO model class                     |
 | x-deprecation-message   | String  | Everywhere `deprecated` can be used | Describing why something is deprecated, and what to use instead         |
 
-### Nullability
+### Nullability in OpenAPI 3.1.x
 
 Mandatory properties are (optionally) decorated with @NonNull and similar Jakarta Bean Validation annotations during code generation.
 For a schema property to be considered mandatory, i.e. present and with a non-null value, it must be mentioned in the "required" list

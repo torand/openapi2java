@@ -17,6 +17,9 @@ package io.github.torand.openapi2java;
 
 import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.SpecVersion;
+import io.swagger.v3.parser.OpenAPIV3Parser;
+import io.swagger.v3.parser.core.models.ParseOptions;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -157,7 +160,7 @@ public class OpenApi2JavaMojo extends AbstractMojo {
     private boolean verbose;
 
     public void execute() throws MojoExecutionException {
-        SwaggerParseResult result = new OpenAPIParser().readLocation(openApiFile, null, null);
+        SwaggerParseResult result = new OpenAPIV3Parser().readLocation(openApiFile, null, null);
         OpenAPI openApiDoc = result.getOpenAPI();
 
         Options opts = new Options();

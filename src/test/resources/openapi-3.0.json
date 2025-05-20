@@ -1,0 +1,1064 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Test API Specification",
+    "description": "OpenAPI specification for testing",
+    "contact": {
+      "name": "Tore Eide Andersen",
+      "url": "https://github.com/torand/openapi2java",
+      "email": "tore@nordmyrvegen.net"
+    },
+    "license": {
+      "name": "Proprietary software",
+      "url": "https://github.com/torand/openapi2java"
+    },
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "/api"
+    }
+  ],
+  "security": [
+    {
+      "oidc": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Products",
+      "description": "Retrieving and modifying products"
+    },
+    {
+      "name": "Orders",
+      "description": "Retrieving and modifying orders",
+      "x-restclient-configkey": "order-api"
+    },
+    {
+      "name": "Users",
+      "description": "Retrieving and modifying user profiles"
+    }
+  ],
+  "paths": {
+    "/orders": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Get list of orders",
+        "operationId": "getOrders",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/X-User-ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderV1"
+                  }
+                }
+              },
+              "application/vnd.test.api.order-v1+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderV1"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Create new (empty) order",
+        "operationId": "createOrder",
+        "requestBody": {
+          "content": {
+            "application/vnd.test.api.order-v1+json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderV1"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/X-User-ID"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Order was created",
+            "headers": {
+              "Location": {
+                "$ref": "#/components/headers/Location"
+              }
+            },
+            "content": {
+              "application/vnd.test.api.order-v1+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderV1"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/orders/{orderId}": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Get information about an order",
+        "operationId": "getOrderInfo",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OrderId"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/X-User-ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderV1"
+                }
+              },
+              "application/vnd.test.api.order-v1+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderV1"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/orders/{orderId}/items": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Register new item in an order",
+        "operationId": "registerOrderItem",
+        "requestBody": {
+          "content": {
+            "application/vnd.test.api.order-v1+json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderItemV1"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OrderId"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/X-User-ID"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Order item was registered"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Get list of products",
+        "operationId": "getProducts",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/X-User-ID"
+          },
+          {
+            "$ref": "#/components/parameters/PageOffset"
+          },
+          {
+            "$ref": "#/components/parameters/PageLimit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductV1"
+                  }
+                }
+              },
+              "application/vnd.test.api.product-v1+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductV1"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Register a new product",
+        "operationId": "registerProduct",
+        "requestBody": {
+          "content": {
+            "application/vnd.test.api.product-v1+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductV1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product was registered",
+            "headers": {
+              "Location": {
+                "$ref": "#/components/headers/Location"
+              }
+            },
+            "content": {
+              "application/vnd.test.api.product-v1+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductV1"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/products/{productNo}/image": {
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Upload product image",
+        "operationId": "uploadProductImage",
+        "requestBody": {
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ProductNo"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/X-User-ID"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Product image was registered"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/products/{productNo}/datasheet": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Download product datasheet",
+        "operationId": "downloadProductDatasheet",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ProductNo"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/X-User-ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            },
+            "headers": {
+              "Content-Disposition": {
+                "$ref": "#/components/headers/ContentDisposition"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Upload product data sheet",
+        "operationId": "uploadProductDatasheet",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "filename": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ProductNo"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          },
+          {
+            "$ref": "#/components/parameters/X-User-ID"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Product datasheet was registered"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/users": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Create new user profile",
+        "operationId": "createUserProfile",
+        "requestBody": {
+          "content": {
+            "application/vnd.test.api.user-profile-v1+json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewUserProfileV1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User profile was created",
+            "headers": {
+              "Location": {
+                "$ref": "#/components/headers/Location"
+              }
+            },
+            "content": {
+              "application/vnd.test.api.user-profile-v1+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfileV1"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/users/{userId}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get a user profile",
+        "operationId": "getUserProfile",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserId"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfileV1"
+                }
+              },
+              "application/vnd.test.api.user-profile-v1+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfileV1"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/users/{userId}/verify": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Verify user profile mobile number with verification code",
+        "operationId": "verifyMobileNumber",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserId"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.test.api.user-profile-v1+json": {
+              "schema": {
+                "type": "string",
+                "description": "Verification code entered by user"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verification completed. Outcome in payload",
+            "content": {
+              "application/vnd.test.api.user-profile-v1+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfileV1"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "oidc": {
+        "type": "openIdConnect",
+        "openIdConnectUrl": "https://iam.test.no/v2.0/.well-known/openid-configuration"
+      }
+    },
+    "schemas": {
+      "UuidV1": {
+        "type": "string",
+        "format": "uuid",
+        "description": "Universally unique identifier",
+        "example": "015f24f8-f0c9-445f-af95-81ad8008d37c"
+      },
+      "MobileNumberV1": {
+        "type": "string",
+        "pattern": "^[0-9]{10,15}$",
+        "description": "Mobile phone number using the E.164 standard (includes country code), without an international call prefix",
+        "example": "4791356234",
+        "x-validation-constraint": "io.github.torand.openapi2java.test.annotation.MobileNo"
+      },
+      "AddressV1": {
+        "type": "object",
+        "properties": {
+          "streetAddress": {
+            "type": "string",
+            "description": "Street name and number"
+          },
+          "zipCode": {
+            "type": "string",
+            "description": "Zip code of postal area"
+          },
+          "city": {
+            "type": "string",
+            "description": "City name"
+          },
+          "countryCode": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$",
+            "description": "ISO 3166-alpha-3 three-letter country code. Examples: NOR, SWE, DEU"
+          }
+        },
+        "required": ["streetAddress", "zipCode", "city", "countryCode"],
+        "x-model-subdir": "common"
+      },
+      "Error": {
+        "description": "Error message response for failed requests",
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "The HTTP response status code"
+          },
+          "message": {
+            "type": "string",
+            "description": "The error message"
+          }
+        },
+        "required": ["code", "message"],
+        "x-model-subdir": "common"
+      },
+      "DateTimeV1": {
+        "type": "string",
+        "format": "date-time",
+        "description": "ISO-8601 formatted date and time",
+        "example": "2023‐09‐26T07:23:32Z"
+      },
+      "OrderStatusV1": {
+        "description": "Processing status of an order",
+        "enum": [
+          "Created",
+          "Processing",
+          "Dispatched"
+        ],
+        "type": "string"
+      },
+      "OrderV1": {
+        "description": "An order registered by a user",
+        "type": "object",
+        "properties": {
+          "id": {
+            "oneOf": [
+              {
+                "type": "object",
+                "nullable": true
+              },
+              {
+                "$ref": "#/components/schemas/UuidV1"
+              }
+            ],
+            "description": "Unique order identifier"
+          },
+          "placedBy": {
+            "$ref": "#/components/schemas/UserProfileV1"
+          },
+          "status": {
+            "$ref": "#/components/schemas/OrderStatusV1"
+          },
+          "createdTime": {
+            "$ref": "#/components/schemas/DateTimeV1"
+          },
+          "items":{
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderItemV1"
+            },
+            "minItems": 1,
+            "description": "Order items"
+          },
+          "comment": {
+            "type": "string",
+            "nullable": true,
+            "description": "Additional comment from customer"
+          }
+        },
+        "required": ["placedBy", "status", "createdTime", "items"]
+      },
+      "OrderItemV1": {
+        "description": "An order item",
+        "type": "object",
+        "properties": {
+          "product": {
+            "$ref": "#/components/schemas/ProductV1"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "The quantity ordered"
+          }
+        },
+        "required": ["product", "quantity"]
+      },
+      "ProductCategoryV1": {
+        "description": "Product categories",
+        "enum": [
+          "HomeAppliance",
+          "Electronics",
+          "Computers"
+        ],
+        "type": "string"
+      },
+      "ProductV1": {
+        "description": "A product available in the web shop",
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "string",
+            "description": "Product number",
+            "x-json-serializer": "io.github.torand.openapi2java.test.serialization.ProductNoSerializer"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Product name"
+          },
+          "category": {
+            "$ref": "#/components/schemas/ProductCategoryV1"
+          },
+          "price": {
+            "type": "number",
+            "format": "float",
+            "description": "Product price (NOK)"
+          },
+          "comment": {
+            "type": "string",
+            "nullable": true,
+            "description": "Product comment",
+            "deprecated": true,
+            "x-deprecation-message": "To be removed in next version"
+          }
+        },
+        "required": ["number", "name", "category", "price"]
+      },
+      "UserTypeV1": {
+        "description": "User types",
+        "enum": [
+          "Private",
+          "Business"
+        ],
+        "type": "string"
+      },
+      "UserProfileV1": {
+        "description": "A user profile",
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "description": "First name of user"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Last name of user"
+          },
+          "address": {
+            "$ref": "#/components/schemas/AddressV1"
+          },
+          "emailAddress": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address of user",
+            "x-nullable": true
+          },
+          "mobileNumber": {
+            "$ref": "#/components/schemas/MobileNumberV1"
+          },
+          "mobileNumberVerified": {
+            "type": "boolean",
+            "description": "Indicates whether mobile number is successfully authenticated using a verification code"
+          },
+          "type": {
+            "$ref": "#/components/schemas/UserTypeV1"
+          },
+          "createdTime": {
+            "$ref": "#/components/schemas/DateTimeV1"
+          },
+          "lastLoginTime": {
+            "oneOf": [
+              {
+                "type": "object",
+                "nullable": true
+              },
+              {
+                "$ref": "#/components/schemas/DateTimeV1"
+              }
+            ],
+            "description": "Date and time of last user login"
+          }
+        },
+        "required": ["firstName", "lastName", "address", "mobileNumber", "mobileNumberVerified", "type", "createdTime"]
+      },
+      "NationalIdentityNumberV1": {
+        "type": "string",
+        "pattern": "^[0-9]{11}$",
+        "description": "Identifies a Norwegian citizen",
+        "example": "17016898765"
+      },
+      "NewUserProfileV1": {
+        "description": "A user profile to be created",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/UserProfileV1"
+          }, {
+            "type": "object",
+            "properties": {
+              "nationalIdentityNumber": {
+                "$ref": "#/components/schemas/NationalIdentityNumberV1"
+              }
+            },
+            "required": ["nationalIdentityNumber"]
+          }
+        ]
+      }
+    },
+    "parameters": {
+      "AcceptLanguage": {
+        "name": "Accept-Language",
+        "in": "header",
+        "required": false,
+        "description": "Natural language and locale accepted by client",
+        "schema": {
+          "type": "string",
+          "example": "en-US",
+          "default": "nb-NO"
+        }
+      },
+      "X-User-ID": {
+        "name": "X-User-ID",
+        "in": "header",
+        "required": true,
+        "description": "Unique user identifier (SHA1 fingerprint)",
+        "schema": {
+          "type": "string",
+          "example": "5a27363f823ecf20a7722f445a35aa77bd5ea236"
+        }
+      },
+      "OrderId": {
+        "name": "orderId",
+        "in": "path",
+        "required": true,
+        "description": "Unique order identifier",
+        "schema": {
+          "type": "string",
+          "example": "987654321"
+        }
+      },
+      "ProductNo": {
+        "name": "productNo",
+        "in": "path",
+        "required": true,
+        "description": "Unique product number",
+        "schema": {
+          "type": "string",
+          "example": "987654321"
+        }
+      },
+      "UserId": {
+        "name": "userId",
+        "in": "path",
+        "required": true,
+        "description": "Unique user identifier (SHA1 fingerprint)",
+        "schema": {
+          "type": "string",
+          "example": "5a27363f823ecf20a7722f445a35aa77bd5ea236"
+        }
+      },
+      "PageOffset": {
+        "name": "offset",
+        "in": "query",
+        "required": false,
+        "description": "Offset of first result in returned page",
+        "schema": {
+          "type": "integer",
+          "default": 0,
+          "minimum": 0
+        }
+      },
+      "PageLimit": {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "description": "Number of results in returned page",
+        "schema": {
+          "type": "integer",
+          "default": 10,
+          "minimum": 1
+        }
+      }
+    },
+    "headers": {
+      "ContentDisposition": {
+        "description": "File information ([documentation](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition))",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "Location": {
+        "description": "URI of created resource",
+        "schema": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Invalid input parameters supplied",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Authentication credentials are invalid or missing",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Authenticated client or user is not granted access to this resource",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "The requested resource was not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "InternalServerError": {
+        "description": "Internal server error while processing request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    }
+  }
+}
