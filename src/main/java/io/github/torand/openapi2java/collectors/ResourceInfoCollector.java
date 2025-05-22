@@ -63,15 +63,17 @@ public class ResourceInfoCollector extends BaseCollector {
             resourceInfo.annotations.addAll(secReqInfo.annotations);
         }
 
-        if (opts.addMpOpenApiAnnotations) {
+        if (opts.addMpOpenApiAnnotations && nonNull(tag)) {
             resourceInfo.imports.add("org.eclipse.microprofile.openapi.annotations.tags.Tag");
             resourceInfo.annotations.add("@Tag(name = \"%s\", description = \"%s\")".formatted(tag.getName(), normalizeDescription(tag.getDescription())));
         }
 
         if (opts.addMpRestClientAnnotations) {
-            String configKey = extensions(tag.getExtensions())
-                .getString(EXT_RESTCLIENT_CONFIGKEY)
-                .orElse(tag.getName().toLowerCase()+"-api");
+            String configKey = nonNull(tag) ?
+                extensions(tag.getExtensions())
+                    .getString(EXT_RESTCLIENT_CONFIGKEY)
+                    .orElse(tag.getName().toLowerCase()+"-api") :
+                resourceName.toLowerCase()+"-api";
 
             resourceInfo.imports.add("org.eclipse.microprofile.rest.client.inject.RegisterRestClient");
             resourceInfo.annotations.add("@RegisterRestClient(configKey = \"%s\")".formatted(configKey));
@@ -87,20 +89,22 @@ public class ResourceInfoCollector extends BaseCollector {
         resourceInfo.staticImports.add("%s.%s.ROOT_PATH".formatted(opts.rootPackage, resourceInfo.name));
         resourceInfo.annotations.add("@Path(ROOT_PATH)");
 
+        String tagName = nonNull(tag) ? tag.getName() : null;
+
         paths.forEach((path, pathInfo) -> {
-            if (shouldProcessOperation(pathInfo.getGet(), tag.getName())) {
+            if (shouldProcessOperation(pathInfo.getGet(), tagName)) {
                 resourceInfo.methods.add(methodInfoCollector.getMethodInfo("GET", path, pathInfo.getGet()));
             }
-            if (shouldProcessOperation(pathInfo.getPost(), tag.getName())) {
+            if (shouldProcessOperation(pathInfo.getPost(), tagName)) {
                 resourceInfo.methods.add(methodInfoCollector.getMethodInfo("POST", path, pathInfo.getPost()));
             }
-            if (shouldProcessOperation(pathInfo.getDelete(), tag.getName())) {
+            if (shouldProcessOperation(pathInfo.getDelete(), tagName)) {
                 resourceInfo.methods.add(methodInfoCollector.getMethodInfo("DELETE", path, pathInfo.getDelete()));
             }
-            if (shouldProcessOperation(pathInfo.getPut(), tag.getName())) {
+            if (shouldProcessOperation(pathInfo.getPut(), tagName)) {
                 resourceInfo.methods.add(methodInfoCollector.getMethodInfo("PUT", path, pathInfo.getPut()));
             }
-            if (shouldProcessOperation(pathInfo.getPatch(), tag.getName())) {
+            if (shouldProcessOperation(pathInfo.getPatch(), tagName)) {
                 resourceInfo.methods.add(methodInfoCollector.getMethodInfo("PATCH", path, pathInfo.getPatch()));
             }
         });

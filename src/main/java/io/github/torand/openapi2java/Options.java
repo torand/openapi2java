@@ -24,6 +24,7 @@ public class Options {
     public String rootPackage;
     public String rootUrlPath = "api";
     public String resourceNameSuffix = "Api";
+    public String resourceNameOverride = "";
     public String pojoNameSuffix = "Dto";
     public boolean pojosAsRecords = true;
     public List<String> includeTags;

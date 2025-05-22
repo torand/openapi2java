@@ -28,6 +28,7 @@ import static io.github.torand.openapi2java.TestHelper.getKotlinOptions;
 import static io.github.torand.openapi2java.TestHelper.loadOpenApi30Spec;
 import static io.github.torand.openapi2java.TestHelper.loadOpenApi31Spec;
 import static io.github.torand.openapi2java.TestHelper.withResteasyResponse;
+import static java.util.Collections.emptyList;
 
 public class ResourceGeneratorTest {
 
@@ -74,6 +75,19 @@ public class ResourceGeneratorTest {
     }
 
     @Test
+    public void shouldGenerateJavaResource_withNameOverride() {
+        Options opts = getJavaOptions();
+        opts.resourceNameOverride = "Compound";
+
+        OpenAPI openApiDoc = loadOpenApi31Spec();
+        removeTags(openApiDoc);
+
+        new ResourceGenerator(opts).generate(openApiDoc);
+
+        assertMatchingJavaFiles("%sApi.java".formatted(opts.resourceNameOverride));
+    }
+
+    @Test
     public void shouldGenerateKotlinResources() {
         Options opts = getKotlinOptions();
         OpenAPI openApiDoc = loadOpenApi31Spec();
@@ -107,5 +121,26 @@ public class ResourceGeneratorTest {
         for (String resource : RESOURCES) {
             assertMatchingKotlinFilesVariant("%sApi".formatted(resource), Resteasy);
         }
+    }
+
+    @Test
+    public void shouldGenerateKotlinResource_withNameOverride() {
+        Options opts = getKotlinOptions();
+        opts.resourceNameOverride = "Compound";
+
+        OpenAPI openApiDoc = loadOpenApi31Spec();
+        removeTags(openApiDoc);
+
+        new ResourceGenerator(opts).generate(openApiDoc);
+
+        assertMatchingKotlinFiles("%sApi.kt".formatted(opts.resourceNameOverride));
+    }
+
+    private void removeTags(OpenAPI openApiDoc) {
+        openApiDoc.setTags(emptyList());
+        openApiDoc.getPaths().values()
+            .forEach(pathItem -> pathItem.readOperations()
+                .forEach(operation -> operation.setTags(emptyList()))
+            );
     }
 }

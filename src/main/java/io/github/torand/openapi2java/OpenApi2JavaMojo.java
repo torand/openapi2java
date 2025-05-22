@@ -71,6 +71,13 @@ public class OpenApi2JavaMojo extends AbstractMojo {
     private String resourceNameSuffix;
 
     /**
+     * Resource name override. Specify this to have all endpoints generated into a single resource interface.
+     * If not specified, the endpoints are generated into separate resource interfaces, one per tag.
+     */
+    @Parameter( property = "resourceNameOverride", defaultValue = "" )
+    private String resourceNameOverride;
+
+    /**
      * Pojo name suffix.
      */
     @Parameter( property = "pojoNameSuffix", defaultValue = "Dto" )
@@ -168,6 +175,7 @@ public class OpenApi2JavaMojo extends AbstractMojo {
         opts.rootPackage = rootPackage;
         opts.rootUrlPath = rootUrlPath;
         opts.resourceNameSuffix = resourceNameSuffix;
+        opts.resourceNameOverride = resourceNameOverride;
         opts.pojoNameSuffix = pojoNameSuffix;
         opts.pojosAsRecords = pojosAsRecords;
         opts.includeTags = includeTags;
