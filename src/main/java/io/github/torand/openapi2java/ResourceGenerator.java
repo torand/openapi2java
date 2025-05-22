@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static io.github.torand.openapi2java.utils.CollectionHelper.isEmpty;
+import static io.github.torand.openapi2java.utils.StringHelper.isBlank;
 import static io.github.torand.openapi2java.utils.StringHelper.pluralSuffix;
 import static io.github.torand.openapi2java.writers.WriterFactory.createResourceWriter;
 import static java.util.stream.Collectors.joining;
@@ -43,6 +44,50 @@ public class ResourceGenerator {
     }
 
     public void generate(OpenAPI openApiDoc) {
+        int clientCount = 0;
+
+        if (isEmpty(openApiDoc.getTags())) {
+            if (isBlank(opts.resourceNameOverride)) {
+                logger.error("The OpenAPI specification does not contain tags. Please configure a resource name override to generate a resource class.");
+                return;
+            }
+
+            clientCount = generateWithNameOverride(openApiDoc);
+        } else {
+            clientCount = generateFromTags(openApiDoc);
+        }
+
+        logger.info("Generated {} REST client{} in directory {}", clientCount, pluralSuffix(clientCount), opts.outputDir);
+    }
+
+    private int generateWithNameOverride(OpenAPI openApiDoc) {
+        ComponentResolver componentResolver = new ComponentResolver(openApiDoc);
+        ResourceInfoCollector resourceInfoCollector = new ResourceInfoCollector(componentResolver, opts);
+
+        String resourceName = opts.resourceNameOverride;
+
+        if (opts.verbose) {
+            logger.info("Generating REST client: {}{}", resourceName, opts.resourceNameSuffix);
+        }
+
+        ResourceInfo resourceInfo = resourceInfoCollector.getResourceInfo(resourceName, openApiDoc.getPaths(), openApiDoc.getSecurity(), null);
+
+        String resourceFilename = resourceInfo.name + opts.getFileExtension();
+        try (ResourceWriter resourceWriter = createResourceWriter(resourceFilename, opts)) {
+            if (resourceInfo.isEmpty()) {
+                logger.warn("No paths found in OpenAPI specification");
+                return 0;
+            } else {
+                resourceWriter.write(resourceInfo);
+                return 1;
+            }
+        } catch (IOException e) {
+            logger.error("Failed to write file {}", resourceFilename, e);
+            return 0;
+        }
+    }
+
+    private int generateFromTags(OpenAPI openApiDoc) {
         ComponentResolver componentResolver = new ComponentResolver(openApiDoc);
         ResourceInfoCollector resourceInfoCollector = new ResourceInfoCollector(componentResolver, opts);
 
@@ -50,11 +95,10 @@ public class ResourceGenerator {
 
         openApiDoc.getTags().forEach(tag -> {
             if (isEmpty(opts.includeTags) || opts.includeTags.contains(tag.getName())) {
-                clientCount.incrementAndGet();
-                String resourceName = getResourceClassName(tag);
+                String resourceName = getResourceName(tag);
 
                 if (opts.verbose) {
-                    logger.info("Generating REST client for tag \"{}\": {}", tag.getName(), resourceName + opts.resourceNameSuffix);
+                    logger.info("Generating REST client for tag \"{}\": {}{}", tag.getName(), resourceName, opts.resourceNameSuffix);
                 }
 
                 ResourceInfo resourceInfo = resourceInfoCollector.getResourceInfo(resourceName, openApiDoc.getPaths(), openApiDoc.getSecurity(), tag);
@@ -65,6 +109,7 @@ public class ResourceGenerator {
                         logger.warn("No paths found for tag \"{}\"", tag.getName());
                     } else {
                         resourceWriter.write(resourceInfo);
+                        clientCount.incrementAndGet();
                     }
                 } catch (IOException e) {
                     logger.error("Failed to write file {}", resourceFilename, e);
@@ -72,10 +117,10 @@ public class ResourceGenerator {
             }
         });
 
-        logger.info("Generated {} REST client{} in directory {}", clientCount.get(), pluralSuffix(clientCount.get()), opts.outputDir);
+        return clientCount.get();
     }
 
-    private String getResourceClassName(Tag tag) {
+    private String getResourceName(Tag tag) {
         String tagName = tag.getName().trim();
         String[] tagSubNames = tagName.split(" ");
         return Stream.of(tagSubNames).map(StringHelper::capitalize).collect(joining());
