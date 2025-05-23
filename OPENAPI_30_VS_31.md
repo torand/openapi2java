@@ -1,6 +1,8 @@
 Important Differences between OpenAPI Versions 3.0.x and 3.1.x
 ==============================================================
  
+## Differences
+
 - Examples
   * 3.0: "example" with single value.
   * 3.1: "examples" with array of values.
@@ -32,3 +34,8 @@ Important Differences between OpenAPI Versions 3.0.x and 3.1.x
 - File upload
   * 3.0: Use "format" (byte, binary, or base64) to describe file payloads.
   * 3.1: As part of JSON Schema compliance, contentEncoding and contentMediaType should be used for such specification.
+
+## Reference
+
+- [OpenAPI Version 3.0.x](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.3.md)
+- [OpenAPI Version 3.1.x](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md)
