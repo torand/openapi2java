@@ -93,7 +93,7 @@ $ mvn io.github.torand:openapi2java:1.2.0:generate \
 | pojoNameSuffix                      | "Dto"              | Suffix for POJO (model) class names                                                      |
 | pojosAsRecords                      | true               | Whether to output Java records instead of Java classes for models                        |
 | includeTags                         | "" (i.e. all)      | Tags (comma separated) to output resource interfaces for                                 |
-| generateResourceClasses             | true               | Whether to generate resource interfaces                                                  |
+| generateResourceInterfaces          | true               | Whether to generate resource interfaces                                                  |
 | generateOpenApiDefClass             | true               | Whether to generate OpenAPI definition class                                             |
 | addJsonPropertyAnnotations          | true               | Whether to generate model files with JSON property annotations                           |
 | addJakartaBeanValidationAnnotations | true               | Whether to generate model files with Jakarta Bean Validation annotations                 |
