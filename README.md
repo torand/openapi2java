@@ -82,28 +82,28 @@ $ mvn io.github.torand:openapi2java:1.2.0:generate \
 
 ## Configuration
 
-| Parameter                           | Default            | Description                                                                               |
-|-------------------------------------|--------------------|-------------------------------------------------------------------------------------------|
-| openApiFile                         |                    | Filename of OpenAPI-file to generate Java code from                                       |
-| outputDir                           | Project build dir  | Directory to write Java code files to                                                     |
-| rootPackage                         |                    | Root package path of output Java classes                                                  |
-| rootUrlPath                         | "api"              | Root context path of REST resources                                                       |
-| resourceNameSuffix                  | "Api"              | Suffix for resource (REST client) interface names                                         |
-| resourceNameOverride                | "" (i.e. use tags) | Specify to generate a single resource interface, instead of one per tag                        |
-| pojoNameSuffix                      | "Dto"              | Suffix for POJO (model) class names                                                       |
-| pojosAsRecords                      | true               | Whether to output Java records instead of Java classes for models                         |
-| includeTags                         | "" (i.e. all)      | Tags (comma separated) to output resource classes for                                     |
-| generateResourceClasses             | true               | Whether to generate resource classes                                                      |
-| generateOpenApiDefClass             | true               | Whether to generate OpenAPI definition class                                              |
-| addJsonPropertyAnnotations          | true               | Whether to generate model files with JSON property annotations                            |
-| addJakartaBeanValidationAnnotations | true               | Whether to generate model files with Jakarta Bean Validation annotations                  |
-| addMpOpenApiAnnotations             | true               | Whether to generate files with Microprofile OpenAPI annotations                           |
-| addMpRestClientAnnotations          | true               | Whether to generate resource files with Microprofile Rest Client annotations              |
-| useKotlinSyntax                     | false              | Whether to generate files with Kotlin syntax                                              |
-| useResteasyResponse                 | false              | Whether to use RESTEasy's `RestResponse<>` as return type for generated resource methods  |
-| indentWithTab                       | false              | Whether to output indents with the tab character                                          |
-| indentSize                          | 4                  | Number of spaces in one indentation level. Relevant only when 'indentWithTab' is false.   |
-| verbose                             | false              | Whether to log extra details                                                              |
+| Parameter                           | Default            | Description                                                                              |
+|-------------------------------------|--------------------|------------------------------------------------------------------------------------------|
+| openApiFile                         |                    | Filename of OpenAPI-file to generate Java code from                                      |
+| outputDir                           | Project build dir  | Directory to write Java code files to                                                    |
+| rootPackage                         |                    | Root package path of output Java classes                                                 |
+| rootUrlPath                         | "api"              | Root context path of REST resources                                                      |
+| resourceNameSuffix                  | "Api"              | Suffix for resource (REST client) interface names                                        |
+| resourceNameOverride                | "" (i.e. use tags) | Specify to generate a single resource interface, instead of one per tag                  |
+| pojoNameSuffix                      | "Dto"              | Suffix for POJO (model) class names                                                      |
+| pojosAsRecords                      | true               | Whether to output Java records instead of Java classes for models                        |
+| includeTags                         | "" (i.e. all)      | Tags (comma separated) to output resource interfaces for                                 |
+| generateResourceClasses             | true               | Whether to generate resource interfaces                                                  |
+| generateOpenApiDefClass             | true               | Whether to generate OpenAPI definition class                                             |
+| addJsonPropertyAnnotations          | true               | Whether to generate model files with JSON property annotations                           |
+| addJakartaBeanValidationAnnotations | true               | Whether to generate model files with Jakarta Bean Validation annotations                 |
+| addMpOpenApiAnnotations             | true               | Whether to generate files with Microprofile OpenAPI annotations                          |
+| addMpRestClientAnnotations          | true               | Whether to generate resource files with Microprofile Rest Client annotations             |
+| useKotlinSyntax                     | false              | Whether to generate files with Kotlin syntax                                             |
+| useResteasyResponse                 | false              | Whether to use RESTEasy's `RestResponse<>` as return type for generated resource methods |
+| indentWithTab                       | false              | Whether to output indents with the tab character                                         |
+| indentSize                          | 4                  | Number of spaces in one indentation level. Relevant only when 'indentWithTab' is false.  |
+| verbose                             | false              | Whether to log extra details                                                             |
 
 ## Type Mapping
 
