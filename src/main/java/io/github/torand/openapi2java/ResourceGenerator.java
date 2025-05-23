@@ -48,7 +48,7 @@ public class ResourceGenerator {
 
         if (isEmpty(openApiDoc.getTags())) {
             if (isBlank(opts.resourceNameOverride)) {
-                logger.error("The OpenAPI specification does not contain tags. Please configure a resource name override to generate a resource class.");
+                logger.error("The OpenAPI specification does not contain tags. Please configure a resource name override to generate a resource interface.");
                 return;
             }
 

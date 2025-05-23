@@ -15,11 +15,8 @@
  */
 package io.github.torand.openapi2java;
 
-import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.SpecVersion;
 import io.swagger.v3.parser.OpenAPIV3Parser;
-import io.swagger.v3.parser.core.models.ParseOptions;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -32,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 /**
- * Generates Java (or Kotlin) source code for a REST-API with resource and representation model classes
+ * Generates Java (or Kotlin) source code for a REST-API with resource interfaces and representation model classes
  * based on an OpenAPI specification file.
  */
 @Mojo( name = "generate", defaultPhase = LifecyclePhase.PROCESS_SOURCES )
@@ -96,10 +93,10 @@ public class OpenApi2JavaMojo extends AbstractMojo {
     private List<String> includeTags;
 
     /**
-     * Generate resource classes (one for each tag included).
+     * Generate resource interfaces (one for each tag included).
      */
-    @Parameter( property = "generateResourceClasses", defaultValue = "true" )
-    private boolean generateResourceClasses;
+    @Parameter( property = "generateResourceInterfaces", defaultValue = "true" )
+    private boolean generateResourceInterfaces;
 
     /**
      * Generate an OpenAPI definition class file with implementation oriented annotations.
@@ -126,7 +123,7 @@ public class OpenApi2JavaMojo extends AbstractMojo {
     private boolean addMpOpenApiAnnotations;
 
     /**
-     * Generate Microprofile Rest Client annotations (on resource classes).
+     * Generate Microprofile Rest Client annotations (on resource interfaces).
      */
     @Parameter( property = "addMpRestClientAnnotations", defaultValue = "true" )
     private boolean addMpRestClientAnnotations;
@@ -179,7 +176,7 @@ public class OpenApi2JavaMojo extends AbstractMojo {
         opts.pojoNameSuffix = pojoNameSuffix;
         opts.pojosAsRecords = pojosAsRecords;
         opts.includeTags = includeTags;
-        opts.generateResourceClasses = generateResourceClasses;
+        opts.generateResourceInterfaces = generateResourceInterfaces;
         opts.generateOpenApiDefClass = generateOpenApiDefClass;
         opts.addJsonPropertyAnnotations = addJsonPropertyAnnotations;
         opts.addJakartaBeanValidationAnnotations = addJakartaBeanValidationAnnotations;
@@ -199,7 +196,7 @@ public class OpenApi2JavaMojo extends AbstractMojo {
         ModelGenerator modelGenerator = new ModelGenerator(opts);
         modelGenerator.generate(openApiDoc);
 
-        if (opts.generateResourceClasses) {
+        if (opts.generateResourceInterfaces) {
             ResourceGenerator resourceGenerator = new ResourceGenerator(opts);
             resourceGenerator.generate(openApiDoc);
         }

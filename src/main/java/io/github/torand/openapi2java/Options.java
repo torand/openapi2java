@@ -28,7 +28,7 @@ public class Options {
     public String pojoNameSuffix = "Dto";
     public boolean pojosAsRecords = true;
     public List<String> includeTags;
-    public boolean generateResourceClasses = true;
+    public boolean generateResourceInterfaces = true;
     public boolean generateOpenApiDefClass = true;
     public boolean addJsonPropertyAnnotations = true;
     public boolean addJakartaBeanValidationAnnotations = true;
