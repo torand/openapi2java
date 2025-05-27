@@ -169,8 +169,8 @@ Schema restriction properties map to the following Jakarta Bean Validation annot
 ### General
 
 As OpenAPI 3.1.x schemas are based on the [JSON Schema](https://json-schema.org/) standard (3.0.x to a lesser degree), they can be expressed in a relaxed, abstract manner.
-JSON Schema is [a constraint system, not a data definition system](https://modern-json-schema.com/json-schema-is-a-constraint-system).
-This makes a powerful tool for validation, but complicates code generation. As a general rule, to produce meaningful POJOs, strict schemas are necessary.
+JSON Schema, in essence, is [a constraint system, not a data definition system](https://modern-json-schema.com/json-schema-is-a-constraint-system).
+This makes a powerful tool for validation, but often complicates code generation. As a general rule, to produce meaningful POJOs, strict schemas are necessary.
 Hence, the "type" property is mandatory.
 
 ### References
@@ -198,13 +198,70 @@ The code generation can be customized by using the following extension propertie
 | x-model-subdir          | String  | In a component schema               | Subdirectory to place the generated DTO model class                     |
 | x-deprecation-message   | String  | Everywhere `deprecated` can be used | Describing why something is deprecated, and what to use instead         |
 
-### Nullability in OpenAPI 3.1.x
+### Mandatory Properties (Nullability)
 
 Mandatory properties are (optionally) decorated with @NonNull and similar Jakarta Bean Validation annotations during code generation.
 For a schema property to be considered mandatory, i.e. present and with a non-null value, it must be mentioned in the "required" list
 AND NOT have a "nullable" indicator.
 
-The standard way to represent mandatory properties is as follows:
+#### OpenAPI 3.0.x
+
+The standard way to represent mandatory properties in OpenAPI 3.0.x is as follows:
+
+```json
+{
+  "schemas": {
+    "Person": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "$ref": "#/components/schemas/Address"
+        }
+      },
+      "required": [ "name", "address" ]
+    }
+  }
+}
+```
+
+Correspondingly, the standard way to represent non-mandatory (nullable) properties is like this:
+
+```json
+{
+  "schemas": {
+    "Person": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "nullable": true
+        },
+        "address": {
+          "oneOf": [
+            {
+              "$ref": "#/components/schemas/Address"
+            },
+            {
+              "type": "object",
+              "nullable": true
+            }
+          ]
+        }
+      },
+      "required": []
+    }
+  }
+}
+```
+
+Note the use of "OneOf" to express a nullable object reference.
+
+#### OpenAPI 3.1.x
+
+The standard way to represent mandatory properties in OpenAPI 3.1.x is as follows:
 
 ```json
 {
@@ -280,7 +337,7 @@ For convenience, a non-standard [schema extension](#customizing-code-generation)
 
 ### Inheritance
 
-Inheritance is not supported, per se, by OpenAPI schemas (which relies on the [JSON Schema](https://json-schema.org/) standard). However, inheritance can be "simulated" with composition by referencing a base schema in an "allOf" clause:
+Inheritance is not supported, per se, by OpenAPI schemas (that rely on the [JSON Schema](https://json-schema.org/) standard). However, inheritance can be "simulated" with composition by referencing a base schema in an "allOf" clause:
 
 ```json
 {
@@ -350,8 +407,8 @@ public record MotorCycleDto (
 
 ## Limitations
 
-* The OpenAPI specification must be contained in a single file. To bundle a multi-file OpenAPI specification use a tool like [Redocly](https://redocly.com/) e.a.
-* Assumes same request body schema for all content types consumed. While OpenAPI allows different body schema for different content types, this plugin uses the request body schema of the first content type specified for all.
+* The OpenAPI specification must be contained in a single file. To bundle a multi-file OpenAPI specification, use a tool like [Redocly](https://redocly.com/) e.a.
+* The plugin assumes the same request body schema for all content types consumed. While OpenAPI allows different body schema for different content types, this plugin uses the request body schema of the first content type specified for all.
 * Supports "oneOf" with two subschemas only, one of which must be {"type": "null"}.
 * Allows a single security requirement only, both at specification root and operation level.
 * Supports single file upload requests only, using a "multipart/form-data" payload (in addition to zero or more additional metadata parts). Assumes file part is named "file".
