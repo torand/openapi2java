@@ -51,7 +51,7 @@ The package is available from the [Maven Central Repository](https://central.son
     <plugin>
       <groupId>io.github.torand</groupId>
       <artifactId>openapi2java</artifactId>
-      <version>1.2.0</version>
+      <version>1.2.2</version>
       <executions>
         <execution>
          <id>generate</id>
@@ -74,7 +74,7 @@ The package is available from the [Maven Central Repository](https://central.son
 ### Run from the Command Line
 
 ```bash
-$ mvn io.github.torand:openapi2java:1.2.0:generate \
+$ mvn io.github.torand:openapi2java:1.2.2:generate \
   -DopenApiFile=openapi.json \
   -DoutputDir=target/openapi2java \
   -DrootPackage=io.github.torand.myapi
