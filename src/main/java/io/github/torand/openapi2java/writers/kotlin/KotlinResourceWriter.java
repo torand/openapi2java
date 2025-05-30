@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Tore Eide Andersen
+ * Copyright (c) 2024-2025 Tore Eide Andersen
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package io.github.torand.openapi2java.writers.kotlin;
 
-import io.github.torand.openapi2java.Options;
+import io.github.torand.openapi2java.generators.Options;
 import io.github.torand.openapi2java.model.MethodParamInfo;
 import io.github.torand.openapi2java.model.ResourceInfo;
 import io.github.torand.openapi2java.writers.BaseWriter;
@@ -30,6 +30,9 @@ import static io.github.torand.openapi2java.utils.KotlinTypeMapper.toKotlinNativ
 import static io.github.torand.openapi2java.utils.StringHelper.nonBlank;
 import static java.util.Objects.nonNull;
 
+/**
+ * Writes Kotlin code for a resource.
+ */
 public class KotlinResourceWriter extends BaseWriter implements ResourceWriter {
 
     public KotlinResourceWriter(Writer writer, Options opts) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Tore Eide Andersen
+ * Copyright (c) 2024-2025 Tore Eide Andersen
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package io.github.torand.openapi2java;
 
+import io.github.torand.openapi2java.generators.ModelGenerator;
+import io.github.torand.openapi2java.generators.Options;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +24,6 @@ import java.util.Set;
 
 import static io.github.torand.openapi2java.TestHelper.assertMatchingJavaFiles;
 import static io.github.torand.openapi2java.TestHelper.assertMatchingJavaFilesForOpenApi30;
-import static io.github.torand.openapi2java.TestHelper.assertMatchingJavaFilesVariant;
 import static io.github.torand.openapi2java.TestHelper.assertMatchingKotlinFiles;
 import static io.github.torand.openapi2java.TestHelper.assertMatchingKotlinFilesForOpenApi30;
 import static io.github.torand.openapi2java.TestHelper.getJavaOptions;

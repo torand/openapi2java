@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Tore Eide Andersen
+ * Copyright (c) 2024-2025 Tore Eide Andersen
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,9 @@ package io.github.torand.openapi2java.collectors;
 
 import io.swagger.v3.oas.models.OpenAPI;
 
+/**
+ * Resolves all components referenced in an OpenAPI specification.
+ */
 public class ComponentResolver {
     private final HeaderResolver headers;
     private final ParameterResolver parameters;

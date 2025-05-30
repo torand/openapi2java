@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Tore Eide Andersen
+ * Copyright (c) 2024-2025 Tore Eide Andersen
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.torand.openapi2java;
+package io.github.torand.openapi2java.generators;
 
 import io.github.torand.openapi2java.collectors.ComponentResolver;
 import io.github.torand.openapi2java.collectors.ResourceInfoCollector;
@@ -35,6 +35,9 @@ import static io.github.torand.openapi2java.utils.StringHelper.pluralSuffix;
 import static io.github.torand.openapi2java.writers.WriterFactory.createResourceWriter;
 import static java.util.stream.Collectors.joining;
 
+/**
+ * Generates source code for resources.
+ */
 public class ResourceGenerator {
     private static final Logger logger = LoggerFactory.getLogger(ResourceGenerator.class);
     private final Options opts;

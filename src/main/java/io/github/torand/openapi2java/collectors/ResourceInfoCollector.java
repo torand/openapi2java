@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Tore Eide Andersen
+ * Copyright (c) 2024-2025 Tore Eide Andersen
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package io.github.torand.openapi2java.collectors;
 
-import io.github.torand.openapi2java.Options;
+import io.github.torand.openapi2java.generators.Options;
 import io.github.torand.openapi2java.model.MethodInfo;
 import io.github.torand.openapi2java.model.ResourceInfo;
 import io.github.torand.openapi2java.model.SecurityRequirementInfo;
@@ -33,6 +33,9 @@ import static io.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+/**
+ * Collects information about a resource from a collection of path items.
+ */
 public class ResourceInfoCollector extends BaseCollector {
     public static final String AUTH_METHOD_NAME = "authorization";
 

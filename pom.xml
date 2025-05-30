@@ -26,7 +26,13 @@
 
   <name>OpenAPI2Java</name>
   <description>Maven plugin to generate Java models and REST clients from an OpenAPI specification</description>
+  <inceptionYear>2024</inceptionYear>
   <url>https://github.com/torand/openapi2java</url>
+
+  <organization>
+    <name>Tore Eide Andersen</name>
+    <url>https://github.com/torand</url>
+  </organization>
 
   <licenses>
     <license>
@@ -199,6 +205,24 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${maven-javadoc-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>javadoc</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>javadoc</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <failOnWarnings>false</failOnWarnings>
+          <excludePackageNames>io.github.torand.openapi2java.utils.*</excludePackageNames>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
@@ -247,7 +271,11 @@
               </execution>
             </executions>
             <configuration>
-              <stylesheet>java</stylesheet>
+              <windowtitle>${project.name} ${project.version}</windowtitle>
+              <doctitle>${project.name} ${project.version}</doctitle>
+              <addStylesheets>
+                <addStylesheet>dark-theme.css</addStylesheet>
+              </addStylesheets>
               <doclint>none</doclint>
             </configuration>
           </plugin>

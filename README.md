@@ -3,7 +3,7 @@ OpenAPI2Java
 
 [![CI](https://github.com/torand/openapi2java/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/torand/openapi2java/actions/workflows/continuous-integration.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.torand/openapi2java.svg?label=maven%20central)](https://central.sonatype.com/artifact/io.github.torand/openapi2java)
-[![Javadocs](https://javadoc.io/badge2/io.github.torand/openapi2java/javadoc.svg)](https://javadoc.io/doc/io.github.torand/openapi2java)
+[![Javadoc](https://img.shields.io/badge/javadoc-online-green)](https://torand.github.io/openapi2java/apidocs/)
 [![Coverage](https://coveralls.io/repos/github/torand/openapi2java/badge.svg?branch=main)](https://coveralls.io/github/torand/openapi2java?branch=main)
 [![Apache 2.0 License](https://img.shields.io/badge/license-Apache%202.0-orange)](LICENSE)
 

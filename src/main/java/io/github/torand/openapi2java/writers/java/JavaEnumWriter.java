@@ -1,6 +1,6 @@
 package io.github.torand.openapi2java.writers.java;
 
-import io.github.torand.openapi2java.Options;
+import io.github.torand.openapi2java.generators.Options;
 import io.github.torand.openapi2java.model.EnumInfo;
 import io.github.torand.openapi2java.writers.BaseWriter;
 import io.github.torand.openapi2java.writers.EnumWriter;
@@ -10,6 +10,9 @@ import java.io.Writer;
 import static io.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
 import static io.github.torand.openapi2java.utils.StringHelper.joinCsv;
 
+/**
+ * Writes Java code for an enum.
+ */
 public class JavaEnumWriter extends BaseWriter implements EnumWriter {
 
     public JavaEnumWriter(Writer writer, Options opts) {

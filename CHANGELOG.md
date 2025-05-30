@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - ...
 
+## [1.2.1] - 2025-05-30
+
+### Changed
+- Bump dependency io.swagger.parser.v3:swagger-parser to v2.1.29
+
 ## [1.2.0] - 2025-05-23
 
 ### Added

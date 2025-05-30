@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Tore Eide Andersen
+ * Copyright (c) 2024-2025 Tore Eide Andersen
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,9 @@ import static io.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
 import static io.github.torand.openapi2java.utils.Exceptions.illegalStateException;
 import static java.util.Objects.nonNull;
 
+/**
+ * Resolves schema components referenced in an OpenAPI specification.
+ */
 public class SchemaResolver {
     private final Map<String, Schema> schemas;
 

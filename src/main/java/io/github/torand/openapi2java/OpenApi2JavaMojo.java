@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Tore Eide Andersen
+ * Copyright (c) 2024-2025 Tore Eide Andersen
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,10 @@
  */
 package io.github.torand.openapi2java;
 
+import io.github.torand.openapi2java.generators.ModelGenerator;
+import io.github.torand.openapi2java.generators.OpenApiDefGenerator;
+import io.github.torand.openapi2java.generators.Options;
+import io.github.torand.openapi2java.generators.ResourceGenerator;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
@@ -29,7 +33,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 /**
- * Generates Java (or Kotlin) source code for a REST-API with resource interfaces and representation model classes
+ * Generates source code for a REST-API with resource interfaces and representation model classes
  * based on an OpenAPI specification file.
  */
 @Mojo( name = "generate", defaultPhase = LifecyclePhase.PROCESS_SOURCES )

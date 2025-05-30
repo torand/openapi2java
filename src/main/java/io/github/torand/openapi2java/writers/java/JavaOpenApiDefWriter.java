@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Tore Eide Andersen
+ * Copyright (c) 2024-2025 Tore Eide Andersen
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package io.github.torand.openapi2java.writers.java;
 
-import io.github.torand.openapi2java.Options;
+import io.github.torand.openapi2java.generators.Options;
 import io.github.torand.openapi2java.model.OpenApiDefInfo;
 import io.github.torand.openapi2java.writers.BaseWriter;
 import io.github.torand.openapi2java.writers.OpenApiDefWriter;
@@ -24,6 +24,9 @@ import java.io.Writer;
 
 import static io.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
 
+/**
+ * Writes Java code for an OpenAPI definition.
+ */
 public class JavaOpenApiDefWriter extends BaseWriter implements OpenApiDefWriter {
 
     public JavaOpenApiDefWriter(Writer writer, Options opts) {

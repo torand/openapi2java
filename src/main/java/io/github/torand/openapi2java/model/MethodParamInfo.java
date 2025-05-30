@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Tore Eide Andersen
+ * Copyright (c) 2024-2025 Tore Eide Andersen
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,9 @@ import java.util.TreeSet;
 
 import static java.util.Objects.nonNull;
 
+/**
+ * Describes a method parameter.
+ */
 public class MethodParamInfo {
     public String name;
     public Set<String> imports = new TreeSet<>();

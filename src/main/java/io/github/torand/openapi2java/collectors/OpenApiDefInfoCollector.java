@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Tore Eide Andersen
+ * Copyright (c) 2024-2025 Tore Eide Andersen
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package io.github.torand.openapi2java.collectors;
 
-import io.github.torand.openapi2java.Options;
+import io.github.torand.openapi2java.generators.Options;
 import io.github.torand.openapi2java.model.OpenApiDefInfo;
 import io.swagger.v3.oas.models.security.OAuthFlow;
 import io.swagger.v3.oas.models.security.OAuthFlows;
@@ -32,6 +32,9 @@ import static io.github.torand.openapi2java.utils.StringHelper.joinCsv;
 import static io.github.torand.openapi2java.utils.StringHelper.nonBlank;
 import static java.util.Objects.nonNull;
 
+/**
+ * Collects information about an OpenAPI definition from a collection of security requirements.
+ */
 public class OpenApiDefInfoCollector extends BaseCollector {
     private final ComponentResolver componentResolver;
 
