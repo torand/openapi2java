@@ -17,7 +17,7 @@ package io.github.torand.openapi2java.generators;
 
 import java.util.List;
 
-import static io.github.torand.openapi2java.utils.StringHelper.isBlank;
+import static io.github.torand.javacommons.lang.StringHelper.isBlank;
 
 /**
  * Contains configuration of the source code generators.

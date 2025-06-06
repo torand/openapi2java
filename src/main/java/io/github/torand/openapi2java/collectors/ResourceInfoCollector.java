@@ -27,9 +27,9 @@ import io.swagger.v3.oas.models.tags.Tag;
 import java.util.List;
 import java.util.Map;
 
+import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
 import static io.github.torand.openapi2java.collectors.Extensions.EXT_RESTCLIENT_CONFIGKEY;
 import static io.github.torand.openapi2java.collectors.Extensions.extensions;
-import static io.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 

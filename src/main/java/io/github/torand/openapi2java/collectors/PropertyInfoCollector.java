@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static io.github.torand.openapi2java.utils.StringHelper.joinCsv;
+import static io.github.torand.openapi2java.utils.StringUtils.joinCsv;
 import static java.lang.Boolean.TRUE;
 import static java.util.Objects.nonNull;
 

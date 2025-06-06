@@ -41,21 +41,21 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
+import static io.github.torand.javacommons.collection.CollectionHelper.isEmpty;
+import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
+import static io.github.torand.javacommons.collection.CollectionHelper.streamSafely;
+import static io.github.torand.javacommons.lang.Exceptions.illegalStateException;
+import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
+import static io.github.torand.javacommons.lang.StringHelper.stripTail;
 import static io.github.torand.openapi2java.collectors.SchemaResolver.isObjectType;
-import static io.github.torand.openapi2java.utils.CollectionHelper.isEmpty;
-import static io.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
-import static io.github.torand.openapi2java.utils.CollectionHelper.streamSafely;
-import static io.github.torand.openapi2java.utils.Exceptions.illegalStateException;
-import static io.github.torand.openapi2java.utils.StringHelper.nonBlank;
-import static io.github.torand.openapi2java.utils.StringHelper.pluralSuffix;
-import static io.github.torand.openapi2java.utils.StringHelper.stripTail;
+import static io.github.torand.openapi2java.utils.StringUtils.pluralSuffix;
 import static io.github.torand.openapi2java.writers.WriterFactory.createEnumWriter;
 import static io.github.torand.openapi2java.writers.WriterFactory.createPojoWriter;
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toSet;
 
 /**
- * Generates source code for models (pojos)
+ * Generates source code for models (pojos).
  */
 public class ModelGenerator {
     private static final Logger logger = LoggerFactory.getLogger(ModelGenerator.class);

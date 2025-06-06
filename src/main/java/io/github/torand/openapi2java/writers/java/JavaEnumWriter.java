@@ -7,8 +7,8 @@ import io.github.torand.openapi2java.writers.EnumWriter;
 
 import java.io.Writer;
 
-import static io.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
-import static io.github.torand.openapi2java.utils.StringHelper.joinCsv;
+import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
+import static io.github.torand.openapi2java.utils.StringUtils.joinCsv;
 
 /**
  * Writes Java code for an enum.

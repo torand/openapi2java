@@ -24,10 +24,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.github.torand.openapi2java.utils.StringHelper.joinCsv;
-import static java.lang.Boolean.TRUE;
 import static io.github.torand.openapi2java.collectors.Extensions.EXT_MODEL_SUBDIR;
 import static io.github.torand.openapi2java.collectors.Extensions.extensions;
+import static io.github.torand.openapi2java.utils.StringUtils.joinCsv;
+import static java.lang.Boolean.TRUE;
 
 /**
  * Collects information about an enum from a schema.

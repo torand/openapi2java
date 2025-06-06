@@ -15,16 +15,16 @@
  */
 package io.github.torand.openapi2java.collectors;
 
-import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.github.torand.openapi2java.generators.Options;
 import io.github.torand.openapi2java.model.SecurityRequirementInfo;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
-import static io.github.torand.openapi2java.utils.StringHelper.joinCsv;
-import static io.github.torand.openapi2java.utils.StringHelper.quote;
+import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
+import static io.github.torand.javacommons.lang.StringHelper.quoteAll;
+import static io.github.torand.openapi2java.utils.StringUtils.joinCsv;
 
 /**
  * Collects information about a security requirement from a collection of OpenAPI security requirements.
@@ -54,7 +54,7 @@ public class SecurityRequirementCollector extends BaseCollector {
 
         secReqInfo.scopes = securityRequirement.get(secReqInfo.scheme);
         if (nonEmpty(secReqInfo.scopes)) {
-            params.add("scopes = %s".formatted(formatAnnotationNamedParam(quote(secReqInfo.scopes))));
+            params.add("scopes = %s".formatted(formatAnnotationNamedParam(quoteAll(secReqInfo.scopes))));
         }
 
         if (opts.addMpOpenApiAnnotations) {

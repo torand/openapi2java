@@ -20,10 +20,10 @@ import io.swagger.v3.oas.models.media.Schema;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
+import static io.github.torand.javacommons.lang.Exceptions.illegalStateException;
 import static io.github.torand.openapi2java.collectors.Extensions.EXT_MODEL_SUBDIR;
 import static io.github.torand.openapi2java.collectors.Extensions.extensions;
-import static io.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
-import static io.github.torand.openapi2java.utils.Exceptions.illegalStateException;
 import static java.util.Objects.nonNull;
 
 /**

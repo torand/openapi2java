@@ -15,7 +15,7 @@
  */
 package io.github.torand.openapi2java.model;
 
-import io.github.torand.openapi2java.utils.CollectionHelper;
+import io.github.torand.javacommons.collection.CollectionHelper;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;

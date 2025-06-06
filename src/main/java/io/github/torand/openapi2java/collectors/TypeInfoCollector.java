@@ -24,18 +24,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static io.github.torand.javacommons.collection.CollectionHelper.isEmpty;
+import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
+import static io.github.torand.javacommons.collection.CollectionHelper.streamSafely;
+import static io.github.torand.javacommons.lang.Exceptions.illegalStateException;
+import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
 import static io.github.torand.openapi2java.collectors.Extensions.EXT_JSON_SERIALIZER;
 import static io.github.torand.openapi2java.collectors.Extensions.EXT_NULLABLE;
 import static io.github.torand.openapi2java.collectors.Extensions.EXT_VALIDATION_CONSTRAINT;
 import static io.github.torand.openapi2java.collectors.Extensions.extensions;
 import static io.github.torand.openapi2java.collectors.TypeInfoCollector.NullabilityResolution.FORCE_NOT_NULLABLE;
 import static io.github.torand.openapi2java.collectors.TypeInfoCollector.NullabilityResolution.FORCE_NULLABLE;
-import static io.github.torand.openapi2java.utils.CollectionHelper.isEmpty;
-import static io.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
-import static io.github.torand.openapi2java.utils.CollectionHelper.streamSafely;
-import static io.github.torand.openapi2java.utils.Exceptions.illegalStateException;
-import static io.github.torand.openapi2java.utils.StringHelper.joinCsv;
-import static io.github.torand.openapi2java.utils.StringHelper.nonBlank;
+import static io.github.torand.openapi2java.utils.StringUtils.joinCsv;
 import static java.lang.Boolean.TRUE;
 import static java.util.Objects.nonNull;
 

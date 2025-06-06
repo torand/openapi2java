@@ -20,11 +20,11 @@ import io.github.torand.openapi2java.generators.Options;
 import java.util.List;
 import java.util.Map;
 
+import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
+import static io.github.torand.javacommons.lang.StringHelper.stripHead;
+import static io.github.torand.javacommons.lang.StringHelper.stripTail;
 import static io.github.torand.openapi2java.utils.KotlinTypeMapper.toKotlinNative;
-import static io.github.torand.openapi2java.utils.StringHelper.joinCsv;
-import static io.github.torand.openapi2java.utils.StringHelper.nonBlank;
-import static io.github.torand.openapi2java.utils.StringHelper.stripHead;
-import static io.github.torand.openapi2java.utils.StringHelper.stripTail;
+import static io.github.torand.openapi2java.utils.StringUtils.joinCsv;
 
 /**
  * Base class for all collectors.

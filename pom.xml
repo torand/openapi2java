@@ -83,6 +83,7 @@
     <central-publishing-maven-plugin.version>0.7.0</central-publishing-maven-plugin.version>
 
     <swagger-parser.version>2.1.29</swagger-parser.version>
+    <java-commons.version>1.1.0</java-commons.version>
     <slf4j-simple.version>2.0.17</slf4j-simple.version>
     <junit.jupiter.version>5.13.0</junit.jupiter.version>
     <assertj.version>3.27.3</assertj.version>
@@ -118,6 +119,11 @@
       <groupId>io.swagger.parser.v3</groupId>
       <artifactId>swagger-parser</artifactId>
       <version>${swagger-parser.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.github.torand</groupId>
+      <artifactId>java-commons</artifactId>
+      <version>${java-commons.version}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>

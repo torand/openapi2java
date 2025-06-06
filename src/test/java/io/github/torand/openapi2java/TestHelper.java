@@ -31,7 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static io.github.torand.openapi2java.utils.StringHelper.removeLineBreaks;
+import static io.github.torand.openapi2java.utils.StringUtils.removeLineBreaks;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
 import static org.assertj.core.api.Assertions.assertThat;

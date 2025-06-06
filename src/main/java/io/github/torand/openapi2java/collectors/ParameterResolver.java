@@ -20,7 +20,7 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.github.torand.openapi2java.utils.Exceptions.illegalStateException;
+import static io.github.torand.javacommons.lang.Exceptions.illegalStateException;
 
 /**
  * Resolves parameter components referenced in an OpenAPI specification.

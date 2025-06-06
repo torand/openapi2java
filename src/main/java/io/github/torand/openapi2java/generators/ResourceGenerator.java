@@ -15,10 +15,10 @@
  */
 package io.github.torand.openapi2java.generators;
 
+import io.github.torand.javacommons.lang.StringHelper;
 import io.github.torand.openapi2java.collectors.ComponentResolver;
 import io.github.torand.openapi2java.collectors.ResourceInfoCollector;
 import io.github.torand.openapi2java.model.ResourceInfo;
-import io.github.torand.openapi2java.utils.StringHelper;
 import io.github.torand.openapi2java.writers.ResourceWriter;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.tags.Tag;
@@ -29,9 +29,9 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-import static io.github.torand.openapi2java.utils.CollectionHelper.isEmpty;
-import static io.github.torand.openapi2java.utils.StringHelper.isBlank;
-import static io.github.torand.openapi2java.utils.StringHelper.pluralSuffix;
+import static io.github.torand.javacommons.collection.CollectionHelper.isEmpty;
+import static io.github.torand.javacommons.lang.StringHelper.isBlank;
+import static io.github.torand.openapi2java.utils.StringUtils.pluralSuffix;
 import static io.github.torand.openapi2java.writers.WriterFactory.createResourceWriter;
 import static java.util.stream.Collectors.joining;
 

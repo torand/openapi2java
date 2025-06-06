@@ -22,7 +22,7 @@ import io.github.torand.openapi2java.writers.OpenApiDefWriter;
 
 import java.io.Writer;
 
-import static io.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
+import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
 
 /**
  * Writes Kotlin code for an OpenAPI definition.

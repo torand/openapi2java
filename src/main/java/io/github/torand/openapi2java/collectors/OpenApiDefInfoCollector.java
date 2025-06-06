@@ -27,9 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static io.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
-import static io.github.torand.openapi2java.utils.StringHelper.joinCsv;
-import static io.github.torand.openapi2java.utils.StringHelper.nonBlank;
+import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
+import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
+import static io.github.torand.openapi2java.utils.StringUtils.joinCsv;
 import static java.util.Objects.nonNull;
 
 /**

@@ -25,9 +25,9 @@ import java.io.Writer;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static io.github.torand.openapi2java.utils.CollectionHelper.nonEmpty;
+import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
+import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
 import static io.github.torand.openapi2java.utils.KotlinTypeMapper.toKotlinNative;
-import static io.github.torand.openapi2java.utils.StringHelper.nonBlank;
 import static java.util.Objects.nonNull;
 
 /**

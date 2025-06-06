@@ -19,9 +19,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static io.github.torand.openapi2java.utils.StringHelper.nonBlank;
 
 /**
  * Handles custom OpenAPI format extensions.

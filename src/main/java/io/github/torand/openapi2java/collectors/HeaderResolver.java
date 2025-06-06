@@ -20,7 +20,7 @@ import io.swagger.v3.oas.models.headers.Header;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.github.torand.openapi2java.utils.Exceptions.illegalStateException;
+import static io.github.torand.javacommons.lang.Exceptions.illegalStateException;
 
 /**
  * Resolves header components referenced in an OpenAPI specification.

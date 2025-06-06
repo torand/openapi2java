@@ -15,12 +15,30 @@
  */
 package io.github.torand.openapi2java.utils;
 
-import java.util.function.Supplier;
+import java.util.List;
 
-public class Exceptions {
-    private Exceptions() {}
+import static io.github.torand.javacommons.collection.CollectionHelper.isEmpty;
+import static io.github.torand.javacommons.lang.StringHelper.isBlank;
 
-    public static Supplier<IllegalStateException> illegalStateException(String message, Object... args) {
-        return () -> new IllegalStateException(message.formatted(args));
+public class StringUtils {
+    private StringUtils() {}
+
+    public static String pluralSuffix(int count) {
+        return count == 1 ? "" : "s";
+    }
+
+    public static String removeLineBreaks(String value) {
+        if (isBlank(value)) {
+            return value;
+        }
+        return value.replaceAll("\\n", " ");
+    }
+
+    public static String joinCsv(List<String> values) {
+        if (isEmpty(values)) {
+            return "";
+        }
+
+        return String.join(", ", values);
     }
 }
