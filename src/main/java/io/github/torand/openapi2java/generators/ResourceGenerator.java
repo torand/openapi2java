@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static io.github.torand.javacommons.collection.CollectionHelper.isEmpty;
-import static io.github.torand.javacommons.lang.StringHelper.isBlank;
+import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
 import static io.github.torand.openapi2java.utils.StringUtils.pluralSuffix;
 import static io.github.torand.openapi2java.writers.WriterFactory.createResourceWriter;
 import static java.util.stream.Collectors.joining;
@@ -49,14 +49,14 @@ public class ResourceGenerator {
     public void generate(OpenAPI openApiDoc) {
         int clientCount = 0;
 
-        if (isEmpty(openApiDoc.getTags())) {
-            if (isBlank(opts.resourceNameOverride)) {
+        if (nonBlank(opts.resourceNameOverride)) {
+            clientCount = generateWithNameOverride(openApiDoc);
+        } else {
+            if (isEmpty(openApiDoc.getTags())) {
                 logger.error("The OpenAPI specification does not contain tags. Please configure a resource name override to generate a resource interface.");
                 return;
             }
 
-            clientCount = generateWithNameOverride(openApiDoc);
-        } else {
             clientCount = generateFromTags(openApiDoc);
         }
 

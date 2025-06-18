@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - ...
 
+## [1.2.3] - 2025-06-18
+
+### Fixed
+- Config param 'resourceNameOverride' now applied even for OpenAPI specifications with tags.
+
 ## [1.2.2] - 2025-05-30
 
 ### Changed
