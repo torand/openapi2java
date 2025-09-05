@@ -89,7 +89,7 @@ public class TypeInfoCollector extends BaseCollector {
                     typeInfo = new TypeInfo();
                     typeInfo.nullable = nullable;
 
-                    typeInfo.name = schemaResolver.getTypeName($ref) + opts.pojoNameSuffix;
+                    typeInfo.name = schemaResolver.getTypeName($ref) + opts.pojoNameSuffix();
                     String modelSubpackage = schemaResolver.getModelSubpackage($ref).orElse(null);
                     typeInfo.typeImports.add(opts.getModelPackage(modelSubpackage) + "." + typeInfo.name);
                     if (!schemaResolver.isEnumType(schema.get$ref())) {
@@ -187,7 +187,7 @@ public class TypeInfoCollector extends BaseCollector {
             typeInfo.name = "Duration";
             typeInfo.schemaFormat = schema.getFormat();
             typeInfo.typeImports.add("java.time.Duration");
-            if (!typeInfo.nullable && opts.addJakartaBeanValidationAnnotations) {
+            if (!typeInfo.nullable && opts.addJakartaBeanValidationAnnotations()) {
                 String notNullAnnotation = getNotNullAnnotation(typeInfo.annotationImports);
                 typeInfo.annotations.add(notNullAnnotation);
             }
@@ -195,7 +195,7 @@ public class TypeInfoCollector extends BaseCollector {
             typeInfo.name = "LocalDate";
             typeInfo.schemaFormat = schema.getFormat();
             typeInfo.typeImports.add("java.time.LocalDate");
-            if (!typeInfo.nullable && opts.addJakartaBeanValidationAnnotations) {
+            if (!typeInfo.nullable && opts.addJakartaBeanValidationAnnotations()) {
                 String notNullAnnotation = getNotNullAnnotation(typeInfo.annotationImports);
                 typeInfo.annotations.add(notNullAnnotation);
             }
@@ -205,7 +205,7 @@ public class TypeInfoCollector extends BaseCollector {
             typeInfo.name = "LocalDateTime";
             typeInfo.schemaFormat = schema.getFormat();
             typeInfo.typeImports.add("java.time.LocalDateTime");
-            if (!typeInfo.nullable && opts.addJakartaBeanValidationAnnotations) {
+            if (!typeInfo.nullable && opts.addJakartaBeanValidationAnnotations()) {
                 String notNullAnnotation = getNotNullAnnotation(typeInfo.annotationImports);
                 typeInfo.annotations.add(notNullAnnotation);
             }
@@ -214,7 +214,7 @@ public class TypeInfoCollector extends BaseCollector {
         } else if ("email".equals(schema.getFormat())) {
             typeInfo.name = "String";
             typeInfo.schemaFormat = schema.getFormat();
-            if (opts.addJakartaBeanValidationAnnotations) {
+            if (opts.addJakartaBeanValidationAnnotations()) {
                 if (!typeInfo.nullable) {
                     String notBlankAnnotation = getNotBlankAnnotation(typeInfo.annotationImports);
                     typeInfo.annotations.add(notBlankAnnotation);
@@ -225,7 +225,7 @@ public class TypeInfoCollector extends BaseCollector {
         } else if ("binary".equals(schema.getFormat())) {
             typeInfo.name = "byte[]";
             typeInfo.schemaFormat = schema.getFormat();
-            if (opts.addJakartaBeanValidationAnnotations) {
+            if (opts.addJakartaBeanValidationAnnotations()) {
                 if (!typeInfo.nullable) {
                     String notEmptyAnnotation = getNotEmptyAnnotation(typeInfo.annotationImports);
                     typeInfo.annotations.add(notEmptyAnnotation);
@@ -238,7 +238,7 @@ public class TypeInfoCollector extends BaseCollector {
         } else {
             typeInfo.name = "String";
             typeInfo.schemaFormat = schema.getFormat();
-            if (opts.addJakartaBeanValidationAnnotations) {
+            if (opts.addJakartaBeanValidationAnnotations()) {
                 if (!typeInfo.nullable) {
                     String notBlankAnnotation = getNotBlankAnnotation(typeInfo.annotationImports);
                     typeInfo.annotations.add(notBlankAnnotation);
@@ -266,7 +266,7 @@ public class TypeInfoCollector extends BaseCollector {
             typeInfo.typeImports.add("java.math.BigDecimal");
         }
         typeInfo.schemaFormat = schema.getFormat();
-        if (opts.addJakartaBeanValidationAnnotations) {
+        if (opts.addJakartaBeanValidationAnnotations()) {
             if (!typeInfo.nullable) {
                 String notNullAnnotation = getNotNullAnnotation(typeInfo.annotationImports);
                 typeInfo.annotations.add(notNullAnnotation);
@@ -291,7 +291,7 @@ public class TypeInfoCollector extends BaseCollector {
             typeInfo.name = "Integer";
         }
         typeInfo.schemaFormat = schema.getFormat();
-        if (opts.addJakartaBeanValidationAnnotations) {
+        if (opts.addJakartaBeanValidationAnnotations()) {
             if (!typeInfo.nullable) {
                 String notNullAnnotation = getNotNullAnnotation(typeInfo.annotationImports);
                 typeInfo.annotations.add(notNullAnnotation);
@@ -309,7 +309,7 @@ public class TypeInfoCollector extends BaseCollector {
 
     private void populateJsonBooleanType(TypeInfo typeInfo) {
         typeInfo.name = "Boolean";
-        if (!typeInfo.nullable && opts.addJakartaBeanValidationAnnotations) {
+        if (!typeInfo.nullable && opts.addJakartaBeanValidationAnnotations()) {
             String notNullAnnotation = getNotNullAnnotation(typeInfo.annotationImports);
             typeInfo.annotations.add(notNullAnnotation);
         }
@@ -325,7 +325,7 @@ public class TypeInfoCollector extends BaseCollector {
             typeInfo.typeImports.add("java.util.List");
         }
 
-        if (opts.addJakartaBeanValidationAnnotations) {
+        if (opts.addJakartaBeanValidationAnnotations()) {
             String validAnnotation = getValidAnnotation(typeInfo.annotationImports);
             typeInfo.annotations.add(validAnnotation);
         }
@@ -334,7 +334,7 @@ public class TypeInfoCollector extends BaseCollector {
         typeInfo.itemType.annotations.clear();
         typeInfo.itemType.annotationImports.clear();
 
-        if (opts.addJakartaBeanValidationAnnotations) {
+        if (opts.addJakartaBeanValidationAnnotations()) {
             String itemNotNullAnnotation = getNotNullAnnotation(typeInfo.itemType.annotationImports);
             typeInfo.itemType.annotations.add(itemNotNullAnnotation);
 
@@ -353,7 +353,7 @@ public class TypeInfoCollector extends BaseCollector {
         typeInfo.name = "Map";
         typeInfo.typeImports.add("java.util.Map");
 
-        if (opts.addJakartaBeanValidationAnnotations) {
+        if (opts.addJakartaBeanValidationAnnotations()) {
             String validAnnotation = getValidAnnotation(typeInfo.annotationImports);
             typeInfo.annotations.add(validAnnotation);
         }
@@ -361,7 +361,7 @@ public class TypeInfoCollector extends BaseCollector {
         typeInfo.keyType = getTypeInfo(new StringSchema());
         typeInfo.itemType = getTypeInfo((Schema<?>)schema.getAdditionalProperties());
 
-        if (opts.addJakartaBeanValidationAnnotations) {
+        if (opts.addJakartaBeanValidationAnnotations()) {
             if (!typeInfo.nullable) {
                 String notNullAnnotation = getNotNullAnnotation(typeInfo.annotationImports);
                 typeInfo.annotations.add(notNullAnnotation);
@@ -487,6 +487,6 @@ public class TypeInfoCollector extends BaseCollector {
 
     private String getJsonSerializerClass(String jsonSerializerFqn) {
         String className = getClassNameFromFqn(jsonSerializerFqn);
-        return opts.useKotlinSyntax ? className+"::class" : className+".class";
+        return opts.useKotlinSyntax() ? className+"::class" : className+".class";
     }
 }

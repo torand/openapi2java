@@ -16,6 +16,7 @@
 package io.github.torand.openapi2java.collectors;
 
 import io.github.torand.openapi2java.generators.Options;
+import io.github.torand.openapi2java.model.AnnotationInfo;
 import io.github.torand.openapi2java.model.SecurityRequirementInfo;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 
@@ -36,8 +37,6 @@ public class SecurityRequirementCollector extends BaseCollector {
     }
 
     public SecurityRequirementInfo getSequrityRequirementInfo(List<SecurityRequirement> securityRequirements) {
-        SecurityRequirementInfo secReqInfo = new SecurityRequirementInfo();
-
         if (securityRequirements.size() > 1) {
             throw new IllegalStateException("Multiple alternative security requirements not supported");
         }
@@ -47,19 +46,21 @@ public class SecurityRequirementCollector extends BaseCollector {
             throw new IllegalStateException("Multiple mandatory security scheme names not supported");
         }
 
-        List<String> params = new ArrayList<>();
+        String scheme = securityRequirement.keySet().iterator().next();
 
-        secReqInfo.scheme = securityRequirement.keySet().iterator().next();
-        params.add("name = \"%s\"".formatted(secReqInfo.scheme));
+        SecurityRequirementInfo secReqInfo = new SecurityRequirementInfo(scheme)
+            .withScopes(securityRequirement.get(scheme));
 
-        secReqInfo.scopes = securityRequirement.get(secReqInfo.scheme);
-        if (nonEmpty(secReqInfo.scopes)) {
-            params.add("scopes = %s".formatted(formatAnnotationNamedParam(quoteAll(secReqInfo.scopes))));
-        }
+        if (opts.addMpOpenApiAnnotations()) {
+            List<String> params = new ArrayList<>();
+            params.add("name = \"%s\"".formatted(scheme));
+            if (nonEmpty(secReqInfo.scopes())) {
+                params.add("scopes = %s".formatted(formatAnnotationNamedParam(quoteAll(secReqInfo.scopes()))));
+            }
 
-        if (opts.addMpOpenApiAnnotations) {
-            secReqInfo.imports.add("org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement");
-            secReqInfo.annotations.add("@SecurityRequirement(%s)".formatted(joinCsv(params)));
+            secReqInfo = secReqInfo.withAnnotation(
+                new AnnotationInfo("@SecurityRequirement(%s)".formatted(joinCsv(params)), "org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement")
+            );
         }
 
         return secReqInfo;

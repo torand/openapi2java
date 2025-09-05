@@ -83,9 +83,9 @@ public class OpenApiDefInfoCollector extends BaseCollector {
         params.add("type = SecuritySchemeType.%s".formatted(securityScheme.getType().name()));
 
         switch (securityScheme.getType()) {
-            case APIKEY -> {
+            case APIKEY ->
                 params.add("name = \"%s\"".formatted(securityScheme.getName()));
-            }
+
             case HTTP -> {
                 params.add("scheme = \"%s\"".formatted(securityScheme.getScheme()));
                 if (nonNull(securityScheme.getBearerFormat())) {
@@ -97,16 +97,15 @@ public class OpenApiDefInfoCollector extends BaseCollector {
                     params.add("flows = %s".formatted(getOAuthFlowsAnnotation(securityScheme.getFlows(), imports)));
                 }
             }
-            case OPENIDCONNECT -> {
+            case OPENIDCONNECT ->
                 params.add("openIdConnectUrl = \"%s\"".formatted(securityScheme.getOpenIdConnectUrl()));
-            }
-            case MUTUALTLS -> {
+
+            case MUTUALTLS ->
                 throw new IllegalStateException("Security scheme MUTUALTLS not supported");
-            }
         }
 
         imports.add("org.eclipse.microprofile.openapi.annotations.security.SecurityScheme");
-        return (opts.useKotlinSyntax ? "" : "@") + "SecurityScheme(%s)".formatted(joinCsv(params));
+        return (opts.useKotlinSyntax() ? "" : "@") + "SecurityScheme(%s)".formatted(joinCsv(params));
     }
 
     private String getOAuthFlowsAnnotation(OAuthFlows flows, Set<String> imports) {
@@ -126,7 +125,7 @@ public class OpenApiDefInfoCollector extends BaseCollector {
         }
 
         imports.add("org.eclipse.microprofile.openapi.annotations.security.OAuthFlows");
-        return (opts.useKotlinSyntax ? "" : "@") + "OAuthFlows(%s)".formatted(joinCsv(params));
+        return (opts.useKotlinSyntax() ? "" : "@") + "OAuthFlows(%s)".formatted(joinCsv(params));
     }
 
     private String getOAuthFlowAnnotation(OAuthFlow flow, Set<String> imports) {
@@ -146,7 +145,7 @@ public class OpenApiDefInfoCollector extends BaseCollector {
         }
 
         imports.add("org.eclipse.microprofile.openapi.annotations.security.OAuthFlow");
-        return (opts.useKotlinSyntax ? "" : "@") + "OAuthFlow(%s)".formatted(joinCsv(params));
+        return (opts.useKotlinSyntax() ? "" : "@") + "OAuthFlow(%s)".formatted(joinCsv(params));
     }
 
     private String getScopesAnnotation(Scopes scopes, Set<String> imports) {
@@ -159,6 +158,6 @@ public class OpenApiDefInfoCollector extends BaseCollector {
 
     private String getScopeAnnotation(String name, String description, Set<String> imports) {
         imports.add("org.eclipse.microprofile.openapi.annotations.security.OAuthScope");
-        return (opts.useKotlinSyntax ? "" : "@") + "OAuthScope(name = \"%s\", description = \"%s\")".formatted(name, normalizeDescription(description));
+        return (opts.useKotlinSyntax() ? "" : "@") + "OAuthScope(name = \"%s\", description = \"%s\")".formatted(name, normalizeDescription(description));
     }
 }

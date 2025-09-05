@@ -16,6 +16,7 @@
 package io.github.torand.openapi2java.collectors;
 
 import io.github.torand.openapi2java.generators.Options;
+import io.github.torand.openapi2java.model.AnnotationInfo;
 import io.github.torand.openapi2java.model.MethodInfo;
 import io.github.torand.openapi2java.model.ResourceInfo;
 import io.github.torand.openapi2java.model.SecurityRequirementInfo;
@@ -51,9 +52,9 @@ public class ResourceInfoCollector extends BaseCollector {
 
     public ResourceInfo getResourceInfo(String resourceName, Map<String, PathItem> paths, List<SecurityRequirement> securityRequirements, Tag tag) {
         ResourceInfo resourceInfo = new ResourceInfo();
-        resourceInfo.name = resourceName + opts.resourceNameSuffix;
+        resourceInfo.name = resourceName + opts.resourceNameSuffix();
 
-        if (opts.useResteasyResponse) {
+        if (opts.useResteasyResponse()) {
             resourceInfo.imports.add("org.jboss.resteasy.reactive.RestResponse");
         } else {
             resourceInfo.imports.add("jakarta.ws.rs.core.Response");
@@ -62,16 +63,16 @@ public class ResourceInfoCollector extends BaseCollector {
         if (nonEmpty(securityRequirements)) {
             SecurityRequirementInfo secReqInfo = securityRequirementCollector.getSequrityRequirementInfo(securityRequirements);
 
-            resourceInfo.imports.addAll(secReqInfo.imports);
-            resourceInfo.annotations.addAll(secReqInfo.annotations);
+            resourceInfo.imports.addAll(secReqInfo.annotation().imports());
+            resourceInfo.annotations.add(secReqInfo.annotation().annotation());
         }
 
-        if (opts.addMpOpenApiAnnotations && nonNull(tag)) {
+        if (opts.addMpOpenApiAnnotations() && nonNull(tag)) {
             resourceInfo.imports.add("org.eclipse.microprofile.openapi.annotations.tags.Tag");
             resourceInfo.annotations.add("@Tag(name = \"%s\", description = \"%s\")".formatted(tag.getName(), normalizeDescription(tag.getDescription())));
         }
 
-        if (opts.addMpRestClientAnnotations) {
+        if (opts.addMpRestClientAnnotations()) {
             String configKey = nonNull(tag) ?
                 extensions(tag.getExtensions())
                     .getString(EXT_RESTCLIENT_CONFIGKEY)
@@ -89,7 +90,7 @@ public class ResourceInfoCollector extends BaseCollector {
         }
 
         resourceInfo.imports.add("jakarta.ws.rs.Path");
-        resourceInfo.staticImports.add("%s.%s.ROOT_PATH".formatted(opts.rootPackage, resourceInfo.name));
+        resourceInfo.staticImports.add("%s.%s.ROOT_PATH".formatted(opts.rootPackage(), resourceInfo.name));
         resourceInfo.annotations.add("@Path(ROOT_PATH)");
 
         String tagName = nonNull(tag) ? tag.getName() : null;
@@ -116,12 +117,11 @@ public class ResourceInfoCollector extends BaseCollector {
     }
 
     private MethodInfo getAuthMethodInfo() {
-        MethodInfo authMethod = new MethodInfo();
+        MethodInfo authMethod = new MethodInfo(AUTH_METHOD_NAME);
 
-        if (!opts.useKotlinSyntax) {
-            authMethod.annotations.add("@SuppressWarnings(\"unused\") // Used by @ClientHeaderParam");
+        if (!opts.useKotlinSyntax()) {
+            authMethod = authMethod.withAddedAnnotation(new AnnotationInfo("@SuppressWarnings(\"unused\") // Used by @ClientHeaderParam"));
         }
-        authMethod.name = AUTH_METHOD_NAME;
 
         return authMethod;
     }

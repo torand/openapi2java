@@ -49,7 +49,7 @@ public class ResourceGenerator {
     public void generate(OpenAPI openApiDoc) {
         int clientCount = 0;
 
-        if (nonBlank(opts.resourceNameOverride)) {
+        if (nonBlank(opts.resourceNameOverride())) {
             clientCount = generateWithNameOverride(openApiDoc);
         } else {
             if (isEmpty(openApiDoc.getTags())) {
@@ -60,17 +60,19 @@ public class ResourceGenerator {
             clientCount = generateFromTags(openApiDoc);
         }
 
-        logger.info("Generated {} REST client{} in directory {}", clientCount, pluralSuffix(clientCount), opts.outputDir);
+        if (logger.isInfoEnabled()) {
+            logger.info("Generated {} REST client{} in directory {}", clientCount, pluralSuffix(clientCount), opts.outputDir());
+        }
     }
 
     private int generateWithNameOverride(OpenAPI openApiDoc) {
         ComponentResolver componentResolver = new ComponentResolver(openApiDoc);
         ResourceInfoCollector resourceInfoCollector = new ResourceInfoCollector(componentResolver, opts);
 
-        String resourceName = opts.resourceNameOverride;
+        String resourceName = opts.resourceNameOverride();
 
-        if (opts.verbose) {
-            logger.info("Generating REST client: {}{}", resourceName, opts.resourceNameSuffix);
+        if (opts.verbose()) {
+            logger.info("Generating REST client: {}{}", resourceName, opts.resourceNameSuffix());
         }
 
         ResourceInfo resourceInfo = resourceInfoCollector.getResourceInfo(resourceName, openApiDoc.getPaths(), openApiDoc.getSecurity(), null);
@@ -97,11 +99,11 @@ public class ResourceGenerator {
         AtomicInteger clientCount = new AtomicInteger(0);
 
         openApiDoc.getTags().forEach(tag -> {
-            if (isEmpty(opts.includeTags) || opts.includeTags.contains(tag.getName())) {
+            if (isEmpty(opts.includeTags()) || opts.includeTags().contains(tag.getName())) {
                 String resourceName = getResourceName(tag);
 
-                if (opts.verbose) {
-                    logger.info("Generating REST client for tag \"{}\": {}{}", tag.getName(), resourceName, opts.resourceNameSuffix);
+                if (opts.verbose()) {
+                    logger.info("Generating REST client for tag \"{}\": {}{}", tag.getName(), resourceName, opts.resourceNameSuffix());
                 }
 
                 ResourceInfo resourceInfo = resourceInfoCollector.getResourceInfo(resourceName, openApiDoc.getPaths(), openApiDoc.getSecurity(), tag);

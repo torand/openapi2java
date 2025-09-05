@@ -15,6 +15,9 @@
  */
 package io.github.torand.openapi2java.collectors;
 
+import io.github.torand.openapi2java.utils.OpenApi2JavaException;
+import org.apache.maven.model.PluginExecution;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -34,23 +37,23 @@ public class Extensions {
     public static final String EXT_MODEL_SUBDIR = "x-model-subdir";
     public static final String EXT_DEPRECATION_MESSAGE = "x-deprecation-message";
 
-    private final Map<String, Object> extensions;
+    private final Map<String, Object> schemaExtensions;
 
-    public static Extensions extensions(Map<String, Object> extensions) {
-        return new Extensions(extensions);
+    public static Extensions extensions(Map<String, Object> schemaExtensions) {
+        return new Extensions(schemaExtensions);
     }
 
-    public Extensions(Map<String, Object> extensions) {
-        this.extensions = nonNull(extensions) ? extensions : Collections.emptyMap();
+    public Extensions(Map<String, Object> schemaExtensions) {
+        this.schemaExtensions = nonNull(schemaExtensions) ? schemaExtensions : Collections.emptyMap();
     }
 
     public Optional<String> getString(String name) {
-        Object value = extensions.get(name);
+        Object value = schemaExtensions.get(name);
         if (isNull(value)) {
             return Optional.empty();
         }
         if (!(value instanceof String)) {
-            throw new RuntimeException("Value of extension %s is not a String".formatted(name));
+            throw new OpenApi2JavaException("Value of extension %s is not a String".formatted(name));
         }
         if (nonBlank((String)value)) {
             return Optional.of((String)value);
@@ -60,12 +63,12 @@ public class Extensions {
     }
 
     public Optional<Boolean> getBoolean(String name) {
-        Object value = extensions.get(name);
+        Object value = schemaExtensions.get(name);
         if (isNull(value)) {
             return Optional.empty();
         }
         if (!(value instanceof Boolean)) {
-            throw new RuntimeException("Value of extension %s is not a Boolean".formatted(name));
+            throw new OpenApi2JavaException("Value of extension %s is not a Boolean".formatted(name));
         }
 
         return Optional.of((Boolean)value);

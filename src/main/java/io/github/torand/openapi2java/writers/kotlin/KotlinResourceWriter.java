@@ -41,7 +41,7 @@ public class KotlinResourceWriter extends BaseWriter implements ResourceWriter {
 
     @Override
     public void write(ResourceInfo resourceInfo) {
-        writeLine("package %s", opts.rootPackage);
+        writeLine("package %s", opts.rootPackage());
         writeNewLine();
 
         Set<String> imports = new TreeSet<>();
@@ -49,23 +49,23 @@ public class KotlinResourceWriter extends BaseWriter implements ResourceWriter {
         imports.addAll(resourceInfo.imports);
         imports.addAll(resourceInfo.staticImports);
         resourceInfo.methods.forEach(m -> {
-            imports.addAll(m.imports);
-            imports.addAll(m.staticImports);
-            m.parameters.forEach(p -> {
-                imports.addAll(p.imports);
-                imports.addAll(p.staticImports);
-                imports.addAll(p.type.typeImports);
-                if (nonNull(p.type.keyType)) {
-                    imports.addAll(p.type.keyType.typeImports);
+            imports.addAll(m.imports());
+            imports.addAll(m.staticImports());
+            m.parameters().forEach(p -> {
+                imports.addAll(p.imports());
+                imports.addAll(p.staticImports());
+                imports.addAll(p.type().typeImports);
+                if (nonNull(p.type().keyType)) {
+                    imports.addAll(p.type().keyType.typeImports);
                 }
-                if (nonNull(p.type.itemType)) {
-                    imports.addAll(p.type.itemType.typeImports);
+                if (nonNull(p.type().itemType)) {
+                    imports.addAll(p.type().itemType.typeImports);
                 }
             });
         });
 
         imports.removeIf(i -> i.equals("java.util.List") || i.contains("ROOT_PATH"));
-        imports.add("%s.%s.Companion.ROOT_PATH".formatted(opts.rootPackage, resourceInfo.name));
+        imports.add("%s.%s.Companion.ROOT_PATH".formatted(opts.rootPackage(), resourceInfo.name));
         imports.forEach(i -> writeLine("import %s".formatted(i)));
         writeNewLine();
 
@@ -76,39 +76,39 @@ public class KotlinResourceWriter extends BaseWriter implements ResourceWriter {
             writeNewLine();
             if (m.isDeprecated()) {
                 writeIndent(1);
-                writeLine("@Deprecated(\"%s\")".formatted(m.deprecationMessage));
+                writeLine("@Deprecated(\"%s\")".formatted(m.deprecationMessage()));
             }
 
-            m.annotations.forEach(a -> {
+            m.annotations().forEach(a -> {
                 writeIndent(1);
                 writeLine(a);
             });
 
             writeIndent(1);
-            writeLine("fun %s(".formatted(m.name));
-            for (int i=0; i<m.parameters.size(); i++) {
-                MethodParamInfo paramInfo = m.parameters.get(i);
+            writeLine("fun %s(".formatted(m.name()));
+            for (int i=0; i<m.parameters().size(); i++) {
+                MethodParamInfo paramInfo = m.parameters().get(i);
                 writeIndent(2);
-                if (nonEmpty(paramInfo.annotations)) {
-                    write(String.join(" ", paramInfo.annotations) + " ");
+                if (nonEmpty(paramInfo.annotations())) {
+                    write(String.join(" ", paramInfo.annotations()) + " ");
                 }
-                write(paramInfo.name + ": ");
-                write(toKotlinNative(paramInfo.type.getFullName()));
-                if (paramInfo.nullable) {
+                write(paramInfo.name() + ": ");
+                write(toKotlinNative(paramInfo.type().getFullName()));
+                if (paramInfo.nullable()) {
                     write("? = null");
                 }
-                if (i < (m.parameters.size()-1)) {
+                if (i < (m.parameters().size()-1)) {
                     write(",");
                 }
-                if (nonBlank(paramInfo.comment)) {
-                    write(" // %s", paramInfo.comment);
+                if (nonBlank(paramInfo.comment())) {
+                    write(" // %s", paramInfo.comment());
                 }
                 writeNewLine();
             }
 
             writeIndent(1);
-            if (opts.useResteasyResponse) {
-                writeLine("): RestResponse<%s>".formatted(nonNull(m.returnType) ? m.returnType : "Unit"));
+            if (opts.useResteasyResponse()) {
+                writeLine("): RestResponse<%s>".formatted(nonNull(m.returnType()) ? m.returnType() : "Unit"));
             } else {
                 writeLine("): Response");
             }
@@ -120,16 +120,16 @@ public class KotlinResourceWriter extends BaseWriter implements ResourceWriter {
         writeLine("companion object {");
 
         writeIndent(2);
-        writeLine("const val ROOT_PATH: String = \"%s\"", opts.rootUrlPath);
+        writeLine("const val ROOT_PATH: String = \"%s\"", opts.rootUrlPath());
 
         if (nonNull(resourceInfo.authMethod)) {
-            resourceInfo.authMethod.annotations.forEach(a -> {
+            resourceInfo.authMethod.annotations().forEach(a -> {
                 writeIndent(2);
                 writeLine(a);
             });
 
             writeIndent(2);
-            writeLine("fun %s() = \"TODO\"".formatted(resourceInfo.authMethod.name));
+            writeLine("fun %s() = \"TODO\"".formatted(resourceInfo.authMethod.name()));
         }
 
         writeIndent(1);

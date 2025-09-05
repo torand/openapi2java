@@ -39,22 +39,22 @@ public final class WriterFactory {
 
     public static EnumWriter createEnumWriter(String filename, Options opts, String modelSubdir) throws IOException {
         Writer fileWriter = createFileWriter(filename, opts.getModelOutputDir(modelSubdir));
-        return opts.useKotlinSyntax ? new KotlinEnumWriter(fileWriter, opts) : new JavaEnumWriter(fileWriter, opts);
+        return opts.useKotlinSyntax() ? new KotlinEnumWriter(fileWriter, opts) : new JavaEnumWriter(fileWriter, opts);
     }
 
     public static PojoWriter createPojoWriter(String filename, Options opts, String modelSubdir) throws IOException {
         Writer fileWriter = createFileWriter(filename, opts.getModelOutputDir(modelSubdir));
-        return opts.useKotlinSyntax ? new KotlinPojoWriter(fileWriter, opts) : new JavaPojoWriter(fileWriter, opts);
+        return opts.useKotlinSyntax() ? new KotlinPojoWriter(fileWriter, opts) : new JavaPojoWriter(fileWriter, opts);
     }
 
     public static ResourceWriter createResourceWriter(String filename, Options opts) throws IOException {
-        Writer fileWriter = createFileWriter(filename, opts.outputDir);
-        return opts.useKotlinSyntax ? new KotlinResourceWriter(fileWriter, opts) : new JavaResourceWriter(fileWriter, opts);
+        Writer fileWriter = createFileWriter(filename, opts.outputDir());
+        return opts.useKotlinSyntax() ? new KotlinResourceWriter(fileWriter, opts) : new JavaResourceWriter(fileWriter, opts);
     }
 
     public static OpenApiDefWriter createOpenApiDefWriter(String filename, Options opts) throws IOException {
-        Writer fileWriter = createFileWriter(filename, opts.outputDir);
-        return opts.useKotlinSyntax ? new KotlinOpenApiDefWriter(fileWriter, opts) : new JavaOpenApiDefWriter(fileWriter, opts);
+        Writer fileWriter = createFileWriter(filename, opts.outputDir());
+        return opts.useKotlinSyntax() ? new KotlinOpenApiDefWriter(fileWriter, opts) : new JavaOpenApiDefWriter(fileWriter, opts);
     }
 
     private static Writer createFileWriter(String filename, String directory) throws IOException {

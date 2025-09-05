@@ -84,7 +84,7 @@ public class JavaPojoWriter extends BaseWriter implements PojoWriter {
 
         pojoInfo.annotations.forEach(this::writeLine);
 
-        if (opts.pojosAsRecords) {
+        if (opts.pojosAsRecords()) {
             writeLine("public record %s (".formatted(pojoInfo.name));
         } else {
             writeLine("public class %s {".formatted(pojoInfo.name));
@@ -100,7 +100,7 @@ public class JavaPojoWriter extends BaseWriter implements PojoWriter {
                 String itemTypeWithAnnotations = concatStream(propInfo.type.itemType.annotations, List.of(propInfo.type.itemType.name))
                     .collect(joining(" "));
 
-                if (!opts.pojosAsRecords) {
+                if (!opts.pojosAsRecords()) {
                     write("public ");
                 }
 
@@ -113,14 +113,14 @@ public class JavaPojoWriter extends BaseWriter implements PojoWriter {
                     write("%s<%s> %s".formatted(propInfo.type.name, itemTypeWithAnnotations, propInfo.name));
                 }
             } else {
-                if (opts.pojosAsRecords) {
+                if (opts.pojosAsRecords()) {
                     write("%s %s".formatted(propInfo.type.name, propInfo.name));
                 } else {
                     write("public %s %s".formatted(propInfo.type.name, propInfo.name));
                 }
             }
 
-            if (opts.pojosAsRecords) {
+            if (opts.pojosAsRecords()) {
                 if (propNo.getAndIncrement() < pojoInfo.properties.size()) {
                     writeLine(",");
                 } else {
@@ -131,7 +131,7 @@ public class JavaPojoWriter extends BaseWriter implements PojoWriter {
             }
         });
 
-        if (opts.pojosAsRecords) {
+        if (opts.pojosAsRecords()) {
             writeLine(") {");
             writeNewLine();
             writeLine("}");

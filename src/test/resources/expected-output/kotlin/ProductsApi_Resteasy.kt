@@ -57,7 +57,7 @@ interface ProductsApi_Resteasy {
     @Parameter(`in` = HEADER, name = "X-User-ID", description = "Unique user identifier (SHA1 fingerprint)", required = true, schema = Schema(implementation = String::class))
     @Parameter(`in` = QUERY, name = "offset", description = "Offset of first result in returned page", schema = Schema(implementation = Int::class, defaultValue = "0"))
     @Parameter(`in` = QUERY, name = "limit", description = "Number of results in returned page", schema = Schema(implementation = Int::class, defaultValue = "10"))
-    @APIResponse(responseCode = "200", description = "OK", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(type = ARRAY, implementation = ProductV1Dto::class)), Content(mediaType = "application/vnd.test.api.product-v1+json", schema = Schema(implementation = ProductV1Dto::class)) ])
+    @APIResponse(responseCode = "200", description = "OK", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(type = ARRAY, implementation = ProductV1Dto::class)), Content(mediaType = "application/vnd.test.api.product-v1+json", schema = Schema(type = ARRAY, implementation = ProductV1Dto::class)) ])
     @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     @APIResponse(responseCode = "403", description = "Authenticated client or user is not granted access to this resource", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
@@ -68,7 +68,7 @@ interface ProductsApi_Resteasy {
         @HeaderParam("X-User-ID") @NotBlank xUserID: String,
         @QueryParam("offset") @Min(0) offset: Int? = null,
         @QueryParam("limit") @Min(1) limit: Int? = null
-    ): RestResponse<*>
+    ): RestResponse<List<ProductV1Dto>>
 
     @POST
     @Path("products")

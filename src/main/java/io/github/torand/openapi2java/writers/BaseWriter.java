@@ -59,8 +59,8 @@ public abstract class BaseWriter implements AutoCloseable {
 
     protected void writeIndent(int levels) {
         String indent = "\t";
-        if (!opts.indentWithTab) {
-            indent = " ".repeat(opts.indentSize);
+        if (!opts.indentWithTab()) {
+            indent = " ".repeat(opts.indentSize());
         }
 
         for (int level = 0; level < levels; level++) {

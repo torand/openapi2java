@@ -49,12 +49,12 @@ public class PropertyInfoCollector extends BaseCollector {
             : TypeInfoCollector.NullabilityResolution.FORCE_NULLABLE;
         propInfo.type = typeInfoCollector.getTypeInfo(property, nullabilityResolution);
 
-        if (opts.addMpOpenApiAnnotations) {
+        if (opts.addMpOpenApiAnnotations()) {
             String schemaAnnotation = getSchemaAnnotation(property, propInfo.type, propInfo.imports);
             propInfo.annotations.add(schemaAnnotation);
         }
 
-        if (opts.addJsonPropertyAnnotations) {
+        if (opts.addJsonPropertyAnnotations()) {
             String jsonPropAnnotation = getJsonPropertyAnnotation(name, propInfo.imports);
             propInfo.annotations.add(jsonPropAnnotation);
         }

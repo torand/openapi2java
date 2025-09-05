@@ -15,22 +15,61 @@
  */
 package io.github.torand.openapi2java.model;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
- * Describes an enum.
+ * Describes an enum class.
+ * @param name the name of the enum class.
+ * @param constants the constant values for this enum class.
+ * @param modelSubdir the custom subdirectory to place this enum class definition, if any.
+ * @param modelSubpackage the custom subpackage to place this enum class definition, if any.
+ * @param imports the imports required by the enum class annotations.
+ * @param annotations the annotations decorating this enum class.
  */
-public class EnumInfo {
-    public String name;
+public record EnumInfo (
+    String name,
+    List<String> constants,
+    String modelSubdir,
+    String modelSubpackage,
+    Set<String> imports,
+    Set<String> annotations
+) {
+    /**
+     * Constructs an {@link EnumInfo} object.
+     * @param name the enum name.
+     */
+    public EnumInfo(String name, List<String> constants) {
+        this(name, constants, null, null, new TreeSet<>(), new LinkedHashSet<>());
+    }
 
-    public String modelSubdir;
-    public String modelSubpackage;
+    /**
+     * Returns a new {@link EnumInfo} object with specified model subdirectory.
+     * @param modelSubdir the model subdirectory.
+     * @return the new and updated {@link EnumInfo} object.
+     */
+    public EnumInfo withModelSubdir(String modelSubdir) {
+        return new EnumInfo(name, constants, modelSubdir, modelSubpackage, imports, annotations);
+    }
 
-    public Set<String> imports = new TreeSet<>();
-    public Set<String> annotations = new LinkedHashSet<>();
-    public List<String> constants = new ArrayList<>();
+    /**
+     * Returns a new {@link EnumInfo} object with specified model subpackage.
+     * @param modelSubpackage the model subpackage.
+     * @return the new and updated {@link EnumInfo} object.
+     */
+    public EnumInfo withModelSubpackage(String modelSubpackage) {
+        return new EnumInfo(name, constants, modelSubdir, modelSubpackage, imports, annotations);
+    }
+
+    /**
+     * Returns a new {@link EnumInfo} object with specified annotation added.
+     * @param annotation the annotation to add.
+     * @return the new and updated {@link EnumInfo} object.
+     */
+    public EnumInfo withAddedAnnotation(AnnotationInfo annotation) {
+        Set<String> newImports = new TreeSet<>(this.imports);
+        newImports.addAll(annotation.imports());
+        Set<String> newAnnotations = new LinkedHashSet<>(this.annotations);
+        newAnnotations.add(annotation.annotation());
+        return new EnumInfo(name, constants, modelSubdir, modelSubpackage, newImports, newAnnotations);
+    }
 }
