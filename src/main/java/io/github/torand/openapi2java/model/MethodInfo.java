@@ -25,8 +25,6 @@ import static java.util.Objects.nonNull;
  * @param parameters the method parameters.
  * @param returnType the method return type.
  * @param deprecationMessage the deprecation message, if any.
- * @param imports the imports required by the method annotations and return type.
- * @param staticImports the static imports required by the method annotations and return type.
  * @param annotations the annotations decorating this method.
  */
 public record MethodInfo (
@@ -34,30 +32,33 @@ public record MethodInfo (
     List<MethodParamInfo> parameters,
     String returnType,
     String deprecationMessage,
-    Set<String> imports,
-    Set<String> staticImports,
-    Set<String> annotations
-) {
+    List<AnnotationInfo> annotations
+) implements ImportsSupplier {
     /**
      * Constructs a {@link MethodInfo} object.
      * @param name the meethod name.
      */
     public MethodInfo(String name) {
-        this(name, new ArrayList<>(), null, null, new TreeSet<>(), new TreeSet<>(), new LinkedHashSet<>());
+        this(name, new ArrayList<>(), null, null, new LinkedList<>());
+    }
+
+    @Override
+    public ImportInfo imports() {
+        return ImportInfo.concatImports(annotations());
     }
 
     public MethodInfo withAddedParameters(Collection<MethodParamInfo> params) {
         List<MethodParamInfo> newParameters = new ArrayList<>(parameters);
         newParameters.addAll(params);
-        return new MethodInfo(name, newParameters, returnType, deprecationMessage, imports, staticImports, annotations);
+        return new MethodInfo(name, newParameters, returnType, deprecationMessage, annotations);
     }
 
     public MethodInfo withReturnType(String returnType) {
-        return new MethodInfo(name, parameters, returnType, deprecationMessage, imports, staticImports, annotations);
+        return new MethodInfo(name, parameters, returnType, deprecationMessage, annotations);
     }
 
     public MethodInfo withDeprecationMessage(String deprecationMessage) {
-        return new MethodInfo(name, parameters, returnType, deprecationMessage, imports, staticImports, annotations);
+        return new MethodInfo(name, parameters, returnType, deprecationMessage, annotations);
     }
 
     /**
@@ -66,13 +67,9 @@ public record MethodInfo (
      * @return the new and updated {@link MethodInfo} object.
      */
     public MethodInfo withAddedAnnotation(AnnotationInfo annotation) {
-        Set<String> newImports = new TreeSet<>(this.imports);
-        newImports.addAll(annotation.imports());
-        Set<String> newStaticImports = new TreeSet<>(this.staticImports);
-        newStaticImports.addAll(annotation.staticImports());
-        Set<String> newAnnotations = new LinkedHashSet<>(this.annotations);
-        newAnnotations.add(annotation.annotation());
-        return new MethodInfo(name, parameters, returnType, deprecationMessage, newImports, newStaticImports, newAnnotations);
+        List<AnnotationInfo> newAnnotations = new LinkedList<>(this.annotations);
+        newAnnotations.add(annotation);
+        return new MethodInfo(name, parameters, returnType, deprecationMessage, newAnnotations);
     }
 
     /**

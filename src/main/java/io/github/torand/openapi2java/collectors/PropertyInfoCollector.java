@@ -68,7 +68,7 @@ public class PropertyInfoCollector extends BaseCollector {
 
     private String getSchemaAnnotation(Schema<?> property, TypeInfo typeInfo, Set<String> imports) {
         String description = property.getDescription();
-        boolean required = !typeInfoCollector.isNullable(property) && !typeInfo.nullable;
+        boolean required = !typeInfoCollector.isNullable(property) && !typeInfo.nullable();
 
         imports.add("org.eclipse.microprofile.openapi.annotations.media.Schema");
         List<String> schemaParams = new ArrayList<>();
@@ -79,11 +79,11 @@ public class PropertyInfoCollector extends BaseCollector {
         if (nonNull(property.getDefault())) {
             schemaParams.add("defaultValue = \"%s\"".formatted(property.getDefault().toString()));
         }
-        if (nonNull(typeInfo.schemaFormat)) {
-            schemaParams.add("format = \"%s\"".formatted(typeInfo.schemaFormat));
+        if (nonNull(typeInfo.schemaFormat())) {
+            schemaParams.add("format = \"%s\"".formatted(typeInfo.schemaFormat()));
         }
-        if (nonNull(typeInfo.schemaPattern)) {
-            schemaParams.add("pattern = \"%s\"".formatted(typeInfo.schemaPattern));
+        if (nonNull(typeInfo.schemaPattern())) {
+            schemaParams.add("pattern = \"%s\"".formatted(typeInfo.schemaPattern()));
         }
         if (TRUE.equals(property.getDeprecated())) {
             schemaParams.add("deprecated = true");

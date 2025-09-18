@@ -63,7 +63,7 @@ public class ResourceInfoCollector extends BaseCollector {
         if (nonEmpty(securityRequirements)) {
             SecurityRequirementInfo secReqInfo = securityRequirementCollector.getSequrityRequirementInfo(securityRequirements);
 
-            resourceInfo.imports.addAll(secReqInfo.annotation().imports());
+            resourceInfo.imports.addAll(secReqInfo.annotation().imports().normalImports());
             resourceInfo.annotations.add(secReqInfo.annotation().annotation());
         }
 

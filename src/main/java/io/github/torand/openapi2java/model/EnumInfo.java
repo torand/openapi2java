@@ -23,7 +23,6 @@ import java.util.*;
  * @param constants the constant values for this enum class.
  * @param modelSubdir the custom subdirectory to place this enum class definition, if any.
  * @param modelSubpackage the custom subpackage to place this enum class definition, if any.
- * @param imports the imports required by the enum class annotations.
  * @param annotations the annotations decorating this enum class.
  */
 public record EnumInfo (
@@ -31,15 +30,19 @@ public record EnumInfo (
     List<String> constants,
     String modelSubdir,
     String modelSubpackage,
-    Set<String> imports,
-    Set<String> annotations
-) {
+    List<AnnotationInfo> annotations
+) implements ImportsSupplier {
     /**
      * Constructs an {@link EnumInfo} object.
      * @param name the enum name.
      */
     public EnumInfo(String name, List<String> constants) {
-        this(name, constants, null, null, new TreeSet<>(), new LinkedHashSet<>());
+        this(name, constants, null, null, new LinkedList<>());
+    }
+
+    @Override
+    public ImportInfo imports() {
+        return ImportInfo.concatImports(annotations);
     }
 
     /**
@@ -48,7 +51,7 @@ public record EnumInfo (
      * @return the new and updated {@link EnumInfo} object.
      */
     public EnumInfo withModelSubdir(String modelSubdir) {
-        return new EnumInfo(name, constants, modelSubdir, modelSubpackage, imports, annotations);
+        return new EnumInfo(name, constants, modelSubdir, modelSubpackage, annotations);
     }
 
     /**
@@ -57,7 +60,7 @@ public record EnumInfo (
      * @return the new and updated {@link EnumInfo} object.
      */
     public EnumInfo withModelSubpackage(String modelSubpackage) {
-        return new EnumInfo(name, constants, modelSubdir, modelSubpackage, imports, annotations);
+        return new EnumInfo(name, constants, modelSubdir, modelSubpackage, annotations);
     }
 
     /**
@@ -66,10 +69,8 @@ public record EnumInfo (
      * @return the new and updated {@link EnumInfo} object.
      */
     public EnumInfo withAddedAnnotation(AnnotationInfo annotation) {
-        Set<String> newImports = new TreeSet<>(this.imports);
-        newImports.addAll(annotation.imports());
-        Set<String> newAnnotations = new LinkedHashSet<>(this.annotations);
-        newAnnotations.add(annotation.annotation());
-        return new EnumInfo(name, constants, modelSubdir, modelSubpackage, newImports, newAnnotations);
+        List<AnnotationInfo> newAnnotations = new LinkedList<>(this.annotations);
+        newAnnotations.add(annotation);
+        return new EnumInfo(name, constants, modelSubdir, modelSubpackage, newAnnotations);
     }
 }

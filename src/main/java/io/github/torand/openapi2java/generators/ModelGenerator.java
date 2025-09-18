@@ -259,10 +259,10 @@ public class ModelGenerator {
             return Optional.empty(); // Inline type, not a component
         }
         TypeInfo bodyType = typeInfoCollector.getTypeInfo(schema);
-        if (nonNull(bodyType.itemType)) {
-            return Optional.of(bodyType.itemType.name);
+        if (nonNull(bodyType.itemType())) {
+            return Optional.of(bodyType.itemType().name());
         } else {
-            return Optional.of(bodyType.name);
+            return Optional.of(bodyType.name());
         }
     }
 

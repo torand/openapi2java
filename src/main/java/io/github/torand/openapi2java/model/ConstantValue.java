@@ -18,17 +18,21 @@ package io.github.torand.openapi2java.model;
 /**
  * Describes a constant value.
  * @param value the constant value.
- * @param staticImport the static import required by the constant value, if any.
+ * @param imports the imports required by the constant value, if any.
  */
-public record ConstantValue(
+public record ConstantValue (
     String value,
-    String staticImport
-) {
+    ImportInfo imports
+) implements ImportsSupplier {
     /**
      * Constructs an {@link ConstantValue} object.
      * @param value the constant value.
      */
     public ConstantValue(String value) {
-        this(value, null);
+        this(value, new ImportInfo());
+    }
+
+    public ConstantValue withStaticImport(String staticImport) {
+        return new ConstantValue(value, imports.withAddedStaticImport(staticImport));
     }
 }

@@ -18,6 +18,7 @@ package io.github.torand.openapi2java.collectors;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.torand.openapi2java.generators.Options;
 import io.github.torand.openapi2java.TestHelper;
+import io.github.torand.openapi2java.model.AnnotationInfo;
 import io.github.torand.openapi2java.model.TypeInfo;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.parser.util.OpenAPIDeserializer;
@@ -209,29 +210,29 @@ public class TypeInfoCollectorTest {
 
     private void assertNonNullableArrayType(String jsonSchema, String expectedTypeName, String expectedItemTypeName, String... expectedAnnotations) {
         TypeInfo typeInfo = getTypeInfo(jsonSchema);
-        assertThat(typeInfo.name).isEqualTo(expectedTypeName);
-        assertThat(typeInfo.itemType.name).isEqualTo(expectedItemTypeName);
-        assertThat(typeInfo.nullable).isFalse();
-        assertThat(typeInfo.primitive).isFalse();
-        assertThat(typeInfo.annotations).containsExactly(expectedAnnotations);
+        assertThat(typeInfo.name()).isEqualTo(expectedTypeName);
+        assertThat(typeInfo.itemType().name()).isEqualTo(expectedItemTypeName);
+        assertThat(typeInfo.nullable()).isFalse();
+        assertThat(typeInfo.primitive()).isFalse();
+        assertThat(typeInfo.annotations().stream().map(AnnotationInfo::annotation).toList()).containsExactly(expectedAnnotations);
     }
 
     private void assertNullableArrayType(String jsonSchema, String expectedTypeName, String expectedItemTypeName, String... expectedAnnotations) {
         TypeInfo typeInfo = getTypeInfo(jsonSchema);
-        assertThat(typeInfo.name).isEqualTo(expectedTypeName);
-        assertThat(typeInfo.itemType.name).isEqualTo(expectedItemTypeName);
-        assertThat(typeInfo.nullable).isTrue();
-        assertThat(typeInfo.primitive).isFalse();
-        assertThat(typeInfo.annotations).containsExactly(expectedAnnotations);
+        assertThat(typeInfo.name()).isEqualTo(expectedTypeName);
+        assertThat(typeInfo.itemType().name()).isEqualTo(expectedItemTypeName);
+        assertThat(typeInfo.nullable()).isTrue();
+        assertThat(typeInfo.primitive()).isFalse();
+        assertThat(typeInfo.annotations().stream().map(AnnotationInfo::annotation).toList()).containsExactly(expectedAnnotations);
     }
 
     private void assertPrimitiveType(TypeInfo typeInfo, String expectedTypeName, String expectedFormat, String expectedPattern, boolean expectedNullable, String... expectedAnnotations) {
-        assertThat(typeInfo.name).isEqualTo(expectedTypeName);
-        assertThat(typeInfo.schemaFormat).isEqualTo(expectedFormat);
-        assertThat(typeInfo.schemaPattern).isEqualTo(expectedPattern);
-        assertThat(typeInfo.nullable).isEqualTo(expectedNullable);
-        assertThat(typeInfo.primitive).isTrue();
-        assertThat(typeInfo.annotations).containsExactly(expectedAnnotations);
+        assertThat(typeInfo.name()).isEqualTo(expectedTypeName);
+        assertThat(typeInfo.schemaFormat()).isEqualTo(expectedFormat);
+        assertThat(typeInfo.schemaPattern()).isEqualTo(expectedPattern);
+        assertThat(typeInfo.nullable()).isEqualTo(expectedNullable);
+        assertThat(typeInfo.primitive()).isTrue();
+        assertThat(typeInfo.annotations().stream().map(AnnotationInfo::annotation).toList()).containsExactly(expectedAnnotations);
     }
 
     private TypeInfo getTypeInfo(String jsonSchema) {

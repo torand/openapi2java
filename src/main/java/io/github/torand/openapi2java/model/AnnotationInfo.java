@@ -15,10 +15,7 @@
  */
 package io.github.torand.openapi2java.model;
 
-import java.util.*;
-
-import static java.util.Collections.emptySet;
-import static java.util.Objects.nonNull;
+import java.util.Collection;
 
 /**
  * Describes an annotation.
@@ -27,14 +24,13 @@ import static java.util.Objects.nonNull;
  */
 public record AnnotationInfo(
     String annotation,
-    Set<String> imports,
-    Set<String> staticImports
-) {
+    ImportInfo imports
+) implements ImportsSupplier {
     /**
      * Constructs an {@link AnnotationInfo} object.
      */
     public AnnotationInfo() {
-        this(null, emptySet(), emptySet());
+        this(null, new ImportInfo());
     }
 
     /**
@@ -42,7 +38,7 @@ public record AnnotationInfo(
      * @param annotation the annoation.
      */
     public AnnotationInfo(String annotation) {
-        this(annotation, emptySet(), emptySet());
+        this(annotation, new ImportInfo());
     }
 
     /**
@@ -51,7 +47,7 @@ public record AnnotationInfo(
      * @param annotationImport the import required by the annotation.
      */
     public AnnotationInfo(String annotation, String annotationImport) {
-        this(annotation, Set.of(annotationImport), emptySet());
+        this(annotation, new ImportInfo().withAddedNormalImport(annotationImport));
     }
 
     /**
@@ -60,7 +56,7 @@ public record AnnotationInfo(
      * @return the new and updated {@link AnnotationInfo} object.
      */
     public AnnotationInfo withAnnotation(String annotation) {
-        return new AnnotationInfo(annotation, imports, staticImports);
+        return new AnnotationInfo(annotation, imports);
     }
 
     /**
@@ -69,20 +65,7 @@ public record AnnotationInfo(
      * @return the new and updated {@link AnnotationInfo} object.
      */
     public AnnotationInfo withAddedImport(String annotationImport) {
-        Set<String> newImports = new TreeSet<>(this.imports);
-        newImports.add(annotationImport);
-        return new AnnotationInfo(annotation, newImports, staticImports);
-    }
-
-    /**
-     * Returns a new {@link AnnotationInfo} object with specified imports added.
-     * @param annotationImports the imports to add.
-     * @return the new and updated {@link AnnotationInfo} object.
-     */
-    public AnnotationInfo withAddedImports(Collection<String> annotationImports) {
-        Set<String> newImports = new TreeSet<>(this.imports);
-        newImports.addAll(annotationImports);
-        return new AnnotationInfo(annotation, newImports, staticImports);
+        return new AnnotationInfo(annotation, imports.withAddedNormalImport(annotationImport));
     }
 
     /**
@@ -91,66 +74,24 @@ public record AnnotationInfo(
      * @return the new and updated {@link AnnotationInfo} object.
      */
     public AnnotationInfo withAddedStaticImport(String annotationStaticImport) {
-        Set<String> newStaticImports = new TreeSet<>(this.staticImports);
-        newStaticImports.add(annotationStaticImport);
-        return new AnnotationInfo(annotation, imports, newStaticImports);
+        return new AnnotationInfo(annotation, imports.withAddedStaticImport(annotationStaticImport));
     }
 
     /**
-     * Returns a new {@link AnnotationInfo} object with specified static imports added.
-     * @param annotationStaticImports the static imports to add.
+     * Returns a new {@link AnnotationInfo} object with specified imports added.
+     * @param importSupplier the imports to add.
      * @return the new and updated {@link AnnotationInfo} object.
      */
-    public AnnotationInfo withAddedStaticImports(Collection<String> annotationStaticImports) {
-        Set<String> newStaticImports = new TreeSet<>(this.staticImports);
-        newStaticImports.addAll(annotationStaticImports);
-        return new AnnotationInfo(annotation, imports, newStaticImports);
+    public AnnotationInfo withAddedImports(ImportsSupplier importSupplier) {
+        return new AnnotationInfo(annotation, imports.withAddedImports(importSupplier));
     }
 
     /**
-     * Returns a new {@link AnnotationInfo} object with imports and static imports from specified constant value added.
-     * @param constant the constant value having imports and static imports to add.
+     * Returns a new {@link AnnotationInfo} object with specified imports added.
+     * @param importSuppliers the imports to add.
      * @return the new and updated {@link AnnotationInfo} object.
      */
-    public AnnotationInfo withAddedConstantValueImports(ConstantValue constant) {
-        return nonNull(constant.staticImport()) ? withAddedStaticImport(constant.staticImport()) : this;
-    }
-
-    /**
-     * Returns a new {@link AnnotationInfo} object with imports and static imports from specified constant values added.
-     * @param constants the constant values having imports and static imports to add.
-     * @return the new and updated {@link AnnotationInfo} object.
-     */
-    public AnnotationInfo withAddedConstantValueImports(Collection<ConstantValue> constants) {
-        AnnotationInfo merged = this;
-        for (ConstantValue constant : constants) {
-            merged = withAddedConstantValueImports(constant);
-        }
-
-        return merged;
-    }
-
-    /**
-     * Returns a new {@link AnnotationInfo} object with imports and static imports from specified annotation added.
-     * @param annotation the annotation having imports and static imports to add.
-     * @return the new and updated {@link AnnotationInfo} object.
-     */
-    public AnnotationInfo withAddedAllImportsFrom(AnnotationInfo annotation) {
-        return withAddedImports(annotation.imports)
-            .withAddedStaticImports(annotation.staticImports);
-    }
-
-    /**
-     * Returns a new {@link AnnotationInfo} object with imports and static imports from specified annotations added.
-     * @param annotations the annotations having imports and static imports to add.
-     * @return the new and updated {@link AnnotationInfo} object.
-     */
-    public AnnotationInfo withAddedAllImportsFrom(Collection<AnnotationInfo> annotations) {
-        AnnotationInfo merged = this;
-        for (AnnotationInfo annotation : annotations) {
-            merged = withAddedAllImportsFrom(annotation);
-        }
-
-        return merged;
+    public AnnotationInfo withAddedImports(Collection<? extends ImportsSupplier> importSuppliers) {
+        return new AnnotationInfo(annotation, imports.withAddedImports(importSuppliers));
     }
 }

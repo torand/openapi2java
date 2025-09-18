@@ -16,6 +16,7 @@
 package io.github.torand.openapi2java.collectors;
 
 import io.github.torand.openapi2java.generators.Options;
+import io.github.torand.openapi2java.model.AnnotationInfo;
 import io.github.torand.openapi2java.model.TypeInfo;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
@@ -86,24 +87,24 @@ public class TypeInfoCollector extends BaseCollector {
                     Schema<?> $refSchema = schemaResolver.getOrThrow($ref);
                     typeInfo = getTypeInfo($refSchema, nullable ? FORCE_NULLABLE : FORCE_NOT_NULLABLE);
                 } else {
-                    typeInfo = new TypeInfo();
-                    typeInfo.nullable = nullable;
+                    typeInfo = new TypeInfo()
+                        .withName(schemaResolver.getTypeName($ref) + opts.pojoNameSuffix())
+                        .withNullable(nullable);
 
-                    typeInfo.name = schemaResolver.getTypeName($ref) + opts.pojoNameSuffix();
                     String modelSubpackage = schemaResolver.getModelSubpackage($ref).orElse(null);
-                    typeInfo.typeImports.add(opts.getModelPackage(modelSubpackage) + "." + typeInfo.name);
+                    typeInfo = typeInfo.withAddedImport(opts.getModelPackage(modelSubpackage) + "." + typeInfo.name());
                     if (!schemaResolver.isEnumType(schema.get$ref())) {
-                        String validAnnotation = getValidAnnotation(typeInfo.annotationImports);
-                        typeInfo.annotations.add(validAnnotation);
+                        AnnotationInfo validAnnotation = getValidAnnotation();
+                        typeInfo = typeInfo.withAddedAnnotation(validAnnotation);
                     }
                     if (!nullable) {
-                        String notNullAnnotation = getNotNullAnnotation(typeInfo.annotationImports);
-                        typeInfo.annotations.add(notNullAnnotation);
+                        AnnotationInfo notNullAnnotation = getNotNullAnnotation();
+                        typeInfo = typeInfo.withAddedAnnotation(notNullAnnotation);
                     }
                 }
 
                 if (nonBlank(schema.getDescription())) {
-                    typeInfo.description = schema.getDescription();
+                    typeInfo = typeInfo.withDescription(schema.getDescription());
                 }
 
                 return typeInfo;
@@ -122,12 +123,10 @@ public class TypeInfoCollector extends BaseCollector {
     }
 
     private TypeInfo getJsonType(Schema<?> schema, NullabilityResolution nullabilityResolution) {
-        TypeInfo typeInfo = new TypeInfo();
-        typeInfo.description = schema.getDescription();
-        typeInfo.primitive = true;
-
-        boolean nullable = isNullable(schema, nullabilityResolution);
-        typeInfo.nullable = nullable;
+        TypeInfo typeInfo = new TypeInfo()
+            .withDescription(schema.getDescription())
+            .withPrimitive(true)
+            .withNullable(isNullable(schema, nullabilityResolution));
 
         String jsonType = streamSafely(schema.getTypes())
             .filter(t -> !"null".equals(t))
@@ -135,242 +134,251 @@ public class TypeInfoCollector extends BaseCollector {
             .orElseThrow(illegalStateException("Unexpected types: %s", schema.toString()));
 
         if ("string".equals(jsonType)) {
-            populateJsonStringType(typeInfo, schema);
+            typeInfo = populateJsonStringType(typeInfo, schema);
         } else if ("number".equals(jsonType)) {
-            populateJsonNumberType(typeInfo, schema);
+            typeInfo = populateJsonNumberType(typeInfo, schema);
         } else if ("integer".equals(jsonType)) {
-            populateJsonIntegerType(typeInfo, schema);
+            typeInfo = populateJsonIntegerType(typeInfo, schema);
         } else if ("boolean".equals(jsonType)) {
-            populateJsonBooleanType(typeInfo);
+            typeInfo = populateJsonBooleanType(typeInfo);
         } else if ("array".equals(jsonType)) {
-            populateJsonArrayType(typeInfo, schema);
+            typeInfo = populateJsonArrayType(typeInfo, schema);
         } else if ("object".equals(jsonType) && schema.getAdditionalProperties() instanceof Schema) {
-            populateJsonMapType(typeInfo, schema);
+            typeInfo = populateJsonMapType(typeInfo, schema);
         } else {
             // Schema not expected to be defined "inline" using type 'object'
             throw new IllegalStateException("Unexpected schema: %s".formatted(schema.toString()));
         }
 
-        extensions(schema.getExtensions()).getString(EXT_JSON_SERIALIZER)
-            .ifPresent(jsonSerializer -> {
-                String jsonSerializeAnnotation = getJsonSerializeAnnotation(jsonSerializer, typeInfo.annotationImports);
-                typeInfo.annotations.add(jsonSerializeAnnotation);
-            });
+        Optional<String> maybeJsonSerializer = extensions(schema.getExtensions()).getString(EXT_JSON_SERIALIZER);
+        if (maybeJsonSerializer.isPresent()) {
+            AnnotationInfo jsonSerializeAnnotation = getJsonSerializeAnnotation(maybeJsonSerializer.get());
+            typeInfo = typeInfo.withAddedAnnotation(jsonSerializeAnnotation);
+        };
 
-        extensions(schema.getExtensions()).getString(EXT_VALIDATION_CONSTRAINT)
-            .ifPresent(validationConstraint -> {
-                typeInfo.annotations.add("@%s".formatted(getClassNameFromFqn(validationConstraint)));
-                typeInfo.annotationImports.add(validationConstraint);
-            });
+        Optional<String> maybeValidationConstraint = extensions(schema.getExtensions()).getString(EXT_VALIDATION_CONSTRAINT);
+        if (maybeValidationConstraint.isPresent()) {
+            AnnotationInfo validationConstraintAnnotation = new AnnotationInfo(
+                "@%s".formatted(getClassNameFromFqn(maybeValidationConstraint.get())),
+                maybeValidationConstraint.get()
+            );
+            typeInfo = typeInfo.withAddedAnnotation(validationConstraintAnnotation);
+        }
 
         return typeInfo;
     }
 
-    private void populateJsonStringType(TypeInfo typeInfo, Schema<?> schema) {
+    private TypeInfo populateJsonStringType(TypeInfo typeInfo, Schema<?> schema) {
         if ("uri".equals(schema.getFormat())) {
-            typeInfo.name = "URI";
-            typeInfo.schemaFormat = schema.getFormat();
-            typeInfo.typeImports.add("java.net.URI");
-            if (!typeInfo.nullable) {
-                String notNullAnnotation = getNotNullAnnotation(typeInfo.annotationImports);
-                typeInfo.annotations.add(notNullAnnotation);
+            typeInfo = typeInfo.withName("URI")
+                .withSchemaFormat(schema.getFormat())
+                .withAddedImport("java.net.URI");
+            if (!typeInfo.nullable()) {
+                AnnotationInfo notNullAnnotation = getNotNullAnnotation();
+                typeInfo = typeInfo.withAddedAnnotation(notNullAnnotation);
             }
         } else if ("uuid".equals(schema.getFormat())) {
-            typeInfo.name = "UUID";
-            typeInfo.schemaFormat = schema.getFormat();
-            typeInfo.typeImports.add("java.util.UUID");
-            if (!typeInfo.nullable) {
-                String notNullAnnotation = getNotNullAnnotation(typeInfo.annotationImports);
-                typeInfo.annotations.add(notNullAnnotation);
+            typeInfo = typeInfo.withName("UUID")
+                .withSchemaFormat(schema.getFormat())
+                .withAddedImport("java.util.UUID");
+            if (!typeInfo.nullable()) {
+                AnnotationInfo notNullAnnotation = getNotNullAnnotation();
+                typeInfo = typeInfo.withAddedAnnotation(notNullAnnotation);
             }
         } else if ("duration".equals(schema.getFormat())) {
-            typeInfo.name = "Duration";
-            typeInfo.schemaFormat = schema.getFormat();
-            typeInfo.typeImports.add("java.time.Duration");
-            if (!typeInfo.nullable && opts.addJakartaBeanValidationAnnotations()) {
-                String notNullAnnotation = getNotNullAnnotation(typeInfo.annotationImports);
-                typeInfo.annotations.add(notNullAnnotation);
+            typeInfo = typeInfo.withName("Duration")
+                .withSchemaFormat(schema.getFormat())
+                .withAddedImport("java.time.Duration");
+            if (!typeInfo.nullable() && opts.addJakartaBeanValidationAnnotations()) {
+                AnnotationInfo notNullAnnotation = getNotNullAnnotation();
+                typeInfo = typeInfo.withAddedAnnotation(notNullAnnotation);
             }
         } else if ("date".equals(schema.getFormat())) {
-            typeInfo.name = "LocalDate";
-            typeInfo.schemaFormat = schema.getFormat();
-            typeInfo.typeImports.add("java.time.LocalDate");
-            if (!typeInfo.nullable && opts.addJakartaBeanValidationAnnotations()) {
-                String notNullAnnotation = getNotNullAnnotation(typeInfo.annotationImports);
-                typeInfo.annotations.add(notNullAnnotation);
+            typeInfo = typeInfo.withName("LocalDate")
+                .withSchemaFormat(schema.getFormat())
+                .withAddedImport("java.time.LocalDate");
+            if (!typeInfo.nullable() && opts.addJakartaBeanValidationAnnotations()) {
+                AnnotationInfo notNullAnnotation = getNotNullAnnotation();
+                typeInfo = typeInfo.withAddedAnnotation(notNullAnnotation);
             }
-            String jsonFormatAnnotation = getJsonFormatAnnotation("yyyy-MM-dd", typeInfo.annotationImports);
-            typeInfo.annotations.add(jsonFormatAnnotation);
+            AnnotationInfo jsonFormatAnnotation = getJsonFormatAnnotation("yyyy-MM-dd");
+            typeInfo = typeInfo.withAddedAnnotation(jsonFormatAnnotation);
         } else if ("date-time".equals(schema.getFormat())) {
-            typeInfo.name = "LocalDateTime";
-            typeInfo.schemaFormat = schema.getFormat();
-            typeInfo.typeImports.add("java.time.LocalDateTime");
-            if (!typeInfo.nullable && opts.addJakartaBeanValidationAnnotations()) {
-                String notNullAnnotation = getNotNullAnnotation(typeInfo.annotationImports);
-                typeInfo.annotations.add(notNullAnnotation);
+            typeInfo = typeInfo.withName("LocalDateTime")
+                .withSchemaFormat(schema.getFormat())
+                .withAddedImport("java.time.LocalDateTime");
+            if (!typeInfo.nullable() && opts.addJakartaBeanValidationAnnotations()) {
+                AnnotationInfo notNullAnnotation = getNotNullAnnotation();
+                typeInfo = typeInfo.withAddedAnnotation(notNullAnnotation);
             }
-            String jsonFormatAnnotation = getJsonFormatAnnotation("yyyy-MM-dd'T'HH:mm:ss", typeInfo.annotationImports);
-            typeInfo.annotations.add(jsonFormatAnnotation);
+            AnnotationInfo jsonFormatAnnotation = getJsonFormatAnnotation("yyyy-MM-dd'T'HH:mm:ss");
+            typeInfo = typeInfo.withAddedAnnotation(jsonFormatAnnotation);
         } else if ("email".equals(schema.getFormat())) {
-            typeInfo.name = "String";
-            typeInfo.schemaFormat = schema.getFormat();
+            typeInfo = typeInfo.withName("String")
+                .withSchemaFormat(schema.getFormat());
             if (opts.addJakartaBeanValidationAnnotations()) {
-                if (!typeInfo.nullable) {
-                    String notBlankAnnotation = getNotBlankAnnotation(typeInfo.annotationImports);
-                    typeInfo.annotations.add(notBlankAnnotation);
+                if (!typeInfo.nullable()) {
+                    AnnotationInfo notBlankAnnotation = getNotBlankAnnotation();
+                    typeInfo = typeInfo.withAddedAnnotation(notBlankAnnotation);
                 }
-                String emailAnnotation = getEmailAnnotation(typeInfo.annotationImports);
-                typeInfo.annotations.add(emailAnnotation);
+                AnnotationInfo emailAnnotation = getEmailAnnotation();
+                typeInfo = typeInfo.withAddedAnnotation(emailAnnotation);
             }
         } else if ("binary".equals(schema.getFormat())) {
-            typeInfo.name = "byte[]";
-            typeInfo.schemaFormat = schema.getFormat();
+            typeInfo = typeInfo.withName("byte[]")
+                .withSchemaFormat(schema.getFormat());
             if (opts.addJakartaBeanValidationAnnotations()) {
-                if (!typeInfo.nullable) {
-                    String notEmptyAnnotation = getNotEmptyAnnotation(typeInfo.annotationImports);
-                    typeInfo.annotations.add(notEmptyAnnotation);
+                if (!typeInfo.nullable()) {
+                    AnnotationInfo notEmptyAnnotation = getNotEmptyAnnotation();
+                    typeInfo = typeInfo.withAddedAnnotation(notEmptyAnnotation);
                 }
                 if (nonNull(schema.getMinItems()) || nonNull(schema.getMaxItems())) {
-                    String sizeAnnotaion = getArraySizeAnnotation(schema, typeInfo.annotationImports);
-                    typeInfo.annotations.add(sizeAnnotaion);
+                    AnnotationInfo sizeAnnotaion = getArraySizeAnnotation(schema);
+                    typeInfo = typeInfo.withAddedAnnotation(sizeAnnotaion);
                 }
             }
         } else {
-            typeInfo.name = "String";
-            typeInfo.schemaFormat = schema.getFormat();
+            typeInfo = typeInfo.withName("String")
+                .withSchemaFormat(schema.getFormat());
             if (opts.addJakartaBeanValidationAnnotations()) {
-                if (!typeInfo.nullable) {
-                    String notBlankAnnotation = getNotBlankAnnotation(typeInfo.annotationImports);
-                    typeInfo.annotations.add(notBlankAnnotation);
+                if (!typeInfo.nullable()) {
+                    AnnotationInfo notBlankAnnotation = getNotBlankAnnotation();
+                    typeInfo = typeInfo.withAddedAnnotation(notBlankAnnotation);
                 }
                 if (nonBlank(schema.getPattern())) {
-                    typeInfo.schemaPattern = schema.getPattern();
-                    String patternAnnotation = getPatternAnnotation(schema, typeInfo.annotationImports);
-                    typeInfo.annotations.add(patternAnnotation);
+                    typeInfo = typeInfo.withSchemaPattern(schema.getPattern())
+                        .withAddedAnnotation(getPatternAnnotation(schema));
                 }
                 if (nonNull(schema.getMinLength()) || nonNull(schema.getMaxLength())) {
-                    String sizeAnnotation = getStringSizeAnnotation(schema, typeInfo.annotationImports);
-                    typeInfo.annotations.add(sizeAnnotation);
+                    AnnotationInfo sizeAnnotation = getStringSizeAnnotation(schema);
+                    typeInfo = typeInfo.withAddedAnnotation(sizeAnnotation);
                 }
             }
         }
+
+        return typeInfo;
     }
 
-    private void populateJsonNumberType(TypeInfo typeInfo, Schema<?> schema) {
+    private TypeInfo populateJsonNumberType(TypeInfo typeInfo, Schema<?> schema) {
         if ("double".equals(schema.getFormat())) {
-            typeInfo.name = "Double";
+            typeInfo = typeInfo.withName("Double");
         } else if ("float".equals(schema.getFormat())) {
-            typeInfo.name = "Float";
+            typeInfo = typeInfo.withName("Float");
         } else {
-            typeInfo.name = "BigDecimal";
-            typeInfo.typeImports.add("java.math.BigDecimal");
+            typeInfo = typeInfo.withName("BigDecimal")
+                .withAddedImport("java.math.BigDecimal");
         }
-        typeInfo.schemaFormat = schema.getFormat();
+        typeInfo = typeInfo.withSchemaFormat(schema.getFormat());
         if (opts.addJakartaBeanValidationAnnotations()) {
-            if (!typeInfo.nullable) {
-                String notNullAnnotation = getNotNullAnnotation(typeInfo.annotationImports);
-                typeInfo.annotations.add(notNullAnnotation);
+            if (!typeInfo.nullable()) {
+                AnnotationInfo notNullAnnotation = getNotNullAnnotation();
+                typeInfo = typeInfo.withAddedAnnotation(notNullAnnotation);
             }
-            if ("BigDecimal".equals(typeInfo.name)) {
+            if ("BigDecimal".equals(typeInfo.name())) {
                 if (nonNull(schema.getMinimum())) {
-                    String minAnnotation = getMinAnnotation(schema, typeInfo.annotationImports);
-                    typeInfo.annotations.add(minAnnotation);
+                    AnnotationInfo minAnnotation = getMinAnnotation(schema);
+                    typeInfo = typeInfo.withAddedAnnotation(minAnnotation);
                 }
                 if (nonNull(schema.getMaximum())) {
-                    String maxAnnotation = getMaxAnnotation(schema, typeInfo.annotationImports);
-                    typeInfo.annotations.add(maxAnnotation);
+                    AnnotationInfo maxAnnotation = getMaxAnnotation(schema);
+                    typeInfo = typeInfo.withAddedAnnotation(maxAnnotation);
                 }
             }
         }
+
+        return typeInfo;
     }
 
-    private void populateJsonIntegerType(TypeInfo typeInfo, Schema<?> schema) {
-        if ("int64".equals(schema.getFormat())) {
-            typeInfo.name = "Long";
-        } else {
-            typeInfo.name = "Integer";
-        }
-        typeInfo.schemaFormat = schema.getFormat();
+    private TypeInfo populateJsonIntegerType(TypeInfo typeInfo, Schema<?> schema) {
+        typeInfo = typeInfo.withName("int64".equals(schema.getFormat()) ? "Long" :"Integer")
+            .withSchemaFormat(schema.getFormat());
+
         if (opts.addJakartaBeanValidationAnnotations()) {
-            if (!typeInfo.nullable) {
-                String notNullAnnotation = getNotNullAnnotation(typeInfo.annotationImports);
-                typeInfo.annotations.add(notNullAnnotation);
+            if (!typeInfo.nullable()) {
+                AnnotationInfo notNullAnnotation = getNotNullAnnotation();
+                typeInfo = typeInfo.withAddedAnnotation(notNullAnnotation);
             }
             if (nonNull(schema.getMinimum())) {
-                String minAnnotation = getMinAnnotation(schema, typeInfo.annotationImports);
-                typeInfo.annotations.add(minAnnotation);
+                AnnotationInfo minAnnotation = getMinAnnotation(schema);
+                typeInfo = typeInfo.withAddedAnnotation(minAnnotation);
             }
             if (nonNull(schema.getMaximum())) {
-                String maxAnnotation = getMaxAnnotation(schema, typeInfo.annotationImports);
-                typeInfo.annotations.add(maxAnnotation);
+                AnnotationInfo maxAnnotation = getMaxAnnotation(schema);
+                typeInfo = typeInfo.withAddedAnnotation(maxAnnotation);
             }
         }
+
+        return typeInfo;
     }
 
-    private void populateJsonBooleanType(TypeInfo typeInfo) {
-        typeInfo.name = "Boolean";
-        if (!typeInfo.nullable && opts.addJakartaBeanValidationAnnotations()) {
-            String notNullAnnotation = getNotNullAnnotation(typeInfo.annotationImports);
-            typeInfo.annotations.add(notNullAnnotation);
+    private TypeInfo populateJsonBooleanType(TypeInfo typeInfo) {
+        typeInfo = typeInfo.withName("Boolean");
+        if (!typeInfo.nullable() && opts.addJakartaBeanValidationAnnotations()) {
+            AnnotationInfo notNullAnnotation = getNotNullAnnotation();
+            typeInfo = typeInfo.withAddedAnnotation(notNullAnnotation);
         }
+
+        return typeInfo;
     }
 
-    private void populateJsonArrayType(TypeInfo typeInfo, Schema<?> schema) {
-        typeInfo.primitive = false;
+    private TypeInfo populateJsonArrayType(TypeInfo typeInfo, Schema<?> schema) {
+        typeInfo = typeInfo.withPrimitive(false);
         if (TRUE.equals(schema.getUniqueItems())) {
-            typeInfo.name = "Set";
-            typeInfo.typeImports.add("java.util.Set");
+            typeInfo = typeInfo.withName("Set")
+                .withAddedImport("java.util.Set");
         } else {
-            typeInfo.name = "List";
-            typeInfo.typeImports.add("java.util.List");
+            typeInfo = typeInfo.withName("List")
+                .withAddedImport("java.util.List");
         }
 
         if (opts.addJakartaBeanValidationAnnotations()) {
-            String validAnnotation = getValidAnnotation(typeInfo.annotationImports);
-            typeInfo.annotations.add(validAnnotation);
+            AnnotationInfo validAnnotation = getValidAnnotation();
+            typeInfo = typeInfo.withAddedAnnotation(validAnnotation);
         }
 
-        typeInfo.itemType = getTypeInfo(schema.getItems());
-        typeInfo.itemType.annotations.clear();
-        typeInfo.itemType.annotationImports.clear();
+        TypeInfo itemType = getTypeInfo(schema.getItems()).withNoAnnotations();
 
         if (opts.addJakartaBeanValidationAnnotations()) {
-            String itemNotNullAnnotation = getNotNullAnnotation(typeInfo.itemType.annotationImports);
-            typeInfo.itemType.annotations.add(itemNotNullAnnotation);
+            AnnotationInfo itemNotNullAnnotation = getNotNullAnnotation();
+            itemType = itemType.withAddedAnnotation(itemNotNullAnnotation);
 
-            if (!typeInfo.nullable) {
-                String notNullAnnotation = getNotNullAnnotation(typeInfo.annotationImports);
-                typeInfo.annotations.add(notNullAnnotation);
+            if (!typeInfo.nullable()) {
+                AnnotationInfo notNullAnnotation = getNotNullAnnotation();
+                typeInfo = typeInfo.withAddedAnnotation(notNullAnnotation);
             }
             if (nonNull(schema.getMinItems()) || nonNull(schema.getMaxItems())) {
-                String sizeAnnotation = getArraySizeAnnotation(schema, typeInfo.annotationImports);
-                typeInfo.annotations.add(sizeAnnotation);
+                AnnotationInfo sizeAnnotation = getArraySizeAnnotation(schema);
+                typeInfo = typeInfo.withAddedAnnotation(sizeAnnotation);
             }
         }
+
+        return typeInfo.withItemType(itemType);
     }
 
-    private void populateJsonMapType(TypeInfo typeInfo, Schema<?> schema) {
-        typeInfo.name = "Map";
-        typeInfo.typeImports.add("java.util.Map");
+    private TypeInfo populateJsonMapType(TypeInfo typeInfo, Schema<?> schema) {
+        typeInfo = typeInfo.withName("Map")
+            .withAddedImport("java.util.Map");
 
         if (opts.addJakartaBeanValidationAnnotations()) {
-            String validAnnotation = getValidAnnotation(typeInfo.annotationImports);
-            typeInfo.annotations.add(validAnnotation);
+            AnnotationInfo validAnnotation = getValidAnnotation();
+            typeInfo = typeInfo.withAddedAnnotation(validAnnotation);
         }
 
-        typeInfo.keyType = getTypeInfo(new StringSchema());
-        typeInfo.itemType = getTypeInfo((Schema<?>)schema.getAdditionalProperties());
+        typeInfo = typeInfo.withKeyType(getTypeInfo(new StringSchema()))
+            .withItemType(getTypeInfo((Schema<?>)schema.getAdditionalProperties()));
 
         if (opts.addJakartaBeanValidationAnnotations()) {
-            if (!typeInfo.nullable) {
-                String notNullAnnotation = getNotNullAnnotation(typeInfo.annotationImports);
-                typeInfo.annotations.add(notNullAnnotation);
+            if (!typeInfo.nullable()) {
+                AnnotationInfo notNullAnnotation = getNotNullAnnotation();
+                typeInfo = typeInfo.withAddedAnnotation(notNullAnnotation);
             }
             if (nonNull(schema.getMinItems()) || nonNull(schema.getMaxItems())) {
-                String sizeAnnotation = getArraySizeAnnotation(schema, typeInfo.annotationImports);
-                typeInfo.annotations.add(sizeAnnotation);
+                AnnotationInfo sizeAnnotation = getArraySizeAnnotation(schema);
+                typeInfo = typeInfo.withAddedAnnotation(sizeAnnotation);
             }
         }
+
+        return typeInfo;
     }
 
     private String getClassNameFromFqn(String fqn) {
@@ -410,58 +418,67 @@ public class TypeInfoCollector extends BaseCollector {
         return extensions(schema.getExtensions()).getBoolean(EXT_NULLABLE).orElse(false);
     }
 
-    private String getJsonSerializeAnnotation(String jsonSerializer, List<String> imports) {
-        imports.add("com.fasterxml.jackson.databind.annotation.JsonSerialize");
-        imports.add(jsonSerializer);
-        return "@JsonSerialize(using = %s)".formatted(getJsonSerializerClass(jsonSerializer));
+    private AnnotationInfo getJsonSerializeAnnotation(String jsonSerializer) {
+        return new AnnotationInfo("@JsonSerialize(using = %s)".formatted(getJsonSerializerClass(jsonSerializer)))
+            .withAddedImport("com.fasterxml.jackson.databind.annotation.JsonSerialize")
+            .withAddedImport(jsonSerializer);
     }
 
-    private String getJsonFormatAnnotation(String pattern, List<String> imports) {
-        imports.add("com.fasterxml.jackson.annotation.JsonFormat");
-        return "@JsonFormat(pattern = \"%s\")".formatted(pattern);
+    private AnnotationInfo getJsonFormatAnnotation(String pattern) {
+        return new AnnotationInfo(
+            "@JsonFormat(pattern = \"%s\")".formatted(pattern),
+            "com.fasterxml.jackson.annotation.JsonFormat");
     }
 
-    private String getValidAnnotation(List<String> imports) {
-        imports.add("jakarta.validation.Valid");
-        return "@Valid";
+    private AnnotationInfo getValidAnnotation() {
+        return new AnnotationInfo(
+            "@Valid",
+            "jakarta.validation.Valid");
     }
 
-    private String getNotNullAnnotation(List<String> imports) {
-        imports.add("jakarta.validation.constraints.NotNull");
-        return "@NotNull";
+    private AnnotationInfo getNotNullAnnotation() {
+        return new AnnotationInfo(
+            "@NotNull",
+            "jakarta.validation.constraints.NotNull");
     }
 
-    private String getNotBlankAnnotation(List<String> imports) {
-        imports.add("jakarta.validation.constraints.NotBlank");
-        return "@NotBlank";
+    private AnnotationInfo getNotBlankAnnotation() {
+        return new AnnotationInfo(
+            "@NotBlank",
+            "jakarta.validation.constraints.NotBlank");
     }
 
-    private String getNotEmptyAnnotation(List<String> imports) {
-        imports.add("jakarta.validation.constraints.NotEmpty");
-        return "@NotEmpty";
+    private AnnotationInfo getNotEmptyAnnotation() {
+        return new AnnotationInfo(
+            "@NotEmpty",
+            "jakarta.validation.constraints.NotEmpty");
     }
 
-    private String getMinAnnotation(Schema<?> schema, List<String> imports) {
-        imports.add("jakarta.validation.constraints.Min");
-        return "@Min(%d)".formatted(schema.getMinimum().longValue());
+    private AnnotationInfo getMinAnnotation(Schema<?> schema) {
+        return new AnnotationInfo(
+            "@Min(%d)".formatted(schema.getMinimum().longValue()),
+            "jakarta.validation.constraints.Min");
     }
 
-    private String getMaxAnnotation(Schema<?> schema, List<String> imports) {
-        imports.add("jakarta.validation.constraints.Max");
-        return "@Max(%d)".formatted(schema.getMaximum().longValue());
+    private AnnotationInfo getMaxAnnotation(Schema<?> schema) {
+        return new AnnotationInfo(
+            "@Max(%d)".formatted(schema.getMaximum().longValue()),
+            "jakarta.validation.constraints.Max");
     }
 
-    private String getPatternAnnotation(Schema<?> schema, List<String> imports) {
-        imports.add("jakarta.validation.constraints.Pattern");
-        return "@Pattern(regexp = \"%s\")".formatted(schema.getPattern());
+    private AnnotationInfo getPatternAnnotation(Schema<?> schema) {
+        return new AnnotationInfo(
+            "@Pattern(regexp = \"%s\")".formatted(schema.getPattern()),
+            "jakarta.validation.constraints.Pattern");
     }
 
-    private String getEmailAnnotation(List<String> imports) {
-        imports.add("jakarta.validation.constraints.Email");
-        return "@Email";
+    private AnnotationInfo getEmailAnnotation() {
+        return new AnnotationInfo(
+            "@Email",
+            "jakarta.validation.constraints.Email");
     }
 
-    private String getArraySizeAnnotation(Schema<?> schema, List<String> imports) {
+    private AnnotationInfo getArraySizeAnnotation(Schema<?> schema) {
         List<String> sizeParams = new ArrayList<>();
         if (nonNull(schema.getMinItems())) {
             sizeParams.add("min = %d".formatted(schema.getMinItems()));
@@ -469,11 +486,12 @@ public class TypeInfoCollector extends BaseCollector {
         if (nonNull(schema.getMaxItems())) {
             sizeParams.add("max = %d".formatted(schema.getMaxItems()));
         }
-        imports.add("jakarta.validation.constraints.Size");
-        return "@Size(%s)".formatted(joinCsv(sizeParams));
+        return new AnnotationInfo(
+            "@Size(%s)".formatted(joinCsv(sizeParams)),
+            "jakarta.validation.constraints.Size");
     }
 
-    private String getStringSizeAnnotation(Schema<?> schema, List<String> imports) {
+    private AnnotationInfo getStringSizeAnnotation(Schema<?> schema) {
         List<String> sizeParams = new ArrayList<>();
         if (nonNull(schema.getMinLength())) {
             sizeParams.add("min = %d".formatted(schema.getMinLength()));
@@ -481,8 +499,9 @@ public class TypeInfoCollector extends BaseCollector {
         if (nonNull(schema.getMaxLength())) {
             sizeParams.add("max = %d".formatted(schema.getMaxLength()));
         }
-        imports.add("jakarta.validation.constraints.Size");
-        return "@Size(%s)".formatted(joinCsv(sizeParams));
+        return new AnnotationInfo(
+            "@Size(%s)".formatted(joinCsv(sizeParams)),
+            "jakarta.validation.constraints.Size");
     }
 
     private String getJsonSerializerClass(String jsonSerializerFqn) {

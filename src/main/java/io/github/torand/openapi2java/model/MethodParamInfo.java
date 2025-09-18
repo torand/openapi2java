@@ -15,10 +15,7 @@
  */
 package io.github.torand.openapi2java.model;
 
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import static java.util.Objects.nonNull;
 
@@ -27,62 +24,49 @@ import static java.util.Objects.nonNull;
  */
 public record MethodParamInfo (
     String name,
-    Set<String> imports,
-    Set<String> staticImports,
-    Set<String> annotations,
+    ImportInfo imports,
+    List<AnnotationInfo> annotations,
     TypeInfo type,
     String comment,
     boolean nullable,
     String deprecationMessage
-) {
+) implements ImportsSupplier {
+
     public MethodParamInfo() {
-        this(null, new TreeSet<>(), new TreeSet<>(), new LinkedHashSet<>(), null, null, false, null);
+        this(null, new ImportInfo(), new LinkedList<>(), null, null, false, null);
     }
 
     public MethodParamInfo(String name) {
-        this(name, new TreeSet<>(), new TreeSet<>(), new LinkedHashSet<>(), null, null, false, null);
+        this(name, new ImportInfo(), new LinkedList<>(), null, null, false, null);
     }
 
     public MethodParamInfo withName(String name) {
-        return new MethodParamInfo(name, imports, staticImports, annotations, type, comment, nullable, deprecationMessage);
+        return new MethodParamInfo(name, imports, annotations, type, comment, nullable, deprecationMessage);
     }
 
     public MethodParamInfo withType(TypeInfo type) {
-        return new MethodParamInfo(name, imports, staticImports, annotations, type, comment, nullable, deprecationMessage);
+        return new MethodParamInfo(name, imports, annotations, type, comment, nullable, deprecationMessage);
     }
 
     public MethodParamInfo withComment(String comment) {
-        return new MethodParamInfo(name, imports, staticImports, annotations, type, comment, nullable, deprecationMessage);
+        return new MethodParamInfo(name, imports, annotations, type, comment, nullable, deprecationMessage);
     }
 
     public MethodParamInfo withNullable(boolean nullable) {
-        return new MethodParamInfo(name, imports, staticImports, annotations, type, comment, nullable, deprecationMessage);
+        return new MethodParamInfo(name, imports, annotations, type, comment, nullable, deprecationMessage);
     }
 
     public MethodParamInfo withDeprecationMessage(String deprecationMessage) {
-        return new MethodParamInfo(name, imports, staticImports, annotations, type, comment, nullable, deprecationMessage);
+        return new MethodParamInfo(name, imports, annotations, type, comment, nullable, deprecationMessage);
     }
 
     /**
      * Returns a new {@link MethodParamInfo} object with specified imports added.
-     * @param imports the imports to add.
+     * @param importsSupplier the imports to add.
      * @return the new and updated {@link MethodParamInfo} object.
      */
-    public MethodParamInfo withAddedImports(Collection<String> imports) {
-        Set<String> newImports = new TreeSet<>(this.imports);
-        newImports.addAll(imports);
-        return new MethodParamInfo(name, newImports, staticImports, annotations, type, comment, nullable, deprecationMessage);
-    }
-
-    /**
-     * Returns a new {@link MethodParamInfo} object with specified static import added.
-     * @param staticImport the static import to add.
-     * @return the new and updated {@link MethodParamInfo} object.
-     */
-    public MethodParamInfo withAddedStaticImport(String staticImport) {
-        Set<String> newStaticImports = new TreeSet<>(this.staticImports);
-        newStaticImports.add(staticImport);
-        return new MethodParamInfo(name, imports, newStaticImports, annotations, type, comment, nullable, deprecationMessage);
+    public MethodParamInfo withAddedImports(ImportsSupplier importsSupplier) {
+        return new MethodParamInfo(name, imports.withAddedImports(importsSupplier), annotations, type, comment, nullable, deprecationMessage);
     }
 
     /**
@@ -91,13 +75,9 @@ public record MethodParamInfo (
      * @return the new and updated {@link MethodParamInfo} object.
      */
     public MethodParamInfo withAddedAnnotation(AnnotationInfo annotation) {
-        Set<String> newImports = new TreeSet<>(this.imports);
-        newImports.addAll(annotation.imports());
-        Set<String> newStaticImports = new TreeSet<>(this.staticImports);
-        newStaticImports.addAll(annotation.staticImports());
-        Set<String> newAnnotations = new LinkedHashSet<>(this.annotations);
-        newAnnotations.add(annotation.annotation());
-        return new MethodParamInfo(name, newImports, newStaticImports, newAnnotations, type, comment, nullable, deprecationMessage);
+        List<AnnotationInfo> newAnnotations = new LinkedList<>(this.annotations);
+        newAnnotations.add(annotation);
+        return new MethodParamInfo(name, imports, newAnnotations, type, comment, nullable, deprecationMessage);
     }
 
     /**

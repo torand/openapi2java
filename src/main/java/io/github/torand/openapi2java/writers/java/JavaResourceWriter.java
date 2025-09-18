@@ -16,6 +16,7 @@
 package io.github.torand.openapi2java.writers.java;
 
 import io.github.torand.openapi2java.generators.Options;
+import io.github.torand.openapi2java.model.AnnotationInfo;
 import io.github.torand.openapi2java.model.MethodParamInfo;
 import io.github.torand.openapi2java.model.ResourceInfo;
 import io.github.torand.openapi2java.writers.BaseWriter;
@@ -27,6 +28,7 @@ import java.util.TreeSet;
 import java.util.function.Consumer;
 
 import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
+import static io.github.torand.javacommons.collection.CollectionHelper.streamSafely;
 import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
 import static java.util.Objects.nonNull;
 
@@ -51,15 +53,20 @@ public class JavaResourceWriter extends BaseWriter implements ResourceWriter {
 
         resourceInfo.imports.forEach(importConsumer);
         resourceInfo.methods.forEach(m -> {
-            m.imports().forEach(importConsumer);
+            m.imports().normalImports().forEach(importConsumer);
+            m.annotations().forEach(a -> a.imports().normalImports().forEach(importConsumer));
             m.parameters().forEach(p -> {
-                p.imports().forEach(importConsumer);
-                p.type().typeImports.forEach(importConsumer);
-                if (nonNull(p.type().keyType)) {
-                    p.type().keyType.typeImports.forEach(importConsumer);
+                p.imports().normalImports().forEach(importConsumer);
+                p.annotations().forEach(a -> a.imports().normalImports().forEach(importConsumer));
+                p.type().imports().normalImports().forEach(importConsumer);
+                p.type().annotations().forEach(a -> a.imports().normalImports().forEach(importConsumer));
+                if (nonNull(p.type().keyType())) {
+                    p.type().keyType().imports().normalImports().forEach(importConsumer);
+                    p.type().keyType().annotations().forEach(a -> a.imports().normalImports().forEach(importConsumer));
                 }
-                if (nonNull(p.type().itemType)) {
-                    p.type().itemType.typeImports.forEach(importConsumer);
+                if (nonNull(p.type().itemType())) {
+                    p.type().itemType().imports().normalImports().forEach(importConsumer);
+                    p.type().itemType().annotations().forEach(a -> a.imports().normalImports().forEach(importConsumer));
                 }
             });
         });
@@ -76,9 +83,14 @@ public class JavaResourceWriter extends BaseWriter implements ResourceWriter {
         Set<String> staticImports = new TreeSet<>();
         staticImports.addAll(resourceInfo.staticImports);
         resourceInfo.methods.forEach(m -> {
-            staticImports.addAll(m.staticImports());
-            m.parameters().forEach(p -> staticImports.addAll(p.staticImports()));
+            staticImports.addAll(m.imports().staticImports());
+            m.annotations().forEach(a -> staticImports.addAll(a.imports().staticImports()));
+            m.parameters().forEach(p -> {
+                staticImports.addAll(p.imports().staticImports());
+                p.annotations().forEach(a -> staticImports.addAll(a.imports().staticImports()));
+            });
         });
+
         staticImports.forEach(si -> writeLine("import static %s;".formatted(si)));
         writeNewLine();
 
@@ -100,7 +112,7 @@ public class JavaResourceWriter extends BaseWriter implements ResourceWriter {
 
             m.annotations().forEach(a -> {
                 writeIndent(1);
-                writeLine(a);
+                writeLine(a.annotation());
             });
 
             writeIndent(1);
@@ -118,7 +130,7 @@ public class JavaResourceWriter extends BaseWriter implements ResourceWriter {
                 }
 
                 if (nonEmpty(paramInfo.annotations())) {
-                    write(String.join(" ", paramInfo.annotations()) + " ");
+                    write(String.join(" ", streamSafely(paramInfo.annotations()).map(AnnotationInfo::annotation).toList()) + " ");
                 }
                 write(paramInfo.type().getFullName() + " ");
                 write(paramInfo.name());
@@ -140,7 +152,7 @@ public class JavaResourceWriter extends BaseWriter implements ResourceWriter {
 
             resourceInfo.authMethod.annotations().forEach(a -> {
                 writeIndent(1);
-                writeLine(a);
+                writeLine(a.annotation());
             });
 
             writeIndent(1);

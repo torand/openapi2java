@@ -16,6 +16,7 @@
 package io.github.torand.openapi2java.writers.kotlin;
 
 import io.github.torand.openapi2java.generators.Options;
+import io.github.torand.openapi2java.model.AnnotationInfo;
 import io.github.torand.openapi2java.model.MethodParamInfo;
 import io.github.torand.openapi2java.model.ResourceInfo;
 import io.github.torand.openapi2java.writers.BaseWriter;
@@ -26,6 +27,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
+import static io.github.torand.javacommons.collection.CollectionHelper.streamSafely;
 import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
 import static io.github.torand.openapi2java.utils.KotlinTypeMapper.toKotlinNative;
 import static java.util.Objects.nonNull;
@@ -49,17 +51,23 @@ public class KotlinResourceWriter extends BaseWriter implements ResourceWriter {
         imports.addAll(resourceInfo.imports);
         imports.addAll(resourceInfo.staticImports);
         resourceInfo.methods.forEach(m -> {
-            imports.addAll(m.imports());
-            imports.addAll(m.staticImports());
+            imports.addAll(m.imports().normalImports());
+            m.annotations().forEach(a -> a.imports().normalImports().forEach(imports::add));
+            imports.addAll(m.imports().staticImports());
+            m.annotations().forEach(a -> a.imports().staticImports().forEach(imports::add));
             m.parameters().forEach(p -> {
-                imports.addAll(p.imports());
-                imports.addAll(p.staticImports());
-                imports.addAll(p.type().typeImports);
-                if (nonNull(p.type().keyType)) {
-                    imports.addAll(p.type().keyType.typeImports);
+                imports.addAll(p.imports().normalImports());
+                imports.addAll(p.imports().staticImports());
+                p.annotations().forEach(a -> imports.addAll(a.imports().normalImports()));
+                imports.addAll(p.type().imports().normalImports());
+                p.type().annotations().forEach(a -> imports.addAll(a.imports().normalImports()));
+                if (nonNull(p.type().keyType())) {
+                    imports.addAll(p.type().keyType().imports().normalImports());
+                    p.type().keyType().annotations().forEach(a -> imports.addAll(a.imports().normalImports()));
                 }
-                if (nonNull(p.type().itemType)) {
-                    imports.addAll(p.type().itemType.typeImports);
+                if (nonNull(p.type().itemType())) {
+                    imports.addAll(p.type().itemType().imports().normalImports());
+                    p.type().itemType().annotations().forEach(a -> imports.addAll(a.imports().normalImports()));
                 }
             });
         });
@@ -81,7 +89,7 @@ public class KotlinResourceWriter extends BaseWriter implements ResourceWriter {
 
             m.annotations().forEach(a -> {
                 writeIndent(1);
-                writeLine(a);
+                writeLine(a.annotation());
             });
 
             writeIndent(1);
@@ -90,7 +98,7 @@ public class KotlinResourceWriter extends BaseWriter implements ResourceWriter {
                 MethodParamInfo paramInfo = m.parameters().get(i);
                 writeIndent(2);
                 if (nonEmpty(paramInfo.annotations())) {
-                    write(String.join(" ", paramInfo.annotations()) + " ");
+                    write(String.join(" ", streamSafely(paramInfo.annotations()).map(AnnotationInfo::annotation).toList()) + " ");
                 }
                 write(paramInfo.name() + ": ");
                 write(toKotlinNative(paramInfo.type().getFullName()));
@@ -125,7 +133,7 @@ public class KotlinResourceWriter extends BaseWriter implements ResourceWriter {
         if (nonNull(resourceInfo.authMethod)) {
             resourceInfo.authMethod.annotations().forEach(a -> {
                 writeIndent(2);
-                writeLine(a);
+                writeLine(a.annotation());
             });
 
             writeIndent(2);

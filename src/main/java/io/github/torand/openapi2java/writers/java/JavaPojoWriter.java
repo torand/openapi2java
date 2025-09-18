@@ -16,6 +16,7 @@
 package io.github.torand.openapi2java.writers.java;
 
 import io.github.torand.openapi2java.generators.Options;
+import io.github.torand.openapi2java.model.AnnotationInfo;
 import io.github.torand.openapi2java.model.PojoInfo;
 import io.github.torand.openapi2java.model.PropertyInfo;
 import io.github.torand.openapi2java.writers.BaseWriter;
@@ -28,9 +29,9 @@ import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
-import static io.github.torand.javacommons.collection.CollectionHelper.concatStream;
-import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
+import static io.github.torand.javacommons.collection.CollectionHelper.*;
 import static java.util.Objects.nonNull;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.joining;
@@ -96,27 +97,27 @@ public class JavaPojoWriter extends BaseWriter implements PojoWriter {
             writePropertyAnnotationLines(propInfo);
 
             writeIndent(1);
-            if (nonNull(propInfo.type.itemType)) {
-                String itemTypeWithAnnotations = concatStream(propInfo.type.itemType.annotations, List.of(propInfo.type.itemType.name))
+            if (nonNull(propInfo.type.itemType())) {
+                String itemTypeWithAnnotations = Stream.concat(streamSafely(propInfo.type.itemType().annotations()).map(AnnotationInfo::annotation), Stream.of(propInfo.type.itemType().name()))
                     .collect(joining(" "));
 
                 if (!opts.pojosAsRecords()) {
                     write("public ");
                 }
 
-                if (nonNull(propInfo.type.keyType)) {
-                    String keyTypeWithAnnotations = concatStream(propInfo.type.keyType.annotations, List.of(propInfo.type.keyType.name))
+                if (nonNull(propInfo.type.keyType())) {
+                    String keyTypeWithAnnotations = Stream.concat(streamSafely(propInfo.type.keyType().annotations()).map(AnnotationInfo::annotation), Stream.of(propInfo.type.keyType().name()))
                         .collect(joining(" "));
 
-                    write("%s<%s, %s> %s".formatted(propInfo.type.name, keyTypeWithAnnotations, itemTypeWithAnnotations, propInfo.name));
+                    write("%s<%s, %s> %s".formatted(propInfo.type.name(), keyTypeWithAnnotations, itemTypeWithAnnotations, propInfo.name));
                 } else {
-                    write("%s<%s> %s".formatted(propInfo.type.name, itemTypeWithAnnotations, propInfo.name));
+                    write("%s<%s> %s".formatted(propInfo.type.name(), itemTypeWithAnnotations, propInfo.name));
                 }
             } else {
                 if (opts.pojosAsRecords()) {
-                    write("%s %s".formatted(propInfo.type.name, propInfo.name));
+                    write("%s %s".formatted(propInfo.type.name(), propInfo.name));
                 } else {
-                    write("public %s %s".formatted(propInfo.type.name, propInfo.name));
+                    write("public %s %s".formatted(propInfo.type.name(), propInfo.name));
                 }
             }
 
@@ -173,9 +174,9 @@ public class JavaPojoWriter extends BaseWriter implements PojoWriter {
             writeIndent(1);
             writeLine(a);
         });
-        propInfo.type.annotations.forEach(a -> {
+        propInfo.type.annotations().forEach(a -> {
             writeIndent(1);
-            writeLine(a);
+            writeLine(a.annotation());
         });
     }
 
