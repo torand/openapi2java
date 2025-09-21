@@ -77,7 +77,7 @@ public class ResourceGenerator {
 
         ResourceInfo resourceInfo = resourceInfoCollector.getResourceInfo(resourceName, openApiDoc.getPaths(), openApiDoc.getSecurity(), null);
 
-        String resourceFilename = resourceInfo.name + opts.getFileExtension();
+        String resourceFilename = resourceInfo.name() + opts.getFileExtension();
         try (ResourceWriter resourceWriter = createResourceWriter(resourceFilename, opts)) {
             if (resourceInfo.isEmpty()) {
                 logger.warn("No paths found in OpenAPI specification");
@@ -108,7 +108,7 @@ public class ResourceGenerator {
 
                 ResourceInfo resourceInfo = resourceInfoCollector.getResourceInfo(resourceName, openApiDoc.getPaths(), openApiDoc.getSecurity(), tag);
 
-                String resourceFilename = resourceInfo.name + opts.getFileExtension();
+                String resourceFilename = resourceInfo.name() + opts.getFileExtension();
                 try (ResourceWriter resourceWriter = createResourceWriter(resourceFilename, opts)) {
                     if (resourceInfo.isEmpty()) {
                         logger.warn("No paths found for tag \"{}\"", tag.getName());

@@ -122,7 +122,7 @@ public class ModelGenerator {
         PojoInfo pojoInfo = pojoInfoCollector.getPojoInfo(name, schema);
 
         String pojoFilename = name + opts.getFileExtension();
-        try (PojoWriter pojoWriter = createPojoWriter(pojoFilename, opts, pojoInfo.modelSubdir)) {
+        try (PojoWriter pojoWriter = createPojoWriter(pojoFilename, opts, pojoInfo.modelSubdir())) {
             pojoWriter.write(pojoInfo);
         } catch (IOException e) {
             throw new OpenApi2JavaException("Failed to write file %s".formatted(pojoFilename), e);

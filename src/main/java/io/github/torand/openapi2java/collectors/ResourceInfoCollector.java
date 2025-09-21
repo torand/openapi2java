@@ -25,6 +25,7 @@ import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.tags.Tag;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -51,25 +52,25 @@ public class ResourceInfoCollector extends BaseCollector {
     }
 
     public ResourceInfo getResourceInfo(String resourceName, Map<String, PathItem> paths, List<SecurityRequirement> securityRequirements, Tag tag) {
-        ResourceInfo resourceInfo = new ResourceInfo();
-        resourceInfo.name = resourceName + opts.resourceNameSuffix();
+        ResourceInfo resourceInfo = new ResourceInfo(resourceName + opts.resourceNameSuffix());
 
         if (opts.useResteasyResponse()) {
-            resourceInfo.imports.add("org.jboss.resteasy.reactive.RestResponse");
+            resourceInfo = resourceInfo.withAddedImport("org.jboss.resteasy.reactive.RestResponse");
         } else {
-            resourceInfo.imports.add("jakarta.ws.rs.core.Response");
+            resourceInfo = resourceInfo.withAddedImport("jakarta.ws.rs.core.Response");
         }
 
         if (nonEmpty(securityRequirements)) {
             SecurityRequirementInfo secReqInfo = securityRequirementCollector.getSequrityRequirementInfo(securityRequirements);
-
-            resourceInfo.imports.addAll(secReqInfo.annotation().imports().normalImports());
-            resourceInfo.annotations.add(secReqInfo.annotation().annotation());
+            resourceInfo = resourceInfo.withAddedAnnotation(secReqInfo.annotation());
         }
 
         if (opts.addMpOpenApiAnnotations() && nonNull(tag)) {
-            resourceInfo.imports.add("org.eclipse.microprofile.openapi.annotations.tags.Tag");
-            resourceInfo.annotations.add("@Tag(name = \"%s\", description = \"%s\")".formatted(tag.getName(), normalizeDescription(tag.getDescription())));
+            AnnotationInfo tagAnnotation = new AnnotationInfo(
+                "@Tag(name = \"%s\", description = \"%s\")".formatted(tag.getName(), normalizeDescription(tag.getDescription())),
+                "org.eclipse.microprofile.openapi.annotations.tags.Tag"
+            );
+            resourceInfo = resourceInfo.withAddedAnnotation(tagAnnotation);
         }
 
         if (opts.addMpRestClientAnnotations()) {
@@ -79,39 +80,49 @@ public class ResourceInfoCollector extends BaseCollector {
                     .orElse(tag.getName().toLowerCase()+"-api") :
                 resourceName.toLowerCase()+"-api";
 
-            resourceInfo.imports.add("org.eclipse.microprofile.rest.client.inject.RegisterRestClient");
-            resourceInfo.annotations.add("@RegisterRestClient(configKey = \"%s\")".formatted(configKey));
+            AnnotationInfo registerRestClientAnnotation = new AnnotationInfo(
+                "@RegisterRestClient(configKey = \"%s\")".formatted(configKey),
+                "org.eclipse.microprofile.rest.client.inject.RegisterRestClient"
+            );
+            AnnotationInfo clientHeaderParamAnnotation = new AnnotationInfo(
+                "@ClientHeaderParam(name = AUTHORIZATION, value = %s)".formatted(formatAnnotationNamedParam(List.of("\"{%s}\"".formatted(AUTH_METHOD_NAME)))),
+                "org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam"
+            ).withAddedStaticImport("jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION");
 
-            resourceInfo.imports.add("org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam");
-            resourceInfo.staticImports.add("jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION");
-            resourceInfo.annotations.add("@ClientHeaderParam(name = AUTHORIZATION, value = %s)".formatted(formatAnnotationNamedParam(List.of("\"{%s}\"".formatted(AUTH_METHOD_NAME)))));
-
-            resourceInfo.authMethod = getAuthMethodInfo();
+            resourceInfo = resourceInfo
+                .withAddedAnnotation(registerRestClientAnnotation)
+                .withAddedAnnotation(clientHeaderParamAnnotation)
+                .withAuthMethod(getAuthMethodInfo());
         }
 
-        resourceInfo.imports.add("jakarta.ws.rs.Path");
-        resourceInfo.staticImports.add("%s.%s.ROOT_PATH".formatted(opts.rootPackage(), resourceInfo.name));
-        resourceInfo.annotations.add("@Path(ROOT_PATH)");
+        AnnotationInfo pathAnnotation = new AnnotationInfo("@Path(ROOT_PATH)", "jakarta.ws.rs.Path")
+            .withAddedStaticImport("%s.%s.ROOT_PATH".formatted(opts.rootPackage(), resourceInfo.name()));
+        resourceInfo = resourceInfo.withAddedAnnotation(pathAnnotation);
 
         String tagName = nonNull(tag) ? tag.getName() : null;
 
+        List<MethodInfo> methods = new ArrayList<>();
         paths.forEach((path, pathInfo) -> {
             if (shouldProcessOperation(pathInfo.getGet(), tagName)) {
-                resourceInfo.methods.add(methodInfoCollector.getMethodInfo("GET", path, pathInfo.getGet()));
+                methods.add(methodInfoCollector.getMethodInfo("GET", path, pathInfo.getGet()));
             }
             if (shouldProcessOperation(pathInfo.getPost(), tagName)) {
-                resourceInfo.methods.add(methodInfoCollector.getMethodInfo("POST", path, pathInfo.getPost()));
+                methods.add(methodInfoCollector.getMethodInfo("POST", path, pathInfo.getPost()));
             }
             if (shouldProcessOperation(pathInfo.getDelete(), tagName)) {
-                resourceInfo.methods.add(methodInfoCollector.getMethodInfo("DELETE", path, pathInfo.getDelete()));
+                methods.add(methodInfoCollector.getMethodInfo("DELETE", path, pathInfo.getDelete()));
             }
             if (shouldProcessOperation(pathInfo.getPut(), tagName)) {
-                resourceInfo.methods.add(methodInfoCollector.getMethodInfo("PUT", path, pathInfo.getPut()));
+                methods.add(methodInfoCollector.getMethodInfo("PUT", path, pathInfo.getPut()));
             }
             if (shouldProcessOperation(pathInfo.getPatch(), tagName)) {
-                resourceInfo.methods.add(methodInfoCollector.getMethodInfo("PATCH", path, pathInfo.getPatch()));
+                methods.add(methodInfoCollector.getMethodInfo("PATCH", path, pathInfo.getPatch()));
             }
         });
+
+        for (MethodInfo method : methods) {
+            resourceInfo = resourceInfo.withAddedMethod(method);
+        }
 
         return resourceInfo;
     }

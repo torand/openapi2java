@@ -16,6 +16,7 @@
 package io.github.torand.openapi2java.collectors;
 
 import io.github.torand.openapi2java.generators.Options;
+import io.github.torand.openapi2java.model.AnnotationInfo;
 import io.github.torand.openapi2java.model.PropertyInfo;
 import io.github.torand.openapi2java.model.TypeInfo;
 import io.swagger.v3.oas.models.media.Schema;
@@ -40,39 +41,36 @@ public class PropertyInfoCollector extends BaseCollector {
     }
 
     public PropertyInfo getPropertyInfo(String name, Schema<?> property, boolean required) {
-        PropertyInfo propInfo = new PropertyInfo();
-        propInfo.name = name;
-        propInfo.required = required;
+        PropertyInfo propInfo = new PropertyInfo(name)
+            .withRequired(required);
 
         var nullabilityResolution = required
             ? TypeInfoCollector.NullabilityResolution.FROM_SCHEMA
             : TypeInfoCollector.NullabilityResolution.FORCE_NULLABLE;
-        propInfo.type = typeInfoCollector.getTypeInfo(property, nullabilityResolution);
+        propInfo = propInfo.withType(typeInfoCollector.getTypeInfo(property, nullabilityResolution));
 
         if (opts.addMpOpenApiAnnotations()) {
-            String schemaAnnotation = getSchemaAnnotation(property, propInfo.type, propInfo.imports);
-            propInfo.annotations.add(schemaAnnotation);
+            AnnotationInfo schemaAnnotation = getSchemaAnnotation(property, propInfo.type());
+            propInfo = propInfo.withAddedAnnotation(schemaAnnotation);
         }
 
         if (opts.addJsonPropertyAnnotations()) {
-            String jsonPropAnnotation = getJsonPropertyAnnotation(name, propInfo.imports);
-            propInfo.annotations.add(jsonPropAnnotation);
+            AnnotationInfo jsonPropAnnotation = getJsonPropertyAnnotation(name);
+            propInfo = propInfo.withAddedAnnotation(jsonPropAnnotation);
         }
 
         if (TRUE.equals(property.getDeprecated())) {
-            propInfo.deprecationMessage = formatDeprecationMessage(property.getExtensions());
+            propInfo = propInfo.withDeprecationMessage(formatDeprecationMessage(property.getExtensions()));
         }
 
         return propInfo;
     }
 
-    private String getSchemaAnnotation(Schema<?> property, TypeInfo typeInfo, Set<String> imports) {
-        String description = property.getDescription();
+    private AnnotationInfo getSchemaAnnotation(Schema<?> property, TypeInfo typeInfo) {
         boolean required = !typeInfoCollector.isNullable(property) && !typeInfo.nullable();
 
-        imports.add("org.eclipse.microprofile.openapi.annotations.media.Schema");
         List<String> schemaParams = new ArrayList<>();
-        schemaParams.add("description = \"%s\"".formatted(normalizeDescription(description)));
+        schemaParams.add("description = \"%s\"".formatted(normalizeDescription(property.getDescription())));
         if (required) {
             schemaParams.add("required = true");
         }
@@ -88,11 +86,17 @@ public class PropertyInfoCollector extends BaseCollector {
         if (TRUE.equals(property.getDeprecated())) {
             schemaParams.add("deprecated = true");
         }
-        return "@Schema(%s)".formatted(joinCsv(schemaParams));
+
+        return new AnnotationInfo(
+            "@Schema(%s)".formatted(joinCsv(schemaParams)),
+            "org.eclipse.microprofile.openapi.annotations.media.Schema"
+        );
     }
 
-    private String getJsonPropertyAnnotation(String name, Set<String> imports) {
-        imports.add("com.fasterxml.jackson.annotation.JsonProperty");
-        return "@JsonProperty(\"%s\")".formatted(name);
+    private AnnotationInfo getJsonPropertyAnnotation(String name) {
+        return new AnnotationInfo(
+            "@JsonProperty(\"%s\")".formatted(name),
+            "com.fasterxml.jackson.annotation.JsonProperty"
+        );
     }
 }

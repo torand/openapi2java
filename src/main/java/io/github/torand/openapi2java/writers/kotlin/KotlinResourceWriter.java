@@ -48,9 +48,13 @@ public class KotlinResourceWriter extends BaseWriter implements ResourceWriter {
 
         Set<String> imports = new TreeSet<>();
 
-        imports.addAll(resourceInfo.imports);
-        imports.addAll(resourceInfo.staticImports);
-        resourceInfo.methods.forEach(m -> {
+        imports.addAll(resourceInfo.imports().normalImports());
+        imports.addAll(resourceInfo.imports().staticImports());
+        resourceInfo.annotations().forEach(a -> {
+            imports.addAll(a.imports().normalImports());
+            imports.addAll(a.imports().staticImports());
+        });
+        resourceInfo.methods().forEach(m -> {
             imports.addAll(m.imports().normalImports());
             m.annotations().forEach(a -> a.imports().normalImports().forEach(imports::add));
             imports.addAll(m.imports().staticImports());
@@ -73,14 +77,14 @@ public class KotlinResourceWriter extends BaseWriter implements ResourceWriter {
         });
 
         imports.removeIf(i -> i.equals("java.util.List") || i.contains("ROOT_PATH"));
-        imports.add("%s.%s.Companion.ROOT_PATH".formatted(opts.rootPackage(), resourceInfo.name));
+        imports.add("%s.%s.Companion.ROOT_PATH".formatted(opts.rootPackage(), resourceInfo.name()));
         imports.forEach(i -> writeLine("import %s".formatted(i)));
         writeNewLine();
 
-        resourceInfo.annotations.forEach(a -> writeLine(a));
-        writeLine("interface %s {".formatted(resourceInfo.name));
+        resourceInfo.annotations().forEach(a -> writeLine(a.annotation()));
+        writeLine("interface %s {".formatted(resourceInfo.name()));
 
-        resourceInfo.methods.forEach(m -> {
+        resourceInfo.methods().forEach(m -> {
             writeNewLine();
             if (m.isDeprecated()) {
                 writeIndent(1);
@@ -130,14 +134,14 @@ public class KotlinResourceWriter extends BaseWriter implements ResourceWriter {
         writeIndent(2);
         writeLine("const val ROOT_PATH: String = \"%s\"", opts.rootUrlPath());
 
-        if (nonNull(resourceInfo.authMethod)) {
-            resourceInfo.authMethod.annotations().forEach(a -> {
+        if (nonNull(resourceInfo.authMethod())) {
+            resourceInfo.authMethod().annotations().forEach(a -> {
                 writeIndent(2);
                 writeLine(a.annotation());
             });
 
             writeIndent(2);
-            writeLine("fun %s() = \"TODO\"".formatted(resourceInfo.authMethod.name()));
+            writeLine("fun %s() = \"TODO\"".formatted(resourceInfo.authMethod().name()));
         }
 
         writeIndent(1);

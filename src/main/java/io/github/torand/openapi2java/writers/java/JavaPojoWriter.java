@@ -47,25 +47,25 @@ public class JavaPojoWriter extends BaseWriter implements PojoWriter {
 
     @Override
     public void write(PojoInfo pojoInfo) {
-        writeLine("package %s;", opts.getModelPackage(pojoInfo.modelSubpackage));
+        writeLine("package %s;", opts.getModelPackage(pojoInfo.modelSubpackage()));
         writeNewLine();
 
         Set<String> nonJavaImports = new TreeSet<>();
         Set<String> javaImports = new TreeSet<>();
 
         Consumer<String> collectImport = qt -> { if (isJavaPackage(qt)) javaImports.add(qt); else nonJavaImports.add(qt);};
-        Predicate<String> isModelType = qt -> isModelPackage(qt, pojoInfo.modelSubpackage);
+        Predicate<String> isModelType = qt -> isModelPackage(qt, pojoInfo.modelSubpackage());
 
-        pojoInfo.imports.forEach(collectImport);
-        pojoInfo.properties.stream()
-            .flatMap(p -> p.imports.stream())
+        pojoInfo.imports().normalImports().forEach(collectImport);
+        pojoInfo.properties().stream()
+            .flatMap(p -> p.imports().normalImports().stream())
             .forEach(collectImport);
-        pojoInfo.properties.stream()
-            .flatMap(p -> p.type.typeImports())
+        pojoInfo.properties().stream()
+            .flatMap(p -> p.type().typeImports())
             .filter(not(isModelType))
             .forEach(collectImport);
-        pojoInfo.properties.stream()
-            .flatMap(p -> p.type.annotationImports())
+        pojoInfo.properties().stream()
+            .flatMap(p -> p.type().annotationImports())
             .filter(not(isModelType))
             .forEach(collectImport);
 
@@ -79,50 +79,50 @@ public class JavaPojoWriter extends BaseWriter implements PojoWriter {
         }
 
         if (pojoInfo.isDeprecated()) {
-            writeLine("/// @deprecated %s".formatted(pojoInfo.deprecationMessage));
+            writeLine("/// @deprecated %s".formatted(pojoInfo.deprecationMessage()));
             writeLine("@Deprecated");
         }
 
-        pojoInfo.annotations.forEach(this::writeLine);
+        pojoInfo.annotations().forEach(a -> writeLine(a.annotation()));
 
         if (opts.pojosAsRecords()) {
-            writeLine("public record %s (".formatted(pojoInfo.name));
+            writeLine("public record %s (".formatted(pojoInfo.name()));
         } else {
-            writeLine("public class %s {".formatted(pojoInfo.name));
+            writeLine("public class %s {".formatted(pojoInfo.name()));
         }
 
         AtomicInteger propNo = new AtomicInteger(1);
-        pojoInfo.properties.forEach(propInfo -> {
+        pojoInfo.properties().forEach(propInfo -> {
             writeNewLine();
             writePropertyAnnotationLines(propInfo);
 
             writeIndent(1);
-            if (nonNull(propInfo.type.itemType())) {
-                String itemTypeWithAnnotations = Stream.concat(streamSafely(propInfo.type.itemType().annotations()).map(AnnotationInfo::annotation), Stream.of(propInfo.type.itemType().name()))
+            if (nonNull(propInfo.type().itemType())) {
+                String itemTypeWithAnnotations = Stream.concat(streamSafely(propInfo.type().itemType().annotations()).map(AnnotationInfo::annotation), Stream.of(propInfo.type().itemType().name()))
                     .collect(joining(" "));
 
                 if (!opts.pojosAsRecords()) {
                     write("public ");
                 }
 
-                if (nonNull(propInfo.type.keyType())) {
-                    String keyTypeWithAnnotations = Stream.concat(streamSafely(propInfo.type.keyType().annotations()).map(AnnotationInfo::annotation), Stream.of(propInfo.type.keyType().name()))
+                if (nonNull(propInfo.type().keyType())) {
+                    String keyTypeWithAnnotations = Stream.concat(streamSafely(propInfo.type().keyType().annotations()).map(AnnotationInfo::annotation), Stream.of(propInfo.type().keyType().name()))
                         .collect(joining(" "));
 
-                    write("%s<%s, %s> %s".formatted(propInfo.type.name(), keyTypeWithAnnotations, itemTypeWithAnnotations, propInfo.name));
+                    write("%s<%s, %s> %s".formatted(propInfo.type().name(), keyTypeWithAnnotations, itemTypeWithAnnotations, propInfo.name()));
                 } else {
-                    write("%s<%s> %s".formatted(propInfo.type.name(), itemTypeWithAnnotations, propInfo.name));
+                    write("%s<%s> %s".formatted(propInfo.type().name(), itemTypeWithAnnotations, propInfo.name()));
                 }
             } else {
                 if (opts.pojosAsRecords()) {
-                    write("%s %s".formatted(propInfo.type.name(), propInfo.name));
+                    write("%s %s".formatted(propInfo.type().name(), propInfo.name()));
                 } else {
-                    write("public %s %s".formatted(propInfo.type.name(), propInfo.name));
+                    write("public %s %s".formatted(propInfo.type().name(), propInfo.name()));
                 }
             }
 
             if (opts.pojosAsRecords()) {
-                if (propNo.getAndIncrement() < pojoInfo.properties.size()) {
+                if (propNo.getAndIncrement() < pojoInfo.properties().size()) {
                     writeLine(",");
                 } else {
                     writeNewLine();
@@ -138,9 +138,9 @@ public class JavaPojoWriter extends BaseWriter implements PojoWriter {
             writeLine("}");
         } else {
             writeNewLine();
-            writeNoArgConstructor(pojoInfo.name);
+            writeNoArgConstructor(pojoInfo.name());
             writeNewLine();
-            writeParameterizedConstructor(pojoInfo.name, pojoInfo.properties);
+            writeParameterizedConstructor(pojoInfo.name(), pojoInfo.properties());
             writeLine("}");
         }
     }
@@ -154,10 +154,10 @@ public class JavaPojoWriter extends BaseWriter implements PojoWriter {
 
     private void writeParameterizedConstructor(String name, List<PropertyInfo> props) {
         writeIndent(1);
-        writeLine("public %s(%s) {", name, props.stream().map(p -> p.type.getFullName() + " " + p.name).collect(joining(", ")));
+        writeLine("public %s(%s) {", name, props.stream().map(p -> p.type().getFullName() + " " + p.name()).collect(joining(", ")));
         props.forEach(p -> {
             writeIndent(2);
-            writeLine("this.%s = %s;", p.name, p.name);
+            writeLine("this.%s = %s;", p.name(), p.name());
         });
         writeIndent(1);
         writeLine("}");
@@ -166,15 +166,15 @@ public class JavaPojoWriter extends BaseWriter implements PojoWriter {
     private void writePropertyAnnotationLines(PropertyInfo propInfo) {
         if (propInfo.isDeprecated()) {
             writeIndent(1);
-            writeLine("/// @deprecated %s".formatted(propInfo.deprecationMessage));
+            writeLine("/// @deprecated %s".formatted(propInfo.deprecationMessage()));
             writeIndent(1);
             writeLine("@Deprecated");
         }
-        propInfo.annotations.forEach(a -> {
+        propInfo.annotations().forEach(a -> {
             writeIndent(1);
-            writeLine(a);
+            writeLine(a.annotation());
         });
-        propInfo.type.annotations().forEach(a -> {
+        propInfo.type().annotations().forEach(a -> {
             writeIndent(1);
             writeLine(a.annotation());
         });

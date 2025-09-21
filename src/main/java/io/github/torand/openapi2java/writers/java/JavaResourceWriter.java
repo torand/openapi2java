@@ -51,8 +51,9 @@ public class JavaResourceWriter extends BaseWriter implements ResourceWriter {
 
         Consumer<String> importConsumer = qt -> { if (isJavaPackage(qt)) javaImports.add(qt); else nonJavaImports.add(qt);};
 
-        resourceInfo.imports.forEach(importConsumer);
-        resourceInfo.methods.forEach(m -> {
+        resourceInfo.imports().normalImports().forEach(importConsumer);
+        resourceInfo.annotations().forEach(a -> a.imports().normalImports().forEach(importConsumer));
+        resourceInfo.methods().forEach(m -> {
             m.imports().normalImports().forEach(importConsumer);
             m.annotations().forEach(a -> a.imports().normalImports().forEach(importConsumer));
             m.parameters().forEach(p -> {
@@ -81,8 +82,9 @@ public class JavaResourceWriter extends BaseWriter implements ResourceWriter {
         }
 
         Set<String> staticImports = new TreeSet<>();
-        staticImports.addAll(resourceInfo.staticImports);
-        resourceInfo.methods.forEach(m -> {
+        staticImports.addAll(resourceInfo.imports().staticImports());
+        resourceInfo.annotations().forEach(a -> staticImports.addAll(a.imports().staticImports()));
+        resourceInfo.methods().forEach(m -> {
             staticImports.addAll(m.imports().staticImports());
             m.annotations().forEach(a -> staticImports.addAll(a.imports().staticImports()));
             m.parameters().forEach(p -> {
@@ -94,14 +96,14 @@ public class JavaResourceWriter extends BaseWriter implements ResourceWriter {
         staticImports.forEach(si -> writeLine("import static %s;".formatted(si)));
         writeNewLine();
 
-        resourceInfo.annotations.forEach(a -> writeLine(a));
-        writeLine("public interface %s {".formatted(resourceInfo.name));
+        resourceInfo.annotations().forEach(a -> writeLine(a.annotation()));
+        writeLine("public interface %s {".formatted(resourceInfo.name()));
         writeNewLine();
 
         writeIndent(1);
         writeLine("String ROOT_PATH = \"%s\";", opts.rootUrlPath());
 
-        resourceInfo.methods.forEach(m -> {
+        resourceInfo.methods().forEach(m -> {
             writeNewLine();
             if (m.isDeprecated()) {
                 writeIndent(1);
@@ -147,16 +149,16 @@ public class JavaResourceWriter extends BaseWriter implements ResourceWriter {
             writeLine(");");
         });
 
-        if (nonNull(resourceInfo.authMethod)) {
+        if (nonNull(resourceInfo.authMethod())) {
             writeNewLine();
 
-            resourceInfo.authMethod.annotations().forEach(a -> {
+            resourceInfo.authMethod().annotations().forEach(a -> {
                 writeIndent(1);
                 writeLine(a.annotation());
             });
 
             writeIndent(1);
-            writeLine("default String %s() {".formatted(resourceInfo.authMethod.name()));
+            writeLine("default String %s() {".formatted(resourceInfo.authMethod().name()));
             writeIndent(2);
             writeLine("return \"TODO\";");
             writeIndent(1);
