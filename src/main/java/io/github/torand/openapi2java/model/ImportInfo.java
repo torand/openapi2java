@@ -71,17 +71,6 @@ public record ImportInfo(
     }
 
     /**
-     * Returns a new {@link ImportInfo} object with specified normal imports added.
-     * @param normalImports the imports to add.
-     * @return the new and updated {@link ImportInfo} object.
-     */
-    public ImportInfo withAddedNormalImports(Collection<String> normalImports) {
-        Set<String> newNormalImports = new TreeSet<>(this.normalImports);
-        newNormalImports.addAll(normalImports);
-        return new ImportInfo(newNormalImports, staticImports);
-    }
-
-    /**
      * Returns a new {@link ImportInfo} object with specified static import added.
      * @param staticImport the static import to add.
      * @return the new and updated {@link ImportInfo} object.
@@ -89,17 +78,6 @@ public record ImportInfo(
     public ImportInfo withAddedStaticImport(String staticImport) {
         Set<String> newStaticImports = new TreeSet<>(this.staticImports);
         newStaticImports.add(staticImport);
-        return new ImportInfo(normalImports, newStaticImports);
-    }
-
-    /**
-     * Returns a new {@link ImportInfo} object with specified static imports added.
-     * @param staticImports the static imports to add.
-     * @return the new and updated {@link ImportInfo} object.
-     */
-    public ImportInfo withAddedStaticImports(Collection<String> staticImports) {
-        Set<String> newStaticImports = new TreeSet<>(this.staticImports);
-        newStaticImports.addAll(staticImports);
         return new ImportInfo(normalImports, newStaticImports);
     }
 

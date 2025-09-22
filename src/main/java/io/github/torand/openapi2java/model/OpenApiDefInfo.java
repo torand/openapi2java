@@ -15,17 +15,28 @@
  */
 package io.github.torand.openapi2java.model;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Describes an OpenAPI definition.
  */
-public class OpenApiDefInfo {
-    public String name;
+public record OpenApiDefInfo (
+    String name,
+    ImportInfo imports,
+    List<AnnotationInfo> annotations
+) implements ImportsSupplier {
 
-    public Set<String> imports = new TreeSet<>();
+    public OpenApiDefInfo(String name) {
+        this(name, new ImportInfo(), new LinkedList<>());
+    }
 
-    public Set<String> annotations = new LinkedHashSet<>();
+    public OpenApiDefInfo withAddedImports(String normalImport) {
+        return new OpenApiDefInfo(name, imports.withAddedNormalImport(normalImport), annotations);
+    }
+
+    public OpenApiDefInfo withAddedAnnotation(AnnotationInfo annotation) {
+        List<AnnotationInfo> newAnnotations = new LinkedList<>(annotations);
+        newAnnotations.add(annotation);
+        return new OpenApiDefInfo(name, imports, newAnnotations);
+    }
 }

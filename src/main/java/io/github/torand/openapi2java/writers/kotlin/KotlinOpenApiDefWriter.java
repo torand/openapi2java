@@ -21,6 +21,8 @@ import io.github.torand.openapi2java.writers.BaseWriter;
 import io.github.torand.openapi2java.writers.OpenApiDefWriter;
 
 import java.io.Writer;
+import java.util.Set;
+import java.util.TreeSet;
 
 import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
 
@@ -38,13 +40,17 @@ public class KotlinOpenApiDefWriter extends BaseWriter implements OpenApiDefWrit
         writeLine("package %s", opts.rootPackage());
         writeNewLine();
 
-        if (nonEmpty(openApiDefInfo.imports)) {
-            openApiDefInfo.imports.forEach(i -> writeLine("import %s".formatted(i)));
+        Set<String> imports = new TreeSet<>();
+        imports.addAll(openApiDefInfo.imports().normalImports());
+        openApiDefInfo.annotations().forEach(a -> imports.addAll(a.imports().normalImports()));
+
+        if (nonEmpty(imports)) {
+            imports.forEach(i -> writeLine("import %s".formatted(i)));
             writeNewLine();
         }
 
-        openApiDefInfo.annotations.forEach(this::writeLine);
+        openApiDefInfo.annotations().forEach(a -> writeLine(a.annotation()));
 
-        writeLine("class %s : Application()", openApiDefInfo.name);
+        writeLine("class %s : Application()", openApiDefInfo.name());
     }
 }
