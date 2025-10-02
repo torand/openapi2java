@@ -5,6 +5,7 @@ OpenAPI2Java
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.torand/openapi2java.svg?label=maven%20central)](https://central.sonatype.com/artifact/io.github.torand/openapi2java)
 [![Javadoc](https://img.shields.io/badge/javadoc-online-green)](https://torand.github.io/openapi2java/apidocs/)
 [![Coverage](https://coveralls.io/repos/github/torand/openapi2java/badge.svg?branch=main)](https://coveralls.io/github/torand/openapi2java?branch=main)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=torand_openapi2java&metric=alert_status)](https://sonarcloud.io/summary/overall?id=torand_openapi2java)
 [![Apache 2.0 License](https://img.shields.io/badge/license-Apache%202.0-orange)](LICENSE)
 
 A Maven plugin to generate Java models and REST clients from an [OpenAPI](https://spec.openapis.org/oas/v3.1.0) specification.

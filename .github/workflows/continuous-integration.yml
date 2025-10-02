@@ -40,6 +40,20 @@ jobs:
           server-username: GITHUB_USERNAME
           server-password: GITHUB_PAT
 
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
       - name: Set up build environment
         id: setup-build-env
         run: |
@@ -63,12 +77,13 @@ jobs:
           GITHUB_USERNAME: ${{github.actor}}
           GITHUB_PAT: ${{secrets.GITHUB_TOKEN}}
 
-      - name: Maven build and test artifact
+      - name: Maven build, analyze and test artifact
         run: |
-          mvn ${mavenOpts} -f ./pom.xml package
+          mvn ${mavenOpts} -f ./pom.xml verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
         env:
           GITHUB_USERNAME: ${{github.actor}}
           GITHUB_PAT: ${{secrets.GITHUB_TOKEN}}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Locate test results
         id: locate-test-results
