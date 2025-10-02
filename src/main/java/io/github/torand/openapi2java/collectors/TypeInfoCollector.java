@@ -151,7 +151,7 @@ public class TypeInfoCollector extends BaseCollector {
         if (maybeJsonSerializer.isPresent()) {
             AnnotationInfo jsonSerializeAnnotation = getJsonSerializeAnnotation(maybeJsonSerializer.get());
             typeInfo = typeInfo.withAddedAnnotation(jsonSerializeAnnotation);
-        };
+        }
 
         Optional<String> maybeValidationConstraint = extensions(schema.getExtensions()).getString(EXT_VALIDATION_CONSTRAINT);
         if (maybeValidationConstraint.isPresent()) {

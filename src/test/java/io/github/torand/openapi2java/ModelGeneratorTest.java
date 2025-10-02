@@ -22,16 +22,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static io.github.torand.openapi2java.TestHelper.assertMatchingJavaFiles;
-import static io.github.torand.openapi2java.TestHelper.assertMatchingJavaFilesForOpenApi30;
-import static io.github.torand.openapi2java.TestHelper.assertMatchingKotlinFiles;
-import static io.github.torand.openapi2java.TestHelper.assertMatchingKotlinFilesForOpenApi30;
-import static io.github.torand.openapi2java.TestHelper.getJavaOptions;
-import static io.github.torand.openapi2java.TestHelper.getKotlinOptions;
-import static io.github.torand.openapi2java.TestHelper.loadOpenApi30Spec;
-import static io.github.torand.openapi2java.TestHelper.loadOpenApi31Spec;
+import static io.github.torand.openapi2java.TestHelper.*;
 
-public class ModelGeneratorTest {
+class ModelGeneratorTest {
 
     private static final Set<String> COMMON_POJOS = Set.of(
         "AddressV1",
@@ -59,7 +52,7 @@ public class ModelGeneratorTest {
     );
 
     @Test
-    public void shouldGenerateJavaPojos() {
+    void shouldGenerateJavaPojos() {
         Options opts = getJavaOptions();
         OpenAPI openApiDoc = loadOpenApi31Spec();
 
@@ -75,7 +68,7 @@ public class ModelGeneratorTest {
     }
 
     @Test
-    public void shouldGenerateJavaPojos_OpenApi30() {
+    void shouldGenerateJavaPojos_OpenApi30() {
         Options opts = getJavaOptions();
         OpenAPI openApiDoc = loadOpenApi30Spec();
 
@@ -101,7 +94,7 @@ public class ModelGeneratorTest {
     }
 
     @Test
-    public void shouldGenerateKotlinPojos() {
+    void shouldGenerateKotlinPojos() {
         Options opts = getKotlinOptions();
         OpenAPI openApiDoc = loadOpenApi31Spec();
 
@@ -117,7 +110,7 @@ public class ModelGeneratorTest {
     }
 
     @Test
-    public void shouldGenerateKotlinPojos_OpenApi30() {
+    void shouldGenerateKotlinPojos_OpenApi30() {
         Options opts = getKotlinOptions();
         OpenAPI openApiDoc = loadOpenApi30Spec();
 

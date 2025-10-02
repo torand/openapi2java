@@ -28,7 +28,7 @@ public abstract class BaseWriter implements AutoCloseable {
     private final Writer writer;
     protected final Options opts;
 
-    public BaseWriter(Writer writer, Options opts) {
+    protected BaseWriter(Writer writer, Options opts) {
         this.writer = writer;
         this.opts = opts;
     }

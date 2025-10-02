@@ -20,19 +20,11 @@ import io.github.torand.openapi2java.generators.ResourceGenerator;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.junit.jupiter.api.Test;
 
-import static io.github.torand.openapi2java.TestHelper.ConfigVariant.Resteasy;
-import static io.github.torand.openapi2java.TestHelper.assertMatchingJavaFiles;
-import static io.github.torand.openapi2java.TestHelper.assertMatchingJavaFilesVariant;
-import static io.github.torand.openapi2java.TestHelper.assertMatchingKotlinFiles;
-import static io.github.torand.openapi2java.TestHelper.assertMatchingKotlinFilesVariant;
-import static io.github.torand.openapi2java.TestHelper.getJavaOptions;
-import static io.github.torand.openapi2java.TestHelper.getKotlinOptions;
-import static io.github.torand.openapi2java.TestHelper.loadOpenApi30Spec;
-import static io.github.torand.openapi2java.TestHelper.loadOpenApi31Spec;
-import static io.github.torand.openapi2java.TestHelper.withResteasyResponse;
+import static io.github.torand.openapi2java.TestHelper.ConfigVariant.RESTEASY;
+import static io.github.torand.openapi2java.TestHelper.*;
 import static java.util.Collections.emptyList;
 
-public class ResourceGeneratorTest {
+class ResourceGeneratorTest {
 
     private static final String[] RESOURCES = {
         "Users",
@@ -41,7 +33,7 @@ public class ResourceGeneratorTest {
     };
 
     @Test
-    public void shouldGenerateJavaResources() {
+    void shouldGenerateJavaResources() {
         Options opts = getJavaOptions();
         OpenAPI openApiDoc = loadOpenApi31Spec();
 
@@ -53,7 +45,7 @@ public class ResourceGeneratorTest {
     }
 
     @Test
-    public void shouldGenerateJavaResources_OpenApi30() {
+    void shouldGenerateJavaResources_OpenApi30() {
         Options opts = getJavaOptions();
         OpenAPI openApiDoc = loadOpenApi30Spec();
 
@@ -65,19 +57,19 @@ public class ResourceGeneratorTest {
     }
 
     @Test
-    public void shouldGenerateJavaResources_withResteasyResponses() {
+    void shouldGenerateJavaResources_withResteasyResponses() {
         Options opts = withResteasyResponse(getJavaOptions());
         OpenAPI openApiDoc = loadOpenApi31Spec();
 
         new ResourceGenerator(opts).generate(openApiDoc);
 
         for (String resource : RESOURCES) {
-            assertMatchingJavaFilesVariant("%sApi".formatted(resource), Resteasy);
+            assertMatchingJavaFilesVariant("%sApi".formatted(resource), RESTEASY);
         }
     }
 
     @Test
-    public void shouldGenerateJavaResource_withNameOverride() {
+    void shouldGenerateJavaResource_withNameOverride() {
         Options opts = getJavaOptions()
             .withResourceNameOverride("Compound");
 
@@ -90,7 +82,7 @@ public class ResourceGeneratorTest {
     }
 
     @Test
-    public void shouldGenerateKotlinResources() {
+    void shouldGenerateKotlinResources() {
         Options opts = getKotlinOptions();
         OpenAPI openApiDoc = loadOpenApi31Spec();
 
@@ -102,7 +94,7 @@ public class ResourceGeneratorTest {
     }
 
     @Test
-    public void shouldGenerateKotlinResources_OpenApi30() {
+    void shouldGenerateKotlinResources_OpenApi30() {
         Options opts = getKotlinOptions();
         OpenAPI openApiDoc = loadOpenApi30Spec();
 
@@ -114,19 +106,19 @@ public class ResourceGeneratorTest {
     }
 
     @Test
-    public void shouldGenerateKotlinResources_withResteasyResponses() {
+    void shouldGenerateKotlinResources_withResteasyResponses() {
         Options opts = withResteasyResponse(getKotlinOptions());
         OpenAPI openApiDoc = loadOpenApi31Spec();
 
         new ResourceGenerator(opts).generate(openApiDoc);
 
         for (String resource : RESOURCES) {
-            assertMatchingKotlinFilesVariant("%sApi".formatted(resource), Resteasy);
+            assertMatchingKotlinFilesVariant("%sApi".formatted(resource), RESTEASY);
         }
     }
 
     @Test
-    public void shouldGenerateKotlinResource_withNameOverride() {
+    void shouldGenerateKotlinResource_withNameOverride() {
         Options opts = getKotlinOptions()
             .withResourceNameOverride("Compound");
 

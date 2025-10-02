@@ -44,7 +44,7 @@ public class SchemaResolver {
         Schema schema = getOrThrow($ref);
         return extensions(schema.getExtensions())
             .getString(EXT_MODEL_SUBDIR)
-            .map(subdir -> subdir.replaceAll("\\/", "."));
+            .map(subdir -> subdir.replace("\\/", "."));
     }
 
     public Optional<Schema> get(String $ref) {

@@ -59,6 +59,11 @@ public class MethodInfoCollector extends BaseCollector {
         TEXT_PLAIN, "TEXT_PLAIN"
     );
 
+    private static final String PARAM_IN_HEADER = "header";
+    private static final String PARAM_IN_QUERY = "query";
+    private static final String PARAM_IN_PATH = "path";
+    private static final String PARAM_IN_COOKIE = "cookie";
+
     private final ComponentResolver componentResolver;
     private final TypeInfoCollector typeInfoCollector;
     private final SecurityRequirementCollector securityRequirementCollector;
@@ -120,8 +125,15 @@ public class MethodInfoCollector extends BaseCollector {
             }
         }
 
+        List<MethodParamInfo> methodParams = getMethodParams(operation);
+
+        return methodInfo.withAddedParameters(methodParams);
+    }
+
+    List<MethodParamInfo> getMethodParams(Operation operation) {
         List<MethodParamInfo> methodParams = new ArrayList<>();
 
+        // Regular parameters
         if (nonEmpty(operation.getParameters())) {
             operation.getParameters().forEach(param -> {
                 Parameter realParam = param;
@@ -184,7 +196,7 @@ public class MethodInfoCollector extends BaseCollector {
                 });
         }
 
-        return methodInfo.withAddedParameters(methodParams);
+        return methodParams;
     }
 
     private AnnotationInfo getVerbAnnotation(String verb) {
@@ -199,40 +211,37 @@ public class MethodInfoCollector extends BaseCollector {
         String responseType = null;
 
         int numericCode = Integer.parseInt(code);
-        if (numericCode >= 200 && numericCode <= 299) {
-            if (nonEmpty(response.getContent())) {
-                for (MediaType mediaType : response.getContent().values()) {
-                    Schema<?> schema = mediaType.getSchema();
-                    TypeInfo bodyType = typeInfoCollector.getTypeInfo(schema);
-                    if (nonNull(bodyType)) {
-                        String fullName = bodyType.getFullName();
-                        if (isNull(responseType)) {
-                            // If no return type is set yet, the type of this media type is used...
-                            responseType = fullName;
-                        } else if (!fullName.equals(responseType)) {
-                            // ...but if a return type is already set, and this media type specifies
-                            // a different type, we cannot safely infer one single return type, and
-                            // give up type safety and allow anything
-                            responseType = opts.useKotlinSyntax() ? "*" : "?";
-                            break; // no need to look any further
-                        }
+        if (isSuccessfulStatusCode(numericCode) && nonEmpty(response.getContent())) {
+            for (MediaType mediaType : response.getContent().values()) {
+                Schema<?> schema = mediaType.getSchema();
+                TypeInfo bodyType = typeInfoCollector.getTypeInfo(schema);
+                if (nonNull(bodyType)) {
+                    String fullName = bodyType.getFullName();
+                    if (isNull(responseType)) {
+                        // If no return type is set yet, the type of this media type is used...
+                        responseType = fullName;
+                    } else if (!fullName.equals(responseType)) {
+                        // ...but if a return type is already set, and this media type specifies
+                        // a different type, we cannot safely infer one single return type, and
+                        // give up type safety and allow anything
+                        responseType = opts.useKotlinSyntax() ? "*" : "?";
+                        break; // no need to look any further
                     }
                 }
             }
         }
+
         return responseType;
     }
 
     private MethodParamInfo getSingularPayloadMethodParameter(Schema<?> schema) {
         TypeInfo bodyType = typeInfoCollector.getTypeInfo(schema, FORCE_NOT_NULLABLE);
 
-        MethodParamInfo paramInfo = new MethodParamInfo(toParamName(bodyType.name()))
+        return new MethodParamInfo(toParamName(bodyType.name()))
             .withNullable(false)
             .withType(bodyType)
             .withComment(bodyType.description())
             .withAddedAnnotations(bodyType.annotations());
-
-        return paramInfo;
     }
 
     private MethodParamInfo getMultipartPayloadMethodParameter(String name, Schema<?> schema) {
@@ -268,7 +277,7 @@ public class MethodInfoCollector extends BaseCollector {
 
         ConstantValue partMediaTypeConstant = getMediaTypeConstant(partMediaType);
 
-        MethodParamInfo paramInfo = new MethodParamInfo(name)
+        return new MethodParamInfo(name)
             .withNullable(bodyType.nullable())
             .withType(bodyType)
             .withComment(bodyType.description())
@@ -276,8 +285,6 @@ public class MethodInfoCollector extends BaseCollector {
             .withAddedAnnotation(new AnnotationInfo("@PartType(%s)".formatted(partMediaTypeConstant.value()), "org.jboss.resteasy.reactive.PartType"))
             .withAddedAnnotations(bodyType.annotations())
             .withAddedImports(partMediaTypeConstant);
-
-        return paramInfo;
     }
 
     private AnnotationInfo getConsumesAnnotation(RequestBody requestBody) {
@@ -296,7 +303,6 @@ public class MethodInfoCollector extends BaseCollector {
     }
 
     private AnnotationInfo getProducesAnnotation(ApiResponses responses) {
-        // TODO: Bør denne alltid være med?
         List<ConstantValue> mediaTypes = new ArrayList<>();
         mediaTypes.add(new ConstantValue("APPLICATION_JSON").withStaticImport("jakarta.ws.rs.core.MediaType.APPLICATION_JSON"));
 
@@ -343,7 +349,7 @@ public class MethodInfoCollector extends BaseCollector {
         params.add("%s = %s".formatted(inName, inValue.value()));
         parameterAnnotation = parameterAnnotation.withAddedImports(inValue);
 
-        if (inValue.value().equalsIgnoreCase("header")) {
+        if (inValue.value().equalsIgnoreCase(PARAM_IN_HEADER)) {
             ConstantValue headerNameConstant = getHeaderNameConstant(realParameter.getName());
             params.add("name = %s".formatted(headerNameConstant.value()));
             parameterAnnotation = parameterAnnotation.withAddedImports(headerNameConstant);
@@ -384,10 +390,10 @@ public class MethodInfoCollector extends BaseCollector {
     private ConstantValue getParameterInValue(Parameter parameter) {
         String inValue = switch (parameter.getIn().toLowerCase()) {
             case "" -> "DEFAULT";
-            case "header" -> "HEADER";
-            case "query" -> "QUERY";
-            case "path" -> "PATH";
-            case "cookie" -> "COOKIE";
+            case PARAM_IN_HEADER -> "HEADER";
+            case PARAM_IN_QUERY -> "QUERY";
+            case PARAM_IN_PATH -> "PATH";
+            case PARAM_IN_COOKIE -> "COOKIE";
             default -> throw new IllegalStateException("Parameter in-value %s not supported".formatted(parameter.getIn()));
         };
 
@@ -439,10 +445,10 @@ public class MethodInfoCollector extends BaseCollector {
 
     private AnnotationInfo getMethodParameterAnnotation(Parameter parameter) {
         String paramAnnotationName = switch (parameter.getIn().toLowerCase()) {
-            case "header" -> "HeaderParam";
-            case "query" -> "QueryParam";
-            case "path" -> "PathParam";
-            case "cookie" -> "CookieParam";
+            case PARAM_IN_HEADER -> "HeaderParam";
+            case PARAM_IN_QUERY -> "QueryParam";
+            case PARAM_IN_PATH -> "PathParam";
+            case PARAM_IN_COOKIE -> "CookieParam";
             default -> throw new IllegalStateException("Parameter in-value %s not supported".formatted(parameter.getIn()));
         };
 
@@ -555,5 +561,9 @@ public class MethodInfoCollector extends BaseCollector {
         } else {
             return new ConstantValue(quote(contentType));
         }
+    }
+
+    private boolean isSuccessfulStatusCode(int statusCode) {
+        return statusCode >= 200 && statusCode < 300;
     }
 }

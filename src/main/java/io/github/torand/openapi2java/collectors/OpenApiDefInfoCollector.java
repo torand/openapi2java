@@ -53,11 +53,11 @@ public class OpenApiDefInfoCollector extends BaseCollector {
 
     private AnnotationInfo getSecuritySchemesAnnotation(List<SecurityRequirement> securityRequirements) {
         List<AnnotationInfo> securitySchemeAnnotations = new ArrayList<>();
-        securityRequirements.forEach(sr -> {
-            sr.keySet().forEach(schemeName -> {
-                securitySchemeAnnotations.add(getSecuritySchemeAnnotation(schemeName));
-            });
-        });
+        securityRequirements.forEach(sr ->
+            sr.keySet().forEach(schemeName ->
+                securitySchemeAnnotations.add(getSecuritySchemeAnnotation(schemeName))
+            )
+        );
 
         return new AnnotationInfo(
             "@SecuritySchemes(%s)".formatted(formatAnnotationDefaultParam(securitySchemeAnnotations.stream().map(AnnotationInfo::annotation).toList())),
@@ -172,7 +172,7 @@ public class OpenApiDefInfoCollector extends BaseCollector {
             .toList();
     }
 
-    private AnnotationInfo getScopeAnnotation(String name, String description) {;
+    private AnnotationInfo getScopeAnnotation(String name, String description) {
         return new AnnotationInfo(
             (opts.useKotlinSyntax() ? "" : "@") + "OAuthScope(name = \"%s\", description = \"%s\")".formatted(name, normalizeDescription(description)),
             "org.eclipse.microprofile.openapi.annotations.security.OAuthScope"

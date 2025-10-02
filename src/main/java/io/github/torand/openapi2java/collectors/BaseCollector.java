@@ -36,7 +36,7 @@ public abstract class BaseCollector {
     }
 
     protected String normalizeDescription(String description) {
-        return nonBlank(description) ? description.replaceAll("%", "%%") : "TBD";
+        return nonBlank(description) ? description.replace("%", "%%") : "TBD";
     }
 
     protected String normalizePath(String path) {
@@ -50,7 +50,7 @@ public abstract class BaseCollector {
     }
 
     protected String dirPath2PackagePath(String dirPath) {
-        return dirPath.replaceAll("\\/", ".");
+        return dirPath.replace("\\/", ".");
     }
 
     protected String modelName2SchemaName(String modelName) {

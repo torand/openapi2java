@@ -31,19 +31,26 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static io.github.torand.openapi2java.TestHelper.ConfigVariant.RESTEASY;
 import static io.github.torand.openapi2java.utils.StringUtils.removeLineBreaks;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class TestHelper {
+public final class TestHelper {
 
     private TestHelper() {}
 
     public enum ConfigVariant {
-        Resteasy,
-        NoHeaderParam;
+        RESTEASY("Resteasy"),
+        NO_HEADER_PARAM("NoHeaderParam");
+
+        String suffix;
+
+        ConfigVariant(String suffix) {
+            this.suffix = suffix;
+        }
     }
 
     public static OpenAPI loadOpenApi31Spec() {
@@ -80,7 +87,7 @@ public class TestHelper {
 
     public static Options withResteasyResponse(Options baseOptions) {
         return baseOptions
-            .withResourceNameSuffix(baseOptions.resourceNameSuffix() + "_" + ConfigVariant.Resteasy)
+            .withResourceNameSuffix(baseOptions.resourceNameSuffix() + "_" + RESTEASY.suffix)
             .withUseResteasyResponse(true);
     }
 
@@ -109,7 +116,7 @@ public class TestHelper {
     }
 
     public static void assertMatchingJavaFilesVariant(String filename, ConfigVariant variant) {
-        assertMatchingJavaFiles("%s%s.java".formatted(filename, "_" + variant));
+        assertMatchingJavaFiles("%s%s.java".formatted(filename, "_" + variant.suffix));
     }
 
     public static void assertMatchingKotlinFiles(String filename) {
@@ -127,7 +134,7 @@ public class TestHelper {
     }
 
     public static void assertMatchingKotlinFilesVariant(String filename, ConfigVariant variant) {
-        assertMatchingKotlinFiles("%s%s.kt".formatted(filename, "_" + variant));
+        assertMatchingKotlinFiles("%s%s.kt".formatted(filename, "_" + variant.suffix));
     }
 
     public static JsonNode parseJson(String json) {

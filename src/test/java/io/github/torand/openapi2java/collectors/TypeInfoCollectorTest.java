@@ -16,8 +16,8 @@
 package io.github.torand.openapi2java.collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.github.torand.openapi2java.generators.Options;
 import io.github.torand.openapi2java.TestHelper;
+import io.github.torand.openapi2java.generators.Options;
 import io.github.torand.openapi2java.model.AnnotationInfo;
 import io.github.torand.openapi2java.model.TypeInfo;
 import io.swagger.v3.oas.models.media.Schema;
@@ -28,19 +28,19 @@ import org.junit.jupiter.api.Test;
 import static io.github.torand.openapi2java.TestHelper.parseJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TypeInfoCollectorTest {
+class TypeInfoCollectorTest {
 
     private TypeInfoCollector collector;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         Options opts = TestHelper.getJavaOptions();
         SchemaResolver schemaResolver = new SchemaResolver(null);
         collector = new TypeInfoCollector(schemaResolver, opts);
     }
 
     @Test
-    public void shouldMapBooleanProperties() {
+    void shouldMapBooleanProperties() {
         assertNullableBooleanType("""
                 {"type": ["boolean", "null"]}
             """);
@@ -51,7 +51,7 @@ public class TypeInfoCollectorTest {
     }
 
     @Test
-    public void shouldMapIntegerProperties() {
+    void shouldMapIntegerProperties() {
         assertNullableNumericType("""
                 {"type": ["integer", "null"]}
             """, "Integer", null);
@@ -78,7 +78,7 @@ public class TypeInfoCollectorTest {
     }
 
     @Test
-    public void shouldMapNumberProperties() {
+    void shouldMapNumberProperties() {
         assertNullableNumericType("""
                 {"type": ["number", "null"]}
             """, "BigDecimal", null);
@@ -105,7 +105,7 @@ public class TypeInfoCollectorTest {
     }
 
     @Test
-    public void shouldMapStringProperties() {
+    void shouldMapStringProperties() {
         assertNullableStringType("""
                 {"type": ["string", "null"]}
             """, "String", null, null);
@@ -156,7 +156,7 @@ public class TypeInfoCollectorTest {
     }
 
     @Test
-    public void shouldMapArrayProperties() {
+    void shouldMapArrayProperties() {
         assertNullableArrayType("""
                 {"type": ["array", "null"], "items": {"type": "string"}}
             """, "List", "String", "@Valid");
