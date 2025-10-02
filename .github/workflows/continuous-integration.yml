@@ -87,13 +87,13 @@ jobs:
 
       - name: Locate test results
         id: locate-test-results
-        uses: andstor/file-existence-action@v2
+        uses: andstor/file-existence-action@076e0072799f4942c8bc574a82233e1e4d13e9d6 # v3.0.0
         with:
           files: "./**/surefire-reports/TEST-*.xml"
 
       - name: Publish test results
         if: ${{steps.locate-test-results.outputs.files_exists == 'true' && (success() || failure())}}
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@dc3a92680fcc15842eef52e8c4606ea7ce6bd3f3 # v2.1.1
         with:
           name: JUnit test reports
           working-directory: .
@@ -102,7 +102,7 @@ jobs:
           fail-on-error: true
 
       - name: Publish test coverage
-        uses: coverallsapp/github-action@v2
+        uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b # v2.3.6
         with:
           format: jacoco
           base-path: src/main/java
