@@ -16,19 +16,20 @@
 package io.github.torand.openapi2java.writers.java;
 
 import io.github.torand.openapi2java.generators.Options;
+import io.github.torand.openapi2java.model.AnnotationInfo;
 import io.github.torand.openapi2java.model.MethodParamInfo;
 import io.github.torand.openapi2java.model.ResourceInfo;
 import io.github.torand.openapi2java.writers.BaseWriter;
 import io.github.torand.openapi2java.writers.ResourceWriter;
 
 import java.io.Writer;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.function.Consumer;
+import java.util.List;
 
 import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
 import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
+import static io.github.torand.javacommons.stream.StreamHelper.streamSafely;
 import static java.util.Objects.nonNull;
+import static java.util.function.Predicate.not;
 
 /**
  * Writes Java code for a resource.
@@ -41,92 +42,58 @@ public class JavaResourceWriter extends BaseWriter implements ResourceWriter {
 
     @Override
     public void write(ResourceInfo resourceInfo) {
-        writeLine("package %s;", opts.rootPackage);
+        writeLine("package %s;", opts.rootPackage());
         writeNewLine();
 
-        Set<String> nonJavaImports = new TreeSet<>();
-        Set<String> javaImports = new TreeSet<>();
+        writeNonJavaImports(resourceInfo);
+        writeJavaImports(resourceInfo);
+        writeStaticImports(resourceInfo);
 
-        Consumer<String> importConsumer = qt -> { if (isJavaPackage(qt)) javaImports.add(qt); else nonJavaImports.add(qt);};
-
-        resourceInfo.imports.forEach(importConsumer);
-        resourceInfo.methods.forEach(m -> {
-            m.imports.forEach(importConsumer);
-            m.parameters.forEach(p -> {
-                p.imports.forEach(importConsumer);
-                p.type.typeImports.forEach(importConsumer);
-                if (nonNull(p.type.keyType)) {
-                    p.type.keyType.typeImports.forEach(importConsumer);
-                }
-                if (nonNull(p.type.itemType)) {
-                    p.type.itemType.typeImports.forEach(importConsumer);
-                }
-            });
-        });
-
-        if (nonEmpty(nonJavaImports)) {
-            nonJavaImports.forEach(ti -> writeLine("import %s;".formatted(ti)));
-            writeNewLine();
-        }
-        if (nonEmpty(javaImports)) {
-            javaImports.forEach(ti -> writeLine("import %s;".formatted(ti)));
-            writeNewLine();
-        }
-
-        Set<String> staticImports = new TreeSet<>();
-        staticImports.addAll(resourceInfo.staticImports);
-        resourceInfo.methods.forEach(m -> {
-            staticImports.addAll(m.staticImports);
-            m.parameters.forEach(p -> staticImports.addAll(p.staticImports));
-        });
-        staticImports.forEach(si -> writeLine("import static %s;".formatted(si)));
-        writeNewLine();
-
-        resourceInfo.annotations.forEach(a -> writeLine(a));
-        writeLine("public interface %s {".formatted(resourceInfo.name));
+        resourceInfo.annotations().forEach(a -> writeLine(a.annotation()));
+        writeLine("public interface %s {".formatted(resourceInfo.name()));
         writeNewLine();
 
         writeIndent(1);
-        writeLine("String ROOT_PATH = \"%s\";", opts.rootUrlPath);
+        writeLine("String ROOT_PATH = \"%s\";", opts.rootUrlPath());
 
-        resourceInfo.methods.forEach(m -> {
+        resourceInfo.methods().forEach(m -> {
             writeNewLine();
             if (m.isDeprecated()) {
                 writeIndent(1);
-                writeLine("/// @deprecated %s".formatted(m.deprecationMessage));
+                writeLine("/// @deprecated %s".formatted(m.deprecationMessage()));
                 writeIndent(1);
                 writeLine("@Deprecated");
             }
 
-            m.annotations.forEach(a -> {
+            m.annotations().forEach(a -> {
                 writeIndent(1);
-                writeLine(a);
+                writeLine(a.annotation());
             });
 
             writeIndent(1);
-            if (opts.useResteasyResponse) {
-                writeLine("RestResponse<%s> %s(".formatted(nonNull(m.returnType) ? m.returnType : "Void", m.name));
+            if (opts.useResteasyResponse()) {
+                writeLine("RestResponse<%s> %s(".formatted(nonNull(m.returnType()) ? m.returnType() : "Void", m.name()));
             } else {
-                writeLine("Response %s(".formatted(m.name));
+                writeLine("Response %s(".formatted(m.name()));
             }
 
-            for (int i=0; i<m.parameters.size(); i++) {
-                MethodParamInfo paramInfo = m.parameters.get(i);
+            for (int i=0; i<m.parameters().size(); i++) {
+                MethodParamInfo paramInfo = m.parameters().get(i);
                 writeIndent(2);
                 if (paramInfo.isDeprecated()) {
                     write("@Deprecated ");
                 }
 
-                if (nonEmpty(paramInfo.annotations)) {
-                    write(String.join(" ", paramInfo.annotations) + " ");
+                if (nonEmpty(paramInfo.annotations())) {
+                    write(String.join(" ", streamSafely(paramInfo.annotations()).map(AnnotationInfo::annotation).toList()) + " ");
                 }
-                write(paramInfo.type.getFullName() + " ");
-                write(paramInfo.name);
-                if (i < (m.parameters.size()-1)) {
+                write(paramInfo.type().getFullName() + " ");
+                write(paramInfo.name());
+                if (i < (m.parameters().size()-1)) {
                     write(",");
                 }
-                if (nonBlank(paramInfo.comment)) {
-                    write(" // %s", paramInfo.comment);
+                if (nonBlank(paramInfo.comment())) {
+                    write(" // %s", paramInfo.comment());
                 }
                 writeNewLine();
             }
@@ -135,16 +102,16 @@ public class JavaResourceWriter extends BaseWriter implements ResourceWriter {
             writeLine(");");
         });
 
-        if (nonNull(resourceInfo.authMethod)) {
+        if (nonNull(resourceInfo.authMethod())) {
             writeNewLine();
 
-            resourceInfo.authMethod.annotations.forEach(a -> {
+            resourceInfo.authMethod().annotations().forEach(a -> {
                 writeIndent(1);
-                writeLine(a);
+                writeLine(a.annotation());
             });
 
             writeIndent(1);
-            writeLine("default String %s() {".formatted(resourceInfo.authMethod.name));
+            writeLine("default String %s() {".formatted(resourceInfo.authMethod().name()));
             writeIndent(2);
             writeLine("return \"TODO\";");
             writeIndent(1);
@@ -152,6 +119,41 @@ public class JavaResourceWriter extends BaseWriter implements ResourceWriter {
         }
 
         writeLine("}");
+    }
+
+    private void writeJavaImports(ResourceInfo resourceInfo) {
+        List<String> imports = resourceInfo.aggregatedNormalImports().stream()
+            .filter(this::isJavaPackage)
+            .map("import %s;"::formatted)
+            .toList();
+
+        if (nonEmpty(imports)) {
+            imports.forEach(this::writeLine);
+            writeNewLine();
+        }
+    }
+
+    private void writeNonJavaImports(ResourceInfo resourceInfo) {
+        List<String> imports = resourceInfo.aggregatedNormalImports().stream()
+            .filter(not(this::isJavaPackage))
+            .map("import %s;"::formatted)
+            .toList();
+
+        if (nonEmpty(imports)) {
+            imports.forEach(this::writeLine);
+            writeNewLine();
+        }
+    }
+
+    private void writeStaticImports(ResourceInfo resourceInfo) {
+        List<String> imports = resourceInfo.aggregatedStaticImports().stream()
+            .map("import static %s;"::formatted)
+            .toList();
+
+        if (nonEmpty(imports)) {
+            imports.forEach(this::writeLine);
+            writeNewLine();
+        }
     }
 
     private boolean isJavaPackage(String qualifiedType) {

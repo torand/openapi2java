@@ -35,16 +35,16 @@ public class KotlinOpenApiDefWriter extends BaseWriter implements OpenApiDefWrit
 
     @Override
     public void write(OpenApiDefInfo openApiDefInfo) {
-        writeLine("package %s", opts.rootPackage);
+        writeLine("package %s", opts.rootPackage());
         writeNewLine();
 
-        if (nonEmpty(openApiDefInfo.imports)) {
-            openApiDefInfo.imports.forEach(i -> writeLine("import %s".formatted(i)));
+        if (nonEmpty(openApiDefInfo.aggregatedImports())) {
+            openApiDefInfo.aggregatedImports().forEach(i -> writeLine("import %s".formatted(i)));
             writeNewLine();
         }
 
-        openApiDefInfo.annotations.forEach(this::writeLine);
+        openApiDefInfo.annotationsAsStrings().forEach(this::writeLine);
 
-        writeLine("class %s : Application()", openApiDefInfo.name);
+        writeLine("class %s : Application()", openApiDefInfo.name());
     }
 }

@@ -16,10 +16,7 @@
 package io.github.torand.openapi2java.collectors;
 
 import io.github.torand.openapi2java.generators.Options;
-import io.github.torand.openapi2java.model.MethodInfo;
-import io.github.torand.openapi2java.model.MethodParamInfo;
-import io.github.torand.openapi2java.model.SecurityRequirementInfo;
-import io.github.torand.openapi2java.model.TypeInfo;
+import io.github.torand.openapi2java.model.*;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.headers.Header;
 import io.swagger.v3.oas.models.media.MediaType;
@@ -33,21 +30,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
-import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
-import static io.github.torand.javacommons.lang.StringHelper.quote;
-import static io.github.torand.javacommons.lang.StringHelper.stripTail;
-import static io.github.torand.javacommons.lang.StringHelper.uncapitalize;
+import static io.github.torand.javacommons.lang.StringHelper.*;
+import static io.github.torand.javacommons.stream.StreamHelper.streamSafely;
 import static io.github.torand.openapi2java.collectors.SchemaResolver.isObjectType;
 import static io.github.torand.openapi2java.collectors.TypeInfoCollector.NullabilityResolution.FORCE_NOT_NULLABLE;
 import static io.github.torand.openapi2java.collectors.TypeInfoCollector.NullabilityResolution.FORCE_NULLABLE;
 import static io.github.torand.openapi2java.utils.StringUtils.joinCsv;
 import static java.lang.Boolean.TRUE;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static java.util.Objects.requireNonNull;
+import static java.util.Objects.*;
 
 /**
  * Collects information about a method from an operation.
@@ -79,57 +71,56 @@ public class MethodInfoCollector extends BaseCollector {
     }
 
     public MethodInfo getMethodInfo(String verb, String path, Operation operation) {
-        MethodInfo methodInfo = new MethodInfo();
-
-        methodInfo.name = operation.getOperationId();
+        MethodInfo methodInfo = new MethodInfo(operation.getOperationId())
+            .withAddedAnnotation(getVerbAnnotation(verb))
+            .withAddedAnnotation(getPathAnnotation(path));
 
         if (TRUE.equals(operation.getDeprecated())) {
-            methodInfo.deprecationMessage = formatDeprecationMessage(operation.getExtensions());
+            methodInfo = methodInfo.withDeprecationMessage(formatDeprecationMessage(operation.getExtensions()));
         }
 
-        methodInfo.imports.add("jakarta.ws.rs.%s".formatted(verb));
-        methodInfo.annotations.add("@%s".formatted(verb));
-
-        methodInfo.imports.add("jakarta.ws.rs.Path");
-        methodInfo.annotations.add("@Path(\"%s\")".formatted(normalizePath(path)));
-
         if (nonNull(operation.getRequestBody())) {
-            String consumesAnnotation = getConsumesAnnotation(operation.getRequestBody(), methodInfo.imports, methodInfo.staticImports);
-            methodInfo.annotations.add(consumesAnnotation);
+            methodInfo = methodInfo.withAddedAnnotation(getConsumesAnnotation(operation.getRequestBody()));
         }
 
         if (nonNull(operation.getResponses())) {
-            String producesAnnotation = getProducesAnnotation(operation.getResponses(), methodInfo.imports, methodInfo.staticImports);
-            methodInfo.annotations.add(producesAnnotation);
+            methodInfo = methodInfo.withAddedAnnotation(getProducesAnnotation(operation.getResponses()));
         }
 
         if (nonEmpty(operation.getSecurity())) {
             SecurityRequirementInfo secReqInfo = securityRequirementCollector.getSequrityRequirementInfo(operation.getSecurity());
-
-            methodInfo.imports.addAll(secReqInfo.imports);
-            methodInfo.annotations.addAll(secReqInfo.annotations);
+            if (nonNull(secReqInfo.annotation())) {
+                methodInfo = methodInfo.withAddedAnnotation(secReqInfo.annotation());
+            }
         }
 
-        if (opts.addMpOpenApiAnnotations) {
-            methodInfo.annotations.add(getOperationAnnotation(operation, methodInfo.imports));
+        if (opts.addMpOpenApiAnnotations()) {
+            methodInfo = methodInfo.withAddedAnnotation(getOperationAnnotation(operation));
 
             if (nonEmpty(operation.getParameters())) {
-                operation.getParameters().forEach(parameter -> {
-                    String parameterAnnotation = getParameterAnnotation(parameter, methodInfo.imports, methodInfo.staticImports);
-                    methodInfo.annotations.add(parameterAnnotation);
-                });
+                List<AnnotationInfo> parameterAnnotations = new ArrayList<>();
+                operation.getParameters().forEach(parameter ->
+                    parameterAnnotations.add(getParameterAnnotation(parameter))
+                );
+                methodInfo = methodInfo.withAddedAnnotations(parameterAnnotations);
             }
 
             if (nonEmpty(operation.getResponses())) {
-                operation.getResponses().forEach((code, response) -> {
-                    String apiResponseAnnotation = getApiResponseAnnotation(response, code, methodInfo.imports, methodInfo.staticImports);
-                    if (opts.useResteasyResponse && isNull(methodInfo.returnType)) {
-                        methodInfo.returnType = getResponseType(code, response);
-                    }
-                    methodInfo.annotations.add(apiResponseAnnotation);
-                });
+                List<AnnotationInfo> apiResponseAnnotations = new ArrayList<>();
+                operation.getResponses().forEach((code, response) ->
+                    apiResponseAnnotations.add(getApiResponseAnnotation(response, code))
+                );
+                methodInfo = methodInfo.withAddedAnnotations(apiResponseAnnotations);
+
+                if (opts.useResteasyResponse()) {
+                    String code = operation.getResponses().keySet().iterator().next();
+                    ApiResponse response = operation.getResponses().get(code);
+                    methodInfo = methodInfo.withReturnType(getResponseType(code, response));
+                }
             }
         }
+
+        List<MethodParamInfo> methodParams = new ArrayList<>();
 
         if (nonEmpty(operation.getParameters())) {
             operation.getParameters().forEach(param -> {
@@ -138,31 +129,27 @@ public class MethodInfoCollector extends BaseCollector {
                     realParam = componentResolver.parameters().getOrThrow(param.get$ref());
                 }
 
-                MethodParamInfo paramInfo = new MethodParamInfo();
-                paramInfo.nullable = !TRUE.equals(realParam.getRequired());
-
-                String methodParamAnnotation = getMethodParameterAnnotation(realParam, paramInfo.imports, paramInfo.staticImports);
-                paramInfo.annotations.add(methodParamAnnotation);
+                MethodParamInfo paramInfo = new MethodParamInfo()
+                    .withNullable(!TRUE.equals(realParam.getRequired()))
+                    .withAddedAnnotation(getMethodParameterAnnotation(realParam));
 
                 Schema<?> realSchema = realParam.getSchema();
                 if (isNull(realSchema)) {
                     throw new IllegalStateException("No schema found for ApiParameter %s".formatted(realParam.getName()));
                 }
 
-                TypeInfo paramType = typeInfoCollector.getTypeInfo(realParam.getSchema(), paramInfo.nullable ? FORCE_NULLABLE : FORCE_NOT_NULLABLE);
-                paramInfo.type = paramType;
-
-                paramInfo.name = toParamName(realParam.getName());
-                paramInfo.comment = paramType.description;
-
-                paramInfo.annotations.addAll(paramType.annotations);
-                paramInfo.imports.addAll(paramType.annotationImports);
+                TypeInfo paramType = typeInfoCollector.getTypeInfo(realParam.getSchema(), paramInfo.nullable() ? FORCE_NULLABLE : FORCE_NOT_NULLABLE);
+                paramInfo = paramInfo
+                    .withType(paramType)
+                    .withName(toParamName(realParam.getName()))
+                    .withComment(paramType.description())
+                    .withAddedAnnotations(paramType.annotations());
 
                 if (TRUE.equals(realParam.getDeprecated())) {
-                    paramInfo.deprecationMessage = formatDeprecationMessage(realParam.getExtensions());
+                    paramInfo = paramInfo.withDeprecationMessage(formatDeprecationMessage(realParam.getExtensions()));
                 }
 
-                methodInfo.parameters.add(paramInfo);
+                methodParams.add(paramInfo);
             });
         }
 
@@ -187,17 +174,25 @@ public class MethodInfoCollector extends BaseCollector {
 
                             mtSchema.getProperties().forEach((propName, propSchema) -> {
                                 MethodParamInfo paramInfo = getMultipartPayloadMethodParameter(propName, propSchema);
-                                methodInfo.parameters.add(paramInfo);
+                                methodParams.add(paramInfo);
                             });
                         } else {
                             MethodParamInfo paramInfo = getSingularPayloadMethodParameter(mtSchema);
-                            methodInfo.parameters.add(paramInfo);
+                            methodParams.add(paramInfo);
                         }
                     }
                 });
         }
 
-        return methodInfo;
+        return methodInfo.withAddedParameters(methodParams);
+    }
+
+    private AnnotationInfo getVerbAnnotation(String verb) {
+        return new AnnotationInfo("@%s".formatted(verb), "jakarta.ws.rs.%s".formatted(verb));
+    }
+
+    private AnnotationInfo getPathAnnotation(String path) {
+        return new AnnotationInfo("@Path(\"%s\")".formatted(normalizePath(path)), "jakarta.ws.rs.Path");
     }
 
     private String getResponseType(String code, ApiResponse response) {
@@ -218,7 +213,7 @@ public class MethodInfoCollector extends BaseCollector {
                             // ...but if a return type is already set, and this media type specifies
                             // a different type, we cannot safely infer one single return type, and
                             // give up type safety and allow anything
-                            responseType = opts.useKotlinSyntax ? "*" : "?";
+                            responseType = opts.useKotlinSyntax() ? "*" : "?";
                             break; // no need to look any further
                         }
                     }
@@ -229,35 +224,28 @@ public class MethodInfoCollector extends BaseCollector {
     }
 
     private MethodParamInfo getSingularPayloadMethodParameter(Schema<?> schema) {
-        MethodParamInfo paramInfo = new MethodParamInfo();
-        paramInfo.nullable = false;
-
         TypeInfo bodyType = typeInfoCollector.getTypeInfo(schema, FORCE_NOT_NULLABLE);
-        paramInfo.type = bodyType;
 
-        paramInfo.name = toParamName(bodyType.name);
-        paramInfo.comment = bodyType.description;
-
-        paramInfo.annotations.addAll(bodyType.annotations);
-        paramInfo.imports.addAll(bodyType.annotationImports);
+        MethodParamInfo paramInfo = new MethodParamInfo(toParamName(bodyType.name()))
+            .withNullable(false)
+            .withType(bodyType)
+            .withComment(bodyType.description())
+            .withAddedAnnotations(bodyType.annotations());
 
         return paramInfo;
     }
 
     private MethodParamInfo getMultipartPayloadMethodParameter(String name, Schema<?> schema) {
-        MethodParamInfo paramInfo = new MethodParamInfo();
-
         TypeInfo bodyType;
         String partMediaType = null;
 
         if ("file".equals(name)) {
-            bodyType = new TypeInfo();
-            bodyType.name = "File";
-            bodyType.typeImports.add("java.io.File");
-            bodyType.nullable = false;
-            bodyType.annotations.add("@NotNull");
-            bodyType.annotationImports.add("jakarta.validation.constraints.NotNull");
-            bodyType.description = schema.getDescription();
+            bodyType = new TypeInfo()
+                .withName("File")
+                .withAddedNormalImport("java.io.File")
+                .withNullable(false)
+                .withAddedAnnotation(new AnnotationInfo("@NotNull", "jakarta.validation.constraints.NotNull"))
+                .withDescription(schema.getDescription());
 
             partMediaType = APPLICATION_OCTET_STREAM;
         } else {
@@ -268,7 +256,7 @@ public class MethodInfoCollector extends BaseCollector {
             }
 
             partMediaType = APPLICATION_JSON;
-            if (bodyType.isPrimitive() || (bodyType.isArray() && bodyType.itemType.isPrimitive())) {
+            if (bodyType.primitive() || (bodyType.isArray() && bodyType.itemType().primitive())) {
                 partMediaType = TEXT_PLAIN;
             }
         }
@@ -278,119 +266,122 @@ public class MethodInfoCollector extends BaseCollector {
             partMediaType = schema.getContentMediaType();
         }
 
-        partMediaType = toMediaTypeConstant(partMediaType, paramInfo.staticImports);
+        ConstantValue partMediaTypeConstant = getMediaTypeConstant(partMediaType);
 
-        paramInfo.nullable = bodyType.nullable;
-        paramInfo.type = bodyType;
-
-        paramInfo.name = name;
-        paramInfo.comment = bodyType.description;
-
-        paramInfo.annotations.add("@RestForm(\"%s\")".formatted(name));
-        paramInfo.imports.add("org.jboss.resteasy.reactive.RestForm");
-
-        paramInfo.annotations.add("@PartType(%s)".formatted(partMediaType));
-        paramInfo.imports.add("org.jboss.resteasy.reactive.PartType");
-
-        paramInfo.annotations.addAll(bodyType.annotations);
-        paramInfo.imports.addAll(bodyType.annotationImports);
+        MethodParamInfo paramInfo = new MethodParamInfo(name)
+            .withNullable(bodyType.nullable())
+            .withType(bodyType)
+            .withComment(bodyType.description())
+            .withAddedAnnotation(new AnnotationInfo("@RestForm(\"%s\")".formatted(name), "org.jboss.resteasy.reactive.RestForm"))
+            .withAddedAnnotation(new AnnotationInfo("@PartType(%s)".formatted(partMediaTypeConstant.value()), "org.jboss.resteasy.reactive.PartType"))
+            .withAddedAnnotations(bodyType.annotations())
+            .withAddedImports(partMediaTypeConstant);
 
         return paramInfo;
     }
 
-    private String getConsumesAnnotation(RequestBody requestBody, Set<String> imports, Set<String> staticImports) {
-        imports.add("jakarta.ws.rs.Consumes");
-
-        List<String> mediaTypes = new ArrayList<>();
-
+    private AnnotationInfo getConsumesAnnotation(RequestBody requestBody) {
+        List<ConstantValue> mediaTypes = new ArrayList<>();
         if (nonEmpty(requestBody.getContent())) {
-            requestBody.getContent().keySet().stream()
-                .forEach(mt -> mediaTypes.add(toMediaTypeConstant(mt, staticImports)));
+            streamSafely(requestBody.getContent().keySet())
+                .map(this::getMediaTypeConstant)
+                .forEach(mediaTypes::add);
         }
 
-        String mediaTypesString = formatAnnotationDefaultParam(mediaTypes);
-        return "@Consumes(%s)".formatted(mediaTypesString);
+        String mediaTypesString = formatAnnotationDefaultParam(mediaTypes.stream().map(ConstantValue::value).toList());
+
+        return new AnnotationInfo("@Consumes(%s)".formatted(mediaTypesString))
+            .withAddedNormalImport("jakarta.ws.rs.Consumes")
+            .withAddedImports(mediaTypes);
     }
 
-    private String getProducesAnnotation(ApiResponses responses, Set<String> imports, Set<String> staticImports) {
-        imports.add("jakarta.ws.rs.Produces");
-        staticImports.add("jakarta.ws.rs.core.MediaType.APPLICATION_JSON");
-
-        List<String> mediaTypes = new ArrayList<>();
-        mediaTypes.add("APPLICATION_JSON");
+    private AnnotationInfo getProducesAnnotation(ApiResponses responses) {
+        // TODO: Bør denne alltid være med?
+        List<ConstantValue> mediaTypes = new ArrayList<>();
+        mediaTypes.add(new ConstantValue("APPLICATION_JSON").withStaticImport("jakarta.ws.rs.core.MediaType.APPLICATION_JSON"));
 
         getSuccessResponse(responses).ifPresent(apiResponse -> {
             if (nonNull(apiResponse.getContent())) {
                 apiResponse.getContent().keySet().stream()
                     .filter(mt -> !APPLICATION_JSON.equals(mt))
-                    .forEach(mt -> mediaTypes.add(toMediaTypeConstant(mt, staticImports)));
+                    .map(this::getMediaTypeConstant)
+                    .forEach(mediaTypes::add);
             }
         });
 
-        String mediaTypesString = formatAnnotationDefaultParam(mediaTypes);
-        return "@Produces(%s)".formatted(mediaTypesString);
+        String mediaTypesString = formatAnnotationDefaultParam(mediaTypes.stream().map(ConstantValue::value).toList());
+
+        return new AnnotationInfo("@Produces(%s)".formatted(mediaTypesString))
+            .withAddedNormalImport("jakarta.ws.rs.Produces")
+            .withAddedImports(mediaTypes);
     }
 
-    private String getOperationAnnotation(Operation operation, Set<String> imports) {
-        imports.add("org.eclipse.microprofile.openapi.annotations.Operation");
-        List<String> operationParams = new ArrayList<>();
-        operationParams.add("operationId = \"%s\"".formatted(operation.getOperationId()));
-        operationParams.add("summary = \"%s\"".formatted(operation.getSummary()));
+    private AnnotationInfo getOperationAnnotation(Operation operation) {
+        List<String> params = new ArrayList<>();
+        params.add("operationId = \"%s\"".formatted(operation.getOperationId()));
+        params.add("summary = \"%s\"".formatted(operation.getSummary()));
 
         if (TRUE.equals(operation.getDeprecated())) {
-            operationParams.add("deprecated = true");
+            params.add("deprecated = true");
         }
 
-        return "@Operation(%s)".formatted(joinCsv(operationParams));
+        return new AnnotationInfo("@Operation(%s)".formatted(joinCsv(params)), "org.eclipse.microprofile.openapi.annotations.Operation");
     }
 
-    private String getParameterAnnotation(Parameter parameter, Set<String> imports, Set<String> staticImports) {
+    private AnnotationInfo getParameterAnnotation(Parameter parameter) {
         Parameter realParameter = parameter;
         if (nonNull(parameter.get$ref())) {
             realParameter = componentResolver.parameters().getOrThrow(parameter.get$ref());
         }
 
-        List<String> parameterParams = new ArrayList<>();
-        imports.add("org.eclipse.microprofile.openapi.annotations.parameters.Parameter");
-        String inValue = getParameterInValue(realParameter, staticImports);
-        String inName = opts.useKotlinSyntax ? "`in`" : "in";
-        parameterParams.add("%s = %s".formatted(inName, inValue));
+        AnnotationInfo parameterAnnotation = new AnnotationInfo();
 
-        if (inValue.equalsIgnoreCase("header")) {
-            parameterParams.add("name = %s".formatted(getHeaderNameConstant(realParameter.getName(), staticImports)));
+        List<String> params = new ArrayList<>();
+
+        ConstantValue inValue = getParameterInValue(realParameter);
+        String inName = opts.useKotlinSyntax() ? "`in`" : "in";
+        params.add("%s = %s".formatted(inName, inValue.value()));
+        parameterAnnotation = parameterAnnotation.withAddedImports(inValue);
+
+        if (inValue.value().equalsIgnoreCase("header")) {
+            ConstantValue headerNameConstant = getHeaderNameConstant(realParameter.getName());
+            params.add("name = %s".formatted(headerNameConstant.value()));
+            parameterAnnotation = parameterAnnotation.withAddedImports(headerNameConstant);
         } else {
-            parameterParams.add("name = \"%s\"".formatted(realParameter.getName()));
+            params.add("name = \"%s\"".formatted(realParameter.getName()));
         }
 
-        parameterParams.add("description = \"%s\"".formatted(normalizeDescription(realParameter.getDescription())));
+        params.add("description = \"%s\"".formatted(normalizeDescription(realParameter.getDescription())));
 
         if (TRUE.equals(realParameter.getRequired())) {
-            parameterParams.add("required = true");
+            params.add("required = true");
         }
 
         if (nonNull(realParameter.getSchema())) {
-            String schemaAnnotation = getSchemaAnnotation(realParameter.getSchema(), imports, staticImports);
-            parameterParams.add("schema = %s".formatted(schemaAnnotation));
+            AnnotationInfo schemaAnnotation = getSchemaAnnotation(realParameter.getSchema());
+            params.add("schema = %s".formatted(schemaAnnotation.annotation()));
+            parameterAnnotation = parameterAnnotation.withAddedImports(schemaAnnotation);
         }
 
         if (nonEmpty(realParameter.getContent())) {
-            List<String> contentItems = new ArrayList<>();
-            realParameter.getContent().forEach((contentType, mediaType) -> {
-                String contentAnnotation = getContentAnnotation(contentType, mediaType, imports, staticImports);
-                contentItems.add(contentAnnotation);
-            });
+            List<AnnotationInfo> contentAnnotations = new ArrayList<>();
+            realParameter.getContent().forEach((contentType, mediaType) ->
+                contentAnnotations.add(getContentAnnotation(contentType, mediaType))
+            );
 
-            parameterParams.add("content = %s".formatted(formatAnnotationNamedParam(contentItems)));
+            params.add("content = %s".formatted(formatAnnotationNamedParam(contentAnnotations.stream().map(AnnotationInfo::annotation).toList())));
+            parameterAnnotation = parameterAnnotation.withAddedImports(contentAnnotations);
         }
 
         if (TRUE.equals(realParameter.getDeprecated())) {
-            parameterParams.add("deprecated = true");
+            params.add("deprecated = true");
         }
 
-        return "@Parameter(%s)".formatted(joinCsv(parameterParams));
+        return parameterAnnotation.withAnnotation("@Parameter(%s)".formatted(joinCsv(params)))
+            .withAddedNormalImport("org.eclipse.microprofile.openapi.annotations.parameters.Parameter");
     }
 
-    private String getParameterInValue(Parameter parameter, Set<String> staticImports) {
+    private ConstantValue getParameterInValue(Parameter parameter) {
         String inValue = switch (parameter.getIn().toLowerCase()) {
             case "" -> "DEFAULT";
             case "header" -> "HEADER";
@@ -400,45 +391,53 @@ public class MethodInfoCollector extends BaseCollector {
             default -> throw new IllegalStateException("Parameter in-value %s not supported".formatted(parameter.getIn()));
         };
 
-        staticImports.add("org.eclipse.microprofile.openapi.annotations.enums.ParameterIn." + inValue);
-        return inValue;
+        return new ConstantValue(inValue).withStaticImport("org.eclipse.microprofile.openapi.annotations.enums.ParameterIn." + inValue);
     }
 
-    private String getApiResponseAnnotation(ApiResponse response, String statusCode, Set<String> imports, Set<String> staticImports) {
+    private AnnotationInfo getApiResponseAnnotation(ApiResponse response, String statusCode) {
         ApiResponse realResponse = response;
         if (nonNull(response.get$ref())) {
             realResponse = componentResolver.responses().getOrThrow(response.get$ref());
         }
 
-        List<String> apiResponseParams = new ArrayList<>();
-        imports.add("org.eclipse.microprofile.openapi.annotations.responses.APIResponse");
-        apiResponseParams.add("responseCode = \"%s\"".formatted(statusCode));
-        apiResponseParams.add("description = \"%s\"".formatted(normalizeDescription(realResponse.getDescription())));
+        AnnotationInfo apiResponseAnnotation = new AnnotationInfo();
+
+        List<String> params = new ArrayList<>();
+        params.add("responseCode = \"%s\"".formatted(statusCode));
+        params.add("description = \"%s\"".formatted(normalizeDescription(realResponse.getDescription())));
 
         if (nonEmpty(realResponse.getHeaders())) {
-            List<String> headerItems = new ArrayList<>();
-            realResponse.getHeaders().forEach((name, header) -> {
-                String headerAnnotation = getHeaderAnnotation(name, header, imports, staticImports);
-                headerItems.add(headerAnnotation);
-            });
+            List<AnnotationInfo> headerAnnotations = new ArrayList<>();
+            realResponse.getHeaders().forEach((name, header) ->
+                headerAnnotations.add(getHeaderAnnotation(name, header))
+            );
 
-            apiResponseParams.add("headers = %s".formatted(formatAnnotationNamedParam(headerItems)));
+            params.add("headers = %s".formatted(
+                formatAnnotationNamedParam(headerAnnotations.stream().map(AnnotationInfo::annotation).toList()))
+            );
+
+            apiResponseAnnotation = apiResponseAnnotation.withAddedImports(headerAnnotations);
         }
 
         if (nonEmpty(realResponse.getContent())) {
-            List<String> contentItems = new ArrayList<>();
-            realResponse.getContent().forEach((contentType, mediaType) -> {
-                String contentAnnotation = getContentAnnotation(contentType, mediaType, imports, staticImports);
-                contentItems.add(contentAnnotation);
-            });
+            List<AnnotationInfo> contentAnnotations = new ArrayList<>();
+            realResponse.getContent().forEach((contentType, mediaType) ->
+                contentAnnotations.add(getContentAnnotation(contentType, mediaType))
+            );
 
-            apiResponseParams.add("content = %s".formatted(formatAnnotationNamedParam(contentItems)));
+            params.add("content = %s".formatted(
+                formatAnnotationNamedParam(contentAnnotations.stream().map(AnnotationInfo::annotation).toList()))
+            );
+
+            apiResponseAnnotation = apiResponseAnnotation.withAddedImports(contentAnnotations);
         }
 
-        return "@APIResponse(%s)".formatted(joinCsv(apiResponseParams));
+        return apiResponseAnnotation
+            .withAnnotation("@APIResponse(%s)".formatted(joinCsv(params)))
+            .withAddedNormalImport("org.eclipse.microprofile.openapi.annotations.responses.APIResponse");
     }
 
-    private String getMethodParameterAnnotation(Parameter parameter, Set<String> imports, Set<String> staticImports) {
+    private AnnotationInfo getMethodParameterAnnotation(Parameter parameter) {
         String paramAnnotationName = switch (parameter.getIn().toLowerCase()) {
             case "header" -> "HeaderParam";
             case "query" -> "QueryParam";
@@ -447,15 +446,20 @@ public class MethodInfoCollector extends BaseCollector {
             default -> throw new IllegalStateException("Parameter in-value %s not supported".formatted(parameter.getIn()));
         };
 
-        imports.add("jakarta.ws.rs." + paramAnnotationName);
+        final String annotationImport = "jakarta.ws.rs." + paramAnnotationName;
+
         if (paramAnnotationName.equals("HeaderParam")) {
-            return "@%s(%s)".formatted(paramAnnotationName, getHeaderNameConstant(parameter.getName(), staticImports));
+            ConstantValue headerNameConstant = getHeaderNameConstant(parameter.getName());
+            return new AnnotationInfo("@%s(%s)".formatted(paramAnnotationName, headerNameConstant.value()))
+                .withAddedNormalImport(annotationImport)
+                .withAddedImports(headerNameConstant);
         } else {
-            return "@%s(\"%s\")".formatted(paramAnnotationName, parameter.getName());
+            return new AnnotationInfo("@%s(\"%s\")".formatted(paramAnnotationName, parameter.getName()))
+                .withAddedNormalImport(annotationImport);
         }
     }
 
-    private String getHeaderNameConstant(String name, Set<String> staticImports) {
+    private ConstantValue getHeaderNameConstant(String name) {
         String standardHeaderConstant = switch (name.toUpperCase()) {
             case "ACCEPT-LANGUAGE" -> "ACCEPT_LANGUAGE";
             case "CONTENT-LANGUAGE" -> "CONTENT_LANGUAGE";
@@ -464,68 +468,75 @@ public class MethodInfoCollector extends BaseCollector {
         };
 
         if (nonNull(standardHeaderConstant)) {
-            staticImports.add("jakarta.ws.rs.core.HttpHeaders." + standardHeaderConstant);
-            return standardHeaderConstant;
+            return new ConstantValue(standardHeaderConstant).withStaticImport("jakarta.ws.rs.core.HttpHeaders." + standardHeaderConstant);
         }
 
-        return quote(name);
+        return new ConstantValue(quote(name));
     }
 
-    private String getContentAnnotation(String contentType, MediaType mediaType, Set<String> imports, Set<String> staticImports) {
-        imports.add("org.eclipse.microprofile.openapi.annotations.media.Content");
-        contentType = toMediaTypeConstant(contentType, staticImports);
-        String schemaAnnotation = getSchemaAnnotation(mediaType.getSchema(), imports, staticImports);
-        return formatInnerAnnotation("Content(mediaType = %s, schema = %s)", contentType, schemaAnnotation);
+    private AnnotationInfo getContentAnnotation(String contentType, MediaType mediaType) {
+        ConstantValue mediaTypeConstant = getMediaTypeConstant(contentType);
+        AnnotationInfo schemaAnnotation = getSchemaAnnotation(mediaType.getSchema());
+
+        return new AnnotationInfo(formatInnerAnnotation("Content(mediaType = %s, schema = %s)", mediaTypeConstant.value(), schemaAnnotation.annotation()))
+            .withAddedNormalImport("org.eclipse.microprofile.openapi.annotations.media.Content")
+            .withAddedImports(mediaTypeConstant)
+            .withAddedImports(schemaAnnotation);
     }
 
-    private String getSchemaAnnotation(Schema<?> schema, Set<String> imports, Set<String> staticImports) {
-        imports.add("org.eclipse.microprofile.openapi.annotations.media.Schema");
-        List<String> schemaParams = new ArrayList<>();
+    private AnnotationInfo getSchemaAnnotation(Schema<?> schema) {
+        AnnotationInfo schemaAnnotation = new AnnotationInfo();
+
+        List<String> params = new ArrayList<>();
 
         TypeInfo bodyType = typeInfoCollector.getTypeInfo(schema);
-        imports.addAll(bodyType.typeImports);
+        schemaAnnotation = schemaAnnotation.withAddedImports(bodyType.imports());
 
-        if (nonNull(bodyType.itemType)) {
-            staticImports.add("org.eclipse.microprofile.openapi.annotations.enums.SchemaType.ARRAY");
-            imports.addAll(bodyType.itemType.typeImports);
-            schemaParams.add("type = ARRAY");
-            bodyType = bodyType.itemType;
+        if (nonNull(bodyType.itemType())) {
+            schemaAnnotation = schemaAnnotation
+                .withAddedStaticImport("org.eclipse.microprofile.openapi.annotations.enums.SchemaType.ARRAY")
+                .withAddedImports(bodyType.itemType().imports());
+
+            params.add("type = ARRAY");
+            bodyType = bodyType.itemType();
         }
 
-        schemaParams.add("implementation = %s".formatted(formatClassRef(bodyType.name)));
+        params.add("implementation = %s".formatted(formatClassRef(bodyType.name())));
         if (nonNull(schema.getDefault())) {
-            schemaParams.add("defaultValue = \"%s\"".formatted(schema.getDefault().toString()));
+            params.add("defaultValue = \"%s\"".formatted(schema.getDefault().toString()));
         }
-        if (nonBlank(bodyType.schemaFormat)) {
-            schemaParams.add("format = \"%s\"".formatted(bodyType.schemaFormat));
+        if (nonBlank(bodyType.schemaFormat())) {
+            params.add("format = \"%s\"".formatted(bodyType.schemaFormat()));
         }
-        if (nonBlank(bodyType.schemaPattern)) {
-            schemaParams.add("pattern = \"%s\"".formatted(bodyType.schemaPattern));
+        if (nonBlank(bodyType.schemaPattern())) {
+            params.add("pattern = \"%s\"".formatted(bodyType.schemaPattern()));
         }
 
-        return formatInnerAnnotation("Schema(%s)", joinCsv(schemaParams));
+        return schemaAnnotation.withAnnotation(formatInnerAnnotation("Schema(%s)", joinCsv(params)))
+            .withAddedNormalImport("org.eclipse.microprofile.openapi.annotations.media.Schema");
     }
 
-    private String getHeaderAnnotation(String name, Header header, Set<String> imports, Set<String> staticImports) {
+    private AnnotationInfo getHeaderAnnotation(String name, Header header) {
         Header realHeader = header;
         if (nonNull(header.get$ref())) {
             realHeader = componentResolver.headers().getOrThrow(header.get$ref());
         }
 
-        imports.add("org.eclipse.microprofile.openapi.annotations.headers.Header");
-        String schemaAnnotation = getSchemaAnnotation(realHeader.getSchema(), imports, staticImports);
-        return formatInnerAnnotation("Header(name = \"%s\", description = \"%s\", schema = %s)", name, normalizeDescription(realHeader.getDescription()), schemaAnnotation);
+        AnnotationInfo schemaAnnotation = getSchemaAnnotation(realHeader.getSchema());
+        return new AnnotationInfo(formatInnerAnnotation("Header(name = \"%s\", description = \"%s\", schema = %s)", name, normalizeDescription(realHeader.getDescription()), schemaAnnotation.annotation()))
+            .withAddedNormalImport("org.eclipse.microprofile.openapi.annotations.headers.Header")
+            .withAddedImports(schemaAnnotation);
     }
 
     private String toParamName(String paramName) {
         requireNonNull(paramName);
-        if (nonBlank(opts.pojoNameSuffix) && paramName.endsWith(opts.pojoNameSuffix)) {
-            paramName = stripTail(paramName, opts.pojoNameSuffix.length());
+        if (nonBlank(opts.pojoNameSuffix()) && paramName.endsWith(opts.pojoNameSuffix())) {
+            paramName = stripTail(paramName, opts.pojoNameSuffix().length());
         }
-        paramName = paramName.replaceAll("-", "");
+        paramName = paramName.replace("-", "");
 
         // paramName may contain array-symbol, replace with plural "s"
-        paramName = paramName.replaceAll("\\[]", "s");
+        paramName = paramName.replace("[]", "s");
         return uncapitalize(paramName);
     }
 
@@ -537,13 +548,12 @@ public class MethodInfoCollector extends BaseCollector {
             .map(responses::get);
     }
 
-    private String toMediaTypeConstant(String contentType, Set<String> staticImports) {
+    private ConstantValue getMediaTypeConstant(String contentType) {
         if (standardContentTypes.containsKey(contentType)) {
             contentType = standardContentTypes.get(contentType);
-            staticImports.add("jakarta.ws.rs.core.MediaType." + contentType);
+            return new ConstantValue(contentType).withStaticImport("jakarta.ws.rs.core.MediaType." + contentType);
         } else {
-            contentType = quote(contentType);
+            return new ConstantValue(quote(contentType));
         }
-        return contentType;
     }
 }

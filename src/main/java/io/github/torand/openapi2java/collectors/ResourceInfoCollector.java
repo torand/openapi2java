@@ -16,6 +16,7 @@
 package io.github.torand.openapi2java.collectors;
 
 import io.github.torand.openapi2java.generators.Options;
+import io.github.torand.openapi2java.model.AnnotationInfo;
 import io.github.torand.openapi2java.model.MethodInfo;
 import io.github.torand.openapi2java.model.ResourceInfo;
 import io.github.torand.openapi2java.model.SecurityRequirementInfo;
@@ -24,6 +25,7 @@ import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.tags.Tag;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -50,78 +52,87 @@ public class ResourceInfoCollector extends BaseCollector {
     }
 
     public ResourceInfo getResourceInfo(String resourceName, Map<String, PathItem> paths, List<SecurityRequirement> securityRequirements, Tag tag) {
-        ResourceInfo resourceInfo = new ResourceInfo();
-        resourceInfo.name = resourceName + opts.resourceNameSuffix;
+        ResourceInfo resourceInfo = new ResourceInfo(resourceName + opts.resourceNameSuffix());
 
-        if (opts.useResteasyResponse) {
-            resourceInfo.imports.add("org.jboss.resteasy.reactive.RestResponse");
+        if (opts.useResteasyResponse()) {
+            resourceInfo = resourceInfo.withAddedNormalImport("org.jboss.resteasy.reactive.RestResponse");
         } else {
-            resourceInfo.imports.add("jakarta.ws.rs.core.Response");
+            resourceInfo = resourceInfo.withAddedNormalImport("jakarta.ws.rs.core.Response");
         }
 
         if (nonEmpty(securityRequirements)) {
             SecurityRequirementInfo secReqInfo = securityRequirementCollector.getSequrityRequirementInfo(securityRequirements);
-
-            resourceInfo.imports.addAll(secReqInfo.imports);
-            resourceInfo.annotations.addAll(secReqInfo.annotations);
+            resourceInfo = resourceInfo.withAddedAnnotation(secReqInfo.annotation());
         }
 
-        if (opts.addMpOpenApiAnnotations && nonNull(tag)) {
-            resourceInfo.imports.add("org.eclipse.microprofile.openapi.annotations.tags.Tag");
-            resourceInfo.annotations.add("@Tag(name = \"%s\", description = \"%s\")".formatted(tag.getName(), normalizeDescription(tag.getDescription())));
+        if (opts.addMpOpenApiAnnotations() && nonNull(tag)) {
+            AnnotationInfo tagAnnotation = new AnnotationInfo(
+                "@Tag(name = \"%s\", description = \"%s\")".formatted(tag.getName(), normalizeDescription(tag.getDescription())),
+                "org.eclipse.microprofile.openapi.annotations.tags.Tag"
+            );
+            resourceInfo = resourceInfo.withAddedAnnotation(tagAnnotation);
         }
 
-        if (opts.addMpRestClientAnnotations) {
+        if (opts.addMpRestClientAnnotations()) {
             String configKey = nonNull(tag) ?
                 extensions(tag.getExtensions())
                     .getString(EXT_RESTCLIENT_CONFIGKEY)
                     .orElse(tag.getName().toLowerCase()+"-api") :
                 resourceName.toLowerCase()+"-api";
 
-            resourceInfo.imports.add("org.eclipse.microprofile.rest.client.inject.RegisterRestClient");
-            resourceInfo.annotations.add("@RegisterRestClient(configKey = \"%s\")".formatted(configKey));
+            AnnotationInfo registerRestClientAnnotation = new AnnotationInfo(
+                "@RegisterRestClient(configKey = \"%s\")".formatted(configKey),
+                "org.eclipse.microprofile.rest.client.inject.RegisterRestClient"
+            );
+            AnnotationInfo clientHeaderParamAnnotation = new AnnotationInfo(
+                "@ClientHeaderParam(name = AUTHORIZATION, value = %s)".formatted(formatAnnotationNamedParam(List.of("\"{%s}\"".formatted(AUTH_METHOD_NAME)))),
+                "org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam"
+            ).withAddedStaticImport("jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION");
 
-            resourceInfo.imports.add("org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam");
-            resourceInfo.staticImports.add("jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION");
-            resourceInfo.annotations.add("@ClientHeaderParam(name = AUTHORIZATION, value = %s)".formatted(formatAnnotationNamedParam(List.of("\"{%s}\"".formatted(AUTH_METHOD_NAME)))));
-
-            resourceInfo.authMethod = getAuthMethodInfo();
+            resourceInfo = resourceInfo
+                .withAddedAnnotation(registerRestClientAnnotation)
+                .withAddedAnnotation(clientHeaderParamAnnotation)
+                .withAuthMethod(getAuthMethodInfo());
         }
 
-        resourceInfo.imports.add("jakarta.ws.rs.Path");
-        resourceInfo.staticImports.add("%s.%s.ROOT_PATH".formatted(opts.rootPackage, resourceInfo.name));
-        resourceInfo.annotations.add("@Path(ROOT_PATH)");
+        AnnotationInfo pathAnnotation = new AnnotationInfo("@Path(ROOT_PATH)", "jakarta.ws.rs.Path")
+            .withAddedStaticImport("%s.%s.ROOT_PATH".formatted(opts.rootPackage(), resourceInfo.name()));
+        resourceInfo = resourceInfo.withAddedAnnotation(pathAnnotation);
 
         String tagName = nonNull(tag) ? tag.getName() : null;
 
+        List<MethodInfo> methods = new ArrayList<>();
         paths.forEach((path, pathInfo) -> {
             if (shouldProcessOperation(pathInfo.getGet(), tagName)) {
-                resourceInfo.methods.add(methodInfoCollector.getMethodInfo("GET", path, pathInfo.getGet()));
+                methods.add(methodInfoCollector.getMethodInfo("GET", path, pathInfo.getGet()));
             }
             if (shouldProcessOperation(pathInfo.getPost(), tagName)) {
-                resourceInfo.methods.add(methodInfoCollector.getMethodInfo("POST", path, pathInfo.getPost()));
+                methods.add(methodInfoCollector.getMethodInfo("POST", path, pathInfo.getPost()));
             }
             if (shouldProcessOperation(pathInfo.getDelete(), tagName)) {
-                resourceInfo.methods.add(methodInfoCollector.getMethodInfo("DELETE", path, pathInfo.getDelete()));
+                methods.add(methodInfoCollector.getMethodInfo("DELETE", path, pathInfo.getDelete()));
             }
             if (shouldProcessOperation(pathInfo.getPut(), tagName)) {
-                resourceInfo.methods.add(methodInfoCollector.getMethodInfo("PUT", path, pathInfo.getPut()));
+                methods.add(methodInfoCollector.getMethodInfo("PUT", path, pathInfo.getPut()));
             }
             if (shouldProcessOperation(pathInfo.getPatch(), tagName)) {
-                resourceInfo.methods.add(methodInfoCollector.getMethodInfo("PATCH", path, pathInfo.getPatch()));
+                methods.add(methodInfoCollector.getMethodInfo("PATCH", path, pathInfo.getPatch()));
             }
         });
+
+        for (MethodInfo method : methods) {
+            resourceInfo = resourceInfo.withAddedMethod(method);
+        }
 
         return resourceInfo;
     }
 
     private MethodInfo getAuthMethodInfo() {
-        MethodInfo authMethod = new MethodInfo();
+        MethodInfo authMethod = new MethodInfo(AUTH_METHOD_NAME);
 
-        if (!opts.useKotlinSyntax) {
-            authMethod.annotations.add("@SuppressWarnings(\"unused\") // Used by @ClientHeaderParam");
+        if (!opts.useKotlinSyntax()) {
+            authMethod = authMethod.withAddedAnnotation(new AnnotationInfo("@SuppressWarnings(\"unused\") // Used by @ClientHeaderParam"));
         }
-        authMethod.name = AUTH_METHOD_NAME;
 
         return authMethod;
     }

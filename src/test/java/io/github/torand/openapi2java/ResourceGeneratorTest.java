@@ -78,15 +78,15 @@ public class ResourceGeneratorTest {
 
     @Test
     public void shouldGenerateJavaResource_withNameOverride() {
-        Options opts = getJavaOptions();
-        opts.resourceNameOverride = "Compound";
+        Options opts = getJavaOptions()
+            .withResourceNameOverride("Compound");
 
         OpenAPI openApiDoc = loadOpenApi31Spec();
         removeTags(openApiDoc);
 
         new ResourceGenerator(opts).generate(openApiDoc);
 
-        assertMatchingJavaFiles("%sApi.java".formatted(opts.resourceNameOverride));
+        assertMatchingJavaFiles("%sApi.java".formatted(opts.resourceNameOverride()));
     }
 
     @Test
@@ -127,15 +127,15 @@ public class ResourceGeneratorTest {
 
     @Test
     public void shouldGenerateKotlinResource_withNameOverride() {
-        Options opts = getKotlinOptions();
-        opts.resourceNameOverride = "Compound";
+        Options opts = getKotlinOptions()
+            .withResourceNameOverride("Compound");
 
         OpenAPI openApiDoc = loadOpenApi31Spec();
         removeTags(openApiDoc);
 
         new ResourceGenerator(opts).generate(openApiDoc);
 
-        assertMatchingKotlinFiles("%sApi.kt".formatted(opts.resourceNameOverride));
+        assertMatchingKotlinFiles("%sApi.kt".formatted(opts.resourceNameOverride()));
     }
 
     private void removeTags(OpenAPI openApiDoc) {

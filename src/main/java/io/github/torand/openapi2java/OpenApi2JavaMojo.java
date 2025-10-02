@@ -85,7 +85,7 @@ public class OpenApi2JavaMojo extends AbstractMojo {
     private String pojoNameSuffix;
 
     /**
-     * Use Java records for pojos.
+     * Use Java records for Pojos.
      */
     @Parameter( property = "pojosAsRecords", defaultValue = "true" )
     private boolean pojosAsRecords;
@@ -156,7 +156,7 @@ public class OpenApi2JavaMojo extends AbstractMojo {
     private boolean indentWithTab;
 
     /**
-     * Whether to output indents with the tab character.
+     * The number of spaces for each indent level, when not using the tab character.
      */
     @Parameter( property = "indentSize", defaultValue = "4" )
     private int indentSize;
@@ -171,26 +171,27 @@ public class OpenApi2JavaMojo extends AbstractMojo {
         SwaggerParseResult result = new OpenAPIV3Parser().readLocation(openApiFile, null, null);
         OpenAPI openApiDoc = result.getOpenAPI();
 
-        Options opts = new Options();
-        opts.outputDir = outputDir;
-        opts.rootPackage = rootPackage;
-        opts.rootUrlPath = rootUrlPath;
-        opts.resourceNameSuffix = resourceNameSuffix;
-        opts.resourceNameOverride = resourceNameOverride;
-        opts.pojoNameSuffix = pojoNameSuffix;
-        opts.pojosAsRecords = pojosAsRecords;
-        opts.includeTags = includeTags;
-        opts.generateResourceInterfaces = generateResourceInterfaces;
-        opts.generateOpenApiDefClass = generateOpenApiDefClass;
-        opts.addJsonPropertyAnnotations = addJsonPropertyAnnotations;
-        opts.addJakartaBeanValidationAnnotations = addJakartaBeanValidationAnnotations;
-        opts.addMpOpenApiAnnotations = addMpOpenApiAnnotations;
-        opts.addMpRestClientAnnotations = addMpRestClientAnnotations;
-        opts.useKotlinSyntax = useKotlinSyntax;
-        opts.useResteasyResponse = useResteasyResponse;
-        opts.indentWithTab = indentWithTab;
-        opts.indentSize = indentSize;
-        opts.verbose = verbose;
+        Options opts = new Options(
+            outputDir,
+            rootPackage,
+            rootUrlPath,
+            resourceNameSuffix,
+            resourceNameOverride,
+            pojoNameSuffix,
+            pojosAsRecords,
+            includeTags,
+            generateResourceInterfaces,
+            generateOpenApiDefClass,
+            addJsonPropertyAnnotations,
+            addJakartaBeanValidationAnnotations,
+            addMpOpenApiAnnotations,
+            addMpRestClientAnnotations,
+            useKotlinSyntax,
+            useResteasyResponse,
+            indentWithTab,
+            indentSize,
+            verbose
+        );
 
         if (useResteasyResponse && !addJsonPropertyAnnotations) {
             logger.info("Using ResteasyResponse: explicitly setting 'addJsonPropertyAnnotations' to true");
@@ -200,12 +201,12 @@ public class OpenApi2JavaMojo extends AbstractMojo {
         ModelGenerator modelGenerator = new ModelGenerator(opts);
         modelGenerator.generate(openApiDoc);
 
-        if (opts.generateResourceInterfaces) {
+        if (opts.generateResourceInterfaces()) {
             ResourceGenerator resourceGenerator = new ResourceGenerator(opts);
             resourceGenerator.generate(openApiDoc);
         }
 
-        if (opts.generateOpenApiDefClass) {
+        if (opts.generateOpenApiDefClass()) {
             OpenApiDefGenerator openApiDefGenerator = new OpenApiDefGenerator(opts);
             openApiDefGenerator.generate(openApiDoc);
         }

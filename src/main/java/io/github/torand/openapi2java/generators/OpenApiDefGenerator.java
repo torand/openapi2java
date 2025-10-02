@@ -43,7 +43,7 @@ public class OpenApiDefGenerator {
         OpenApiDefInfoCollector openApiDefInfoCollector = new OpenApiDefInfoCollector(componentResolver, opts);
 
         String openApiDefClassName = "OpenApiDefinition";
-        if (opts.verbose) {
+        if (opts.verbose()) {
             logger.info("Generating Open-API definition class: {}", openApiDefClassName);
         }
 
@@ -56,6 +56,6 @@ public class OpenApiDefGenerator {
             logger.error("Failed to write file {}", openApiDefFilename, e);
         }
 
-        logger.info("Generated Open-API definition class in directory {}", opts.outputDir);
+        logger.info("Generated Open-API definition class in directory {}", opts.outputDir());
     }
 }

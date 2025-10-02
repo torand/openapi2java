@@ -35,17 +35,22 @@ public class JavaOpenApiDefWriter extends BaseWriter implements OpenApiDefWriter
 
     @Override
     public void write(OpenApiDefInfo openApiDefInfo) {
-        writeLine("package %s;", opts.rootPackage);
+        writeLine("package %s;", opts.rootPackage());
         writeNewLine();
 
-        if (nonEmpty(openApiDefInfo.imports)) {
-            openApiDefInfo.imports.forEach(i -> writeLine("import %s;".formatted(i)));
+        if (nonEmpty(openApiDefInfo.aggregatedNormalImports())) {
+            openApiDefInfo.aggregatedNormalImports().forEach(i -> writeLine("import %s;".formatted(i)));
             writeNewLine();
         }
 
-        openApiDefInfo.annotations.forEach(this::writeLine);
+        if (nonEmpty(openApiDefInfo.aggregatedStaticImports())) {
+            openApiDefInfo.aggregatedStaticImports().forEach(i -> writeLine("import static %s;".formatted(i)));
+            writeNewLine();
+        }
 
-        writeLine("public class %s extends Application {", openApiDefInfo.name);
+        openApiDefInfo.annotationsAsStrings().forEach(this::writeLine);
+
+        writeLine("public class %s extends Application {", openApiDefInfo.name());
         writeLine("}");
     }
 }

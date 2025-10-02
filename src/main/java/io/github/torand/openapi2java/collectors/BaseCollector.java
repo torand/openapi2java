@@ -38,7 +38,7 @@ public abstract class BaseCollector {
     }
 
     protected String normalizeDescription(String description) {
-        return nonBlank(description) ? description.replaceAll("%", "%%") : "TBD";
+        return nonBlank(description) ? description.replace("%", "%%") : "TBD";
     }
 
     protected String normalizePath(String path) {
@@ -52,28 +52,28 @@ public abstract class BaseCollector {
     }
 
     protected String dirPath2PackagePath(String dirPath) {
-        return dirPath.replaceAll("\\/", ".");
+        return dirPath.replace("\\/", ".");
     }
 
     protected String modelName2SchemaName(String modelName) {
-        return modelName.replaceFirst(opts.pojoNameSuffix+"$", "");
+        return modelName.replaceFirst(opts.pojoNameSuffix()+"$", "");
     }
 
     protected String formatClassRef(String className) {
-        return opts.useKotlinSyntax
+        return opts.useKotlinSyntax()
             ? "%s::class".formatted(toKotlinNative(className))
             : "%s.class".formatted(className);
     }
 
     protected String formatInnerAnnotation(String annotation, Object... args) {
-        return (opts.useKotlinSyntax ? "" : "@") + annotation.formatted(args);
+        return (opts.useKotlinSyntax() ? "" : "@") + annotation.formatted(args);
     }
 
     protected String formatAnnotationDefaultParam(List<String> value) {
         if (value.size() == 1) {
             return value.get(0);
         }
-        if (opts.useKotlinSyntax) {
+        if (opts.useKotlinSyntax()) {
             return joinCsv(value);
         } else {
             return "{" + joinCsv(value) + "}";
@@ -81,7 +81,7 @@ public abstract class BaseCollector {
     }
 
     protected String formatAnnotationNamedParam(List<String> value) {
-        if (opts.useKotlinSyntax) {
+        if (opts.useKotlinSyntax()) {
             return "[ " + joinCsv(value) + " ]";
         } else {
             return value.size() == 1 ? value.get(0) : "{ " + joinCsv(value) + " }";

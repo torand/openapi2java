@@ -69,7 +69,10 @@
               },
               "application/vnd.test.api.order-v1+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrderV1"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderV1"
+                  }
                 }
               }
             }
@@ -281,7 +284,10 @@
               },
               "application/vnd.test.api.product-v1+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProductV1"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductV1"
+                  }
                 }
               }
             }

@@ -17,27 +17,107 @@ package io.github.torand.openapi2java.model;
 
 import io.github.torand.javacommons.collection.CollectionHelper;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static java.util.Collections.emptyList;
+import static java.util.Objects.nonNull;
+
 /**
  * Describes a resource.
+ * @param name the resource name.
+ * @param imports the imports required by the resource.
+ * @param annotations the annotations decorating this resource.
+ * @param methods the methods of this resource.
+ * @param authMethod the authorization method.
  */
-public class ResourceInfo {
-    public String name;
+public record ResourceInfo (
+    String name,
+    ImportInfo imports,
+    List<AnnotationInfo> annotations,
+    List<MethodInfo> methods,
+    MethodInfo authMethod
+) implements EntityInfo, ImportsSupplier {
 
-    public Set<String> imports = new TreeSet<>();
-    public Set<String> staticImports = new TreeSet<>();
-    public Set<String> annotations = new LinkedHashSet<>();
+    /**
+     * Constructs a {@link ResourceInfo} object.
+     * @param name the resource name.
+     */
+    public ResourceInfo(String name) {
+        this(name, ImportInfo.empty(), emptyList(), emptyList(), null);
+    }
 
-    public List<MethodInfo> methods = new ArrayList<>();
+    /**
+     * Returns a new {@link ResourceInfo} object with specified normal import added.
+     * @param normalImport the import to add.
+     * @return the new and updated {@link ResourceInfo} object.
+     */
+    public ResourceInfo withAddedNormalImport(String normalImport) {
+        return new ResourceInfo(name, imports.withAddedNormalImport(normalImport), annotations, methods, authMethod);
+    }
 
-    public MethodInfo authMethod = null;
+    /**
+     * Returns a new {@link ResourceInfo} object with specified annotation added.
+     * @param annotation the annotation to add.
+     * @return the new and updated {@link ResourceInfo} object.
+     */
+    public ResourceInfo withAddedAnnotation(AnnotationInfo annotation) {
+        List<AnnotationInfo> newAnnotations = new LinkedList<>(annotations);
+        newAnnotations.add(annotation);
+        return new ResourceInfo(name, imports, newAnnotations, methods, authMethod);
+    }
 
+    /**
+     * Returns a new {@link ResourceInfo} object with specified method added.
+     * @param method the method to add.
+     * @return the new and updated {@link ResourceInfo} object.
+     */
+    public ResourceInfo withAddedMethod(MethodInfo method) {
+        List<MethodInfo> newMethods = new LinkedList<>(methods);
+        newMethods.add(method);
+        return new ResourceInfo(name, imports, annotations, newMethods, authMethod);
+    }
+
+    /**
+     * Returns a new {@link ResourceInfo} object with specified authorization method.
+     * @param authMethod the authorization method.
+     * @return the new and updated {@link ResourceInfo} object.
+     */
+    public ResourceInfo withAuthMethod(MethodInfo authMethod) {
+        return new ResourceInfo(name, imports, annotations, methods, authMethod);
+    }
+
+    /**
+     * Gets whether resource has no methods.
+     * @return true if resource has no methods; else false.
+     */
     public boolean isEmpty() {
         return CollectionHelper.isEmpty(methods);
+    }
+
+    @Override
+    public Set<String> aggregatedNormalImports() {
+        Set<String> aggregated = new TreeSet<>();
+        aggregated.addAll(imports.normalImports());
+        methods.stream().map(p -> p.aggregatedNormalImports()).forEach(aggregated::addAll);
+        annotations.stream().map(a -> a.imports().normalImports()).forEach(aggregated::addAll);
+        if (nonNull(authMethod)) {
+            aggregated.addAll(authMethod.aggregatedNormalImports());
+        }
+        return aggregated;
+    }
+
+    @Override
+    public Set<String> aggregatedStaticImports() {
+        Set<String> aggregated = new TreeSet<>();
+        aggregated.addAll(imports.staticImports());
+        methods.stream().map(p -> p.aggregatedStaticImports()).forEach(aggregated::addAll);
+        annotations.stream().map(a -> a.imports().staticImports()).forEach(aggregated::addAll);
+        if (nonNull(authMethod)) {
+            aggregated.addAll(authMethod.aggregatedStaticImports());
+        }
+        return aggregated;
     }
 }

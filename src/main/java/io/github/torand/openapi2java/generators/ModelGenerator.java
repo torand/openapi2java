@@ -15,14 +15,11 @@
  */
 package io.github.torand.openapi2java.generators;
 
-import io.github.torand.openapi2java.collectors.ComponentResolver;
-import io.github.torand.openapi2java.collectors.EnumInfoCollector;
-import io.github.torand.openapi2java.collectors.PojoInfoCollector;
-import io.github.torand.openapi2java.collectors.SchemaResolver;
-import io.github.torand.openapi2java.collectors.TypeInfoCollector;
+import io.github.torand.openapi2java.collectors.*;
 import io.github.torand.openapi2java.model.EnumInfo;
 import io.github.torand.openapi2java.model.PojoInfo;
 import io.github.torand.openapi2java.model.TypeInfo;
+import io.github.torand.openapi2java.utils.OpenApi2JavaException;
 import io.github.torand.openapi2java.writers.EnumWriter;
 import io.github.torand.openapi2java.writers.PojoWriter;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -43,10 +40,10 @@ import java.util.stream.Stream;
 
 import static io.github.torand.javacommons.collection.CollectionHelper.isEmpty;
 import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
-import static io.github.torand.javacommons.collection.CollectionHelper.streamSafely;
 import static io.github.torand.javacommons.lang.Exceptions.illegalStateException;
 import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
 import static io.github.torand.javacommons.lang.StringHelper.stripTail;
+import static io.github.torand.javacommons.stream.StreamHelper.streamSafely;
 import static io.github.torand.openapi2java.collectors.SchemaResolver.isObjectType;
 import static io.github.torand.openapi2java.utils.StringUtils.pluralSuffix;
 import static io.github.torand.openapi2java.writers.WriterFactory.createEnumWriter;
@@ -76,7 +73,7 @@ public class ModelGenerator {
         AtomicInteger pojoCount = new AtomicInteger(0);
 
         openApiDoc.getComponents().getSchemas().forEach((name, schema) -> {
-            String pojoName = name + opts.pojoNameSuffix;
+            String pojoName = name + opts.pojoNameSuffix();
             if (relevantPojos.contains(pojoName)) {
 
                 if (isEnum(schema)) {
@@ -91,11 +88,13 @@ public class ModelGenerator {
             }
         });
 
-        logger.info("Generated {} enum{}, {} pojo{} in directory {}", enumCount.get(), pluralSuffix(enumCount.get()), pojoCount.get(), pluralSuffix(pojoCount.get()), opts.getModelOutputDir(null));
+        if (logger.isInfoEnabled()) {
+            logger.info("Generated {} enum{}, {} pojo{} in directory {}", enumCount.get(), pluralSuffix(enumCount.get()), pojoCount.get(), pluralSuffix(pojoCount.get()), opts.getModelOutputDir(null));
+        }
     }
 
     private void generateEnumFile(String name, Schema<?> schema) {
-        if (opts.verbose) {
+        if (opts.verbose()) {
             logger.info("Generating model enum {}", name);
         }
 
@@ -103,15 +102,15 @@ public class ModelGenerator {
         EnumInfo enumInfo = enumInfoCollector.getEnumInfo(name, schema);
 
         String enumFilename = name + opts.getFileExtension();
-        try (EnumWriter enumWriter = createEnumWriter(enumFilename, opts, enumInfo.modelSubdir)) {
+        try (EnumWriter enumWriter = createEnumWriter(enumFilename, opts, enumInfo.modelSubdir())) {
             enumWriter.write(enumInfo);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to write file %s".formatted(enumFilename), e);
+            throw new OpenApi2JavaException("Failed to write file %s".formatted(enumFilename), e);
         }
     }
 
     private void generatePojoFile(String name, Schema<?> schema, SchemaResolver schemaResolver) {
-        if (opts.verbose) {
+        if (opts.verbose()) {
             logger.info("Generating model class {}", name);
         }
 
@@ -119,10 +118,10 @@ public class ModelGenerator {
         PojoInfo pojoInfo = pojoInfoCollector.getPojoInfo(name, schema);
 
         String pojoFilename = name + opts.getFileExtension();
-        try (PojoWriter pojoWriter = createPojoWriter(pojoFilename, opts, pojoInfo.modelSubdir)) {
+        try (PojoWriter pojoWriter = createPojoWriter(pojoFilename, opts, pojoInfo.modelSubdir())) {
             pojoWriter.write(pojoInfo);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to write file %s".formatted(pojoFilename), e);
+            throw new OpenApi2JavaException("Failed to write file %s".formatted(pojoFilename), e);
         }
     }
 
@@ -144,7 +143,7 @@ public class ModelGenerator {
             })
             .map(pathOperation -> {
                 try {
-                    if (opts.verbose) {
+                    if (opts.verbose()) {
                         logger.info("Getting relevant Pojos for {} {}", pathOperation.method, pathOperation.path);
                     }
 
@@ -220,7 +219,7 @@ public class ModelGenerator {
 
         Set<String> nestedPojos = new HashSet<>();
         parentPojos.forEach(pojo -> {
-            String schemaRef = "#/components/schemas/" + stripTail(pojo, opts.pojoNameSuffix.length());
+            String schemaRef = "#/components/schemas/" + stripTail(pojo, opts.pojoNameSuffix().length());
             schemaResolver.get(schemaRef).ifPresent(schema -> nestedPojos.addAll(getNestedSchemaTypes(schema, schemaResolver, typeInfoCollector)));
         });
 
@@ -256,15 +255,15 @@ public class ModelGenerator {
             return Optional.empty(); // Inline type, not a component
         }
         TypeInfo bodyType = typeInfoCollector.getTypeInfo(schema);
-        if (nonNull(bodyType.itemType)) {
-            return Optional.of(bodyType.itemType.name);
+        if (nonNull(bodyType.itemType())) {
+            return Optional.of(bodyType.itemType().name());
         } else {
-            return Optional.of(bodyType.name);
+            return Optional.of(bodyType.name());
         }
     }
 
     private boolean isRelevantTag(Operation operation) {
-        return isEmpty(opts.includeTags) || streamSafely(operation.getTags()).anyMatch(tag -> opts.includeTags.contains(tag));
+        return isEmpty(opts.includeTags()) || streamSafely(operation.getTags()).anyMatch(tag -> opts.includeTags().contains(tag));
     }
 
     private boolean isEnum(Schema<?> schema) {

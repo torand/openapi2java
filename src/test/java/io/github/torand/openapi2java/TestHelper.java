@@ -59,31 +59,29 @@ public class TestHelper {
     }
 
     public static Options getJavaOptions() {
-        Options opts = new Options();
-        opts.rootPackage = "io.github.torand.openapi2java.test";
-        opts.outputDir = "target/test-output/java";
-        opts.includeTags = emptyList();
-        opts.useKotlinSyntax = false;
-        opts.useResteasyResponse = false;
-        opts.verbose = true;
-        return opts;
+        return Options.defaults()
+            .withRootPackage("io.github.torand.openapi2java.test")
+            .withOutputDir("target/test-output/java")
+            .withIncludeTags(emptyList())
+            .withUseKotlinSyntax(false)
+            .withUseResteasyResponse(false)
+            .withVerbose(true);
     }
 
     public static Options getKotlinOptions() {
-        Options opts = new Options();
-        opts.rootPackage = "io.github.torand.openapi2java.test";
-        opts.outputDir = "target/test-output/kotlin";
-        opts.includeTags = emptyList();
-        opts.useKotlinSyntax = true;
-        opts.useResteasyResponse = false;
-        opts.verbose = true;
-        return opts;
+        return Options.defaults()
+            .withRootPackage("io.github.torand.openapi2java.test")
+            .withOutputDir("target/test-output/kotlin")
+            .withIncludeTags(emptyList())
+            .withUseKotlinSyntax(true)
+            .withUseResteasyResponse(false)
+            .withVerbose(true);
     }
 
     public static Options withResteasyResponse(Options baseOptions) {
-        baseOptions.resourceNameSuffix += "_" + ConfigVariant.Resteasy;
-        baseOptions.useResteasyResponse = true;
-        return baseOptions;
+        return baseOptions
+            .withResourceNameSuffix(baseOptions.resourceNameSuffix() + "_" + ConfigVariant.Resteasy)
+            .withUseResteasyResponse(true);
     }
 
     public static void assertSnippet(String path, String expectedSnippet) {
