@@ -20,9 +20,7 @@ import io.github.torand.openapi2java.generators.Options;
 import java.util.List;
 import java.util.Map;
 
-import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
-import static io.github.torand.javacommons.lang.StringHelper.stripHead;
-import static io.github.torand.javacommons.lang.StringHelper.stripTail;
+import static io.github.torand.javacommons.lang.StringHelper.*;
 import static io.github.torand.openapi2java.utils.KotlinTypeMapper.toKotlinNative;
 import static io.github.torand.openapi2java.utils.StringUtils.joinCsv;
 
@@ -38,7 +36,7 @@ public abstract class BaseCollector {
     }
 
     protected String normalizeDescription(String description) {
-        return nonBlank(description) ? description.replace("%", "%%") : "TBD";
+        return nonBlank(description) ? description.replaceAll("%", "%%") : "TBD";
     }
 
     protected String normalizePath(String path) {
@@ -52,7 +50,7 @@ public abstract class BaseCollector {
     }
 
     protected String dirPath2PackagePath(String dirPath) {
-        return dirPath.replace("\\/", ".");
+        return dirPath.replaceAll("\\/", ".");
     }
 
     protected String modelName2SchemaName(String modelName) {
