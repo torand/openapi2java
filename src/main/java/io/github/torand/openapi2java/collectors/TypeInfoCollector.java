@@ -25,9 +25,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static io.github.torand.javacommons.collection.CollectionHelper.*;
+import static io.github.torand.javacommons.collection.CollectionHelper.isEmpty;
+import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
 import static io.github.torand.javacommons.lang.Exceptions.illegalStateException;
 import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
+import static io.github.torand.javacommons.stream.StreamHelper.streamSafely;
 import static io.github.torand.openapi2java.collectors.Extensions.*;
 import static io.github.torand.openapi2java.collectors.TypeInfoCollector.NullabilityResolution.FORCE_NOT_NULLABLE;
 import static io.github.torand.openapi2java.collectors.TypeInfoCollector.NullabilityResolution.FORCE_NULLABLE;

@@ -26,8 +26,8 @@ import java.io.Writer;
 import java.util.List;
 
 import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
-import static io.github.torand.javacommons.collection.CollectionHelper.streamSafely;
 import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
+import static io.github.torand.javacommons.stream.StreamHelper.streamSafely;
 import static java.util.Objects.nonNull;
 import static java.util.function.Predicate.not;
 

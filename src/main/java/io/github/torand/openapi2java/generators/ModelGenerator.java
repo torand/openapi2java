@@ -15,11 +15,7 @@
  */
 package io.github.torand.openapi2java.generators;
 
-import io.github.torand.openapi2java.collectors.ComponentResolver;
-import io.github.torand.openapi2java.collectors.EnumInfoCollector;
-import io.github.torand.openapi2java.collectors.PojoInfoCollector;
-import io.github.torand.openapi2java.collectors.SchemaResolver;
-import io.github.torand.openapi2java.collectors.TypeInfoCollector;
+import io.github.torand.openapi2java.collectors.*;
 import io.github.torand.openapi2java.model.EnumInfo;
 import io.github.torand.openapi2java.model.PojoInfo;
 import io.github.torand.openapi2java.model.TypeInfo;
@@ -44,10 +40,10 @@ import java.util.stream.Stream;
 
 import static io.github.torand.javacommons.collection.CollectionHelper.isEmpty;
 import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
-import static io.github.torand.javacommons.collection.CollectionHelper.streamSafely;
 import static io.github.torand.javacommons.lang.Exceptions.illegalStateException;
 import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
 import static io.github.torand.javacommons.lang.StringHelper.stripTail;
+import static io.github.torand.javacommons.stream.StreamHelper.streamSafely;
 import static io.github.torand.openapi2java.collectors.SchemaResolver.isObjectType;
 import static io.github.torand.openapi2java.utils.StringUtils.pluralSuffix;
 import static io.github.torand.openapi2java.writers.WriterFactory.createEnumWriter;

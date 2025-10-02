@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static io.github.torand.javacommons.collection.CollectionHelper.streamSafely;
+import static io.github.torand.javacommons.stream.StreamHelper.streamSafely;
 import static java.util.Collections.emptySet;
 
 /**
