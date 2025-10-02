@@ -24,14 +24,11 @@ import io.github.torand.openapi2java.writers.PojoWriter;
 
 import java.io.Writer;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static io.github.torand.javacommons.collection.CollectionHelper.*;
+import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
+import static io.github.torand.javacommons.collection.CollectionHelper.streamSafely;
 import static java.util.Objects.nonNull;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.joining;
@@ -50,33 +47,8 @@ public class JavaPojoWriter extends BaseWriter implements PojoWriter {
         writeLine("package %s;", opts.getModelPackage(pojoInfo.modelSubpackage()));
         writeNewLine();
 
-        Set<String> nonJavaImports = new TreeSet<>();
-        Set<String> javaImports = new TreeSet<>();
-
-        Consumer<String> collectImport = qt -> { if (isJavaPackage(qt)) javaImports.add(qt); else nonJavaImports.add(qt);};
-        Predicate<String> isModelType = qt -> isModelPackage(qt, pojoInfo.modelSubpackage());
-
-        pojoInfo.imports().normalImports().forEach(collectImport);
-        pojoInfo.properties().stream()
-            .flatMap(p -> p.imports().normalImports().stream())
-            .forEach(collectImport);
-        pojoInfo.properties().stream()
-            .flatMap(p -> p.type().typeImports())
-            .filter(not(isModelType))
-            .forEach(collectImport);
-        pojoInfo.properties().stream()
-            .flatMap(p -> p.type().annotationImports())
-            .filter(not(isModelType))
-            .forEach(collectImport);
-
-        if (nonEmpty(nonJavaImports)) {
-            nonJavaImports.forEach(ti -> writeLine("import %s;".formatted(ti)));
-            writeNewLine();
-        }
-        if (nonEmpty(javaImports)) {
-            javaImports.forEach(ti -> writeLine("import %s;".formatted(ti)));
-            writeNewLine();
-        }
+        writeNonJavaImports(pojoInfo);
+        writeJavaImports(pojoInfo);
 
         if (pojoInfo.isDeprecated()) {
             writeLine("/// @deprecated %s".formatted(pojoInfo.deprecationMessage()));
@@ -145,6 +117,31 @@ public class JavaPojoWriter extends BaseWriter implements PojoWriter {
         }
     }
 
+    private void writeJavaImports(PojoInfo pojoInfo) {
+        List<String> imports = pojoInfo.aggregatedNormalImports().stream()
+            .filter(this::isJavaPackage)
+            .map("import %s;"::formatted)
+            .toList();
+
+        if (nonEmpty(imports)) {
+            imports.forEach(this::writeLine);
+            writeNewLine();
+        }
+    }
+
+    private void writeNonJavaImports(PojoInfo pojoInfo) {
+        List<String> imports = pojoInfo.aggregatedNormalImports().stream()
+            .filter(not(this::isJavaPackage))
+            .filter(ni -> !isInPackage(ni, pojoInfo.modelSubpackage()))
+            .map("import %s;"::formatted)
+            .toList();
+
+        if (nonEmpty(imports)) {
+            imports.forEach(this::writeLine);
+            writeNewLine();
+        }
+    }
+
     private void writeNoArgConstructor(String name) {
         writeIndent(1);
         writeLine("public %s() {", name);
@@ -180,7 +177,7 @@ public class JavaPojoWriter extends BaseWriter implements PojoWriter {
         });
     }
 
-    private boolean isModelPackage(String qualifiedType, String pojoModelSubpackage) {
+    private boolean isInPackage(String qualifiedType, String pojoModelSubpackage) {
         // Remove class name from qualifiedType value
         int lastDotIdx = qualifiedType.lastIndexOf(".");
         String typePackage = qualifiedType.substring(0, lastDotIdx);

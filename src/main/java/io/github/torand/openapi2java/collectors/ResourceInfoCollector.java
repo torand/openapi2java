@@ -55,9 +55,9 @@ public class ResourceInfoCollector extends BaseCollector {
         ResourceInfo resourceInfo = new ResourceInfo(resourceName + opts.resourceNameSuffix());
 
         if (opts.useResteasyResponse()) {
-            resourceInfo = resourceInfo.withAddedImport("org.jboss.resteasy.reactive.RestResponse");
+            resourceInfo = resourceInfo.withAddedNormalImport("org.jboss.resteasy.reactive.RestResponse");
         } else {
-            resourceInfo = resourceInfo.withAddedImport("jakarta.ws.rs.core.Response");
+            resourceInfo = resourceInfo.withAddedNormalImport("jakarta.ws.rs.core.Response");
         }
 
         if (nonEmpty(securityRequirements)) {

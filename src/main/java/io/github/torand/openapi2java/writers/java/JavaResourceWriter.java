@@ -23,14 +23,13 @@ import io.github.torand.openapi2java.writers.BaseWriter;
 import io.github.torand.openapi2java.writers.ResourceWriter;
 
 import java.io.Writer;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.function.Consumer;
+import java.util.List;
 
 import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
 import static io.github.torand.javacommons.collection.CollectionHelper.streamSafely;
 import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
 import static java.util.Objects.nonNull;
+import static java.util.function.Predicate.not;
 
 /**
  * Writes Java code for a resource.
@@ -46,55 +45,9 @@ public class JavaResourceWriter extends BaseWriter implements ResourceWriter {
         writeLine("package %s;", opts.rootPackage());
         writeNewLine();
 
-        Set<String> nonJavaImports = new TreeSet<>();
-        Set<String> javaImports = new TreeSet<>();
-
-        Consumer<String> importConsumer = qt -> { if (isJavaPackage(qt)) javaImports.add(qt); else nonJavaImports.add(qt);};
-
-        resourceInfo.imports().normalImports().forEach(importConsumer);
-        resourceInfo.annotations().forEach(a -> a.imports().normalImports().forEach(importConsumer));
-        resourceInfo.methods().forEach(m -> {
-            m.imports().normalImports().forEach(importConsumer);
-            m.annotations().forEach(a -> a.imports().normalImports().forEach(importConsumer));
-            m.parameters().forEach(p -> {
-                p.imports().normalImports().forEach(importConsumer);
-                p.annotations().forEach(a -> a.imports().normalImports().forEach(importConsumer));
-                p.type().imports().normalImports().forEach(importConsumer);
-                p.type().annotations().forEach(a -> a.imports().normalImports().forEach(importConsumer));
-                if (nonNull(p.type().keyType())) {
-                    p.type().keyType().imports().normalImports().forEach(importConsumer);
-                    p.type().keyType().annotations().forEach(a -> a.imports().normalImports().forEach(importConsumer));
-                }
-                if (nonNull(p.type().itemType())) {
-                    p.type().itemType().imports().normalImports().forEach(importConsumer);
-                    p.type().itemType().annotations().forEach(a -> a.imports().normalImports().forEach(importConsumer));
-                }
-            });
-        });
-
-        if (nonEmpty(nonJavaImports)) {
-            nonJavaImports.forEach(ti -> writeLine("import %s;".formatted(ti)));
-            writeNewLine();
-        }
-        if (nonEmpty(javaImports)) {
-            javaImports.forEach(ti -> writeLine("import %s;".formatted(ti)));
-            writeNewLine();
-        }
-
-        Set<String> staticImports = new TreeSet<>();
-        staticImports.addAll(resourceInfo.imports().staticImports());
-        resourceInfo.annotations().forEach(a -> staticImports.addAll(a.imports().staticImports()));
-        resourceInfo.methods().forEach(m -> {
-            staticImports.addAll(m.imports().staticImports());
-            m.annotations().forEach(a -> staticImports.addAll(a.imports().staticImports()));
-            m.parameters().forEach(p -> {
-                staticImports.addAll(p.imports().staticImports());
-                p.annotations().forEach(a -> staticImports.addAll(a.imports().staticImports()));
-            });
-        });
-
-        staticImports.forEach(si -> writeLine("import static %s;".formatted(si)));
-        writeNewLine();
+        writeNonJavaImports(resourceInfo);
+        writeJavaImports(resourceInfo);
+        writeStaticImports(resourceInfo);
 
         resourceInfo.annotations().forEach(a -> writeLine(a.annotation()));
         writeLine("public interface %s {".formatted(resourceInfo.name()));
@@ -166,6 +119,41 @@ public class JavaResourceWriter extends BaseWriter implements ResourceWriter {
         }
 
         writeLine("}");
+    }
+
+    private void writeJavaImports(ResourceInfo resourceInfo) {
+        List<String> imports = resourceInfo.aggregatedNormalImports().stream()
+            .filter(this::isJavaPackage)
+            .map("import %s;"::formatted)
+            .toList();
+
+        if (nonEmpty(imports)) {
+            imports.forEach(this::writeLine);
+            writeNewLine();
+        }
+    }
+
+    private void writeNonJavaImports(ResourceInfo resourceInfo) {
+        List<String> imports = resourceInfo.aggregatedNormalImports().stream()
+            .filter(not(this::isJavaPackage))
+            .map("import %s;"::formatted)
+            .toList();
+
+        if (nonEmpty(imports)) {
+            imports.forEach(this::writeLine);
+            writeNewLine();
+        }
+    }
+
+    private void writeStaticImports(ResourceInfo resourceInfo) {
+        List<String> imports = resourceInfo.aggregatedStaticImports().stream()
+            .map("import static %s;"::formatted)
+            .toList();
+
+        if (nonEmpty(imports)) {
+            imports.forEach(this::writeLine);
+            writeNewLine();
+        }
     }
 
     private boolean isJavaPackage(String qualifiedType) {

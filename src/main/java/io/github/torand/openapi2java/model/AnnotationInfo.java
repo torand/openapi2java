@@ -30,7 +30,7 @@ public record AnnotationInfo(
      * Constructs an {@link AnnotationInfo} object.
      */
     public AnnotationInfo() {
-        this(null, new ImportInfo());
+        this(null, ImportInfo.empty());
     }
 
     /**
@@ -38,7 +38,7 @@ public record AnnotationInfo(
      * @param annotation the annoation.
      */
     public AnnotationInfo(String annotation) {
-        this(annotation, new ImportInfo());
+        this(annotation, ImportInfo.empty());
     }
 
     /**
@@ -47,7 +47,7 @@ public record AnnotationInfo(
      * @param annotationImport the import required by the annotation.
      */
     public AnnotationInfo(String annotation, String annotationImport) {
-        this(annotation, new ImportInfo().withAddedNormalImport(annotationImport));
+        this(annotation, ImportInfo.empty().withAddedNormalImport(annotationImport));
     }
 
     /**
@@ -60,21 +60,21 @@ public record AnnotationInfo(
     }
 
     /**
-     * Returns a new {@link AnnotationInfo} object with specified import added.
-     * @param annotationImport the import to add.
+     * Returns a new {@link AnnotationInfo} object with specified normal import added.
+     * @param normalImport the import to add.
      * @return the new and updated {@link AnnotationInfo} object.
      */
-    public AnnotationInfo withAddedImport(String annotationImport) {
-        return new AnnotationInfo(annotation, imports.withAddedNormalImport(annotationImport));
+    public AnnotationInfo withAddedNormalImport(String normalImport) {
+        return new AnnotationInfo(annotation, imports.withAddedNormalImport(normalImport));
     }
 
     /**
      * Returns a new {@link AnnotationInfo} object with specified static import added.
-     * @param annotationStaticImport the static import to add.
+     * @param staticImport the static import to add.
      * @return the new and updated {@link AnnotationInfo} object.
      */
-    public AnnotationInfo withAddedStaticImport(String annotationStaticImport) {
-        return new AnnotationInfo(annotation, imports.withAddedStaticImport(annotationStaticImport));
+    public AnnotationInfo withAddedStaticImport(String staticImport) {
+        return new AnnotationInfo(annotation, imports.withAddedStaticImport(staticImport));
     }
 
     /**

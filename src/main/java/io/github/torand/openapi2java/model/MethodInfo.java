@@ -17,6 +17,7 @@ package io.github.torand.openapi2java.model;
 
 import java.util.*;
 
+import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
 
 /**
@@ -33,30 +34,41 @@ public record MethodInfo (
     String returnType,
     String deprecationMessage,
     List<AnnotationInfo> annotations
-) implements ImportsSupplier {
+) implements EntityInfo {
+
     /**
      * Constructs a {@link MethodInfo} object.
-     * @param name the meethod name.
+     * @param name the method name.
      */
     public MethodInfo(String name) {
-        this(name, new ArrayList<>(), null, null, new LinkedList<>());
+        this(name, emptyList(), null, null, emptyList());
     }
 
-    @Override
-    public ImportInfo imports() {
-        return ImportInfo.concatImports(annotations());
-    }
-
+    /**
+     * Returns a new {@link MethodInfo} object with specified parameters added.
+     * @param params the parameters to add.
+     * @return the new and updated {@link MethodInfo} object.
+     */
     public MethodInfo withAddedParameters(Collection<MethodParamInfo> params) {
-        List<MethodParamInfo> newParameters = new ArrayList<>(parameters);
+        List<MethodParamInfo> newParameters = new LinkedList<>(parameters);
         newParameters.addAll(params);
         return new MethodInfo(name, newParameters, returnType, deprecationMessage, annotations);
     }
 
+    /**
+     * Returns a new {@link MethodInfo} object with specified return type.
+     * @param returnType the return type.
+     * @return the new and updated {@link MethodInfo} object.
+     */
     public MethodInfo withReturnType(String returnType) {
         return new MethodInfo(name, parameters, returnType, deprecationMessage, annotations);
     }
 
+    /**
+     * Returns a new {@link MethodInfo} object with specified deprecation message.
+     * @param deprecationMessage the deprecation message.
+     * @return the new and updated {@link MethodInfo} object.
+     */
     public MethodInfo withDeprecationMessage(String deprecationMessage) {
         return new MethodInfo(name, parameters, returnType, deprecationMessage, annotations);
     }
@@ -91,5 +103,21 @@ public record MethodInfo (
      */
     public boolean isDeprecated() {
         return nonNull(deprecationMessage);
+    }
+
+    @Override
+    public Set<String> aggregatedNormalImports() {
+        Set<String> aggregated = new TreeSet<>();
+        parameters.stream().map(p -> p.aggregatedNormalImports()).forEach(aggregated::addAll);
+        annotations.stream().map(a -> a.imports().normalImports()).forEach(aggregated::addAll);
+        return aggregated;
+    }
+
+    @Override
+    public Set<String> aggregatedStaticImports() {
+        Set<String> aggregated = new TreeSet<>();
+        parameters.stream().map(p -> p.aggregatedStaticImports()).forEach(aggregated::addAll);
+        annotations.stream().map(a -> a.imports().staticImports()).forEach(aggregated::addAll);
+        return aggregated;
     }
 }

@@ -31,6 +31,8 @@ import static io.github.torand.javacommons.collection.CollectionHelper.streamSaf
 import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
 import static io.github.torand.openapi2java.utils.KotlinTypeMapper.toKotlinNative;
 import static java.util.Objects.nonNull;
+import static java.util.function.Predicate.not;
+import static java.util.stream.Collectors.toCollection;
 
 /**
  * Writes Kotlin code for a resource.
@@ -46,40 +48,7 @@ public class KotlinResourceWriter extends BaseWriter implements ResourceWriter {
         writeLine("package %s", opts.rootPackage());
         writeNewLine();
 
-        Set<String> imports = new TreeSet<>();
-
-        imports.addAll(resourceInfo.imports().normalImports());
-        imports.addAll(resourceInfo.imports().staticImports());
-        resourceInfo.annotations().forEach(a -> {
-            imports.addAll(a.imports().normalImports());
-            imports.addAll(a.imports().staticImports());
-        });
-        resourceInfo.methods().forEach(m -> {
-            imports.addAll(m.imports().normalImports());
-            m.annotations().forEach(a -> a.imports().normalImports().forEach(imports::add));
-            imports.addAll(m.imports().staticImports());
-            m.annotations().forEach(a -> a.imports().staticImports().forEach(imports::add));
-            m.parameters().forEach(p -> {
-                imports.addAll(p.imports().normalImports());
-                imports.addAll(p.imports().staticImports());
-                p.annotations().forEach(a -> imports.addAll(a.imports().normalImports()));
-                imports.addAll(p.type().imports().normalImports());
-                p.type().annotations().forEach(a -> imports.addAll(a.imports().normalImports()));
-                if (nonNull(p.type().keyType())) {
-                    imports.addAll(p.type().keyType().imports().normalImports());
-                    p.type().keyType().annotations().forEach(a -> imports.addAll(a.imports().normalImports()));
-                }
-                if (nonNull(p.type().itemType())) {
-                    imports.addAll(p.type().itemType().imports().normalImports());
-                    p.type().itemType().annotations().forEach(a -> imports.addAll(a.imports().normalImports()));
-                }
-            });
-        });
-
-        imports.removeIf(i -> i.equals("java.util.List") || i.contains("ROOT_PATH"));
-        imports.add("%s.%s.Companion.ROOT_PATH".formatted(opts.rootPackage(), resourceInfo.name()));
-        imports.forEach(i -> writeLine("import %s".formatted(i)));
-        writeNewLine();
+        writeImports(resourceInfo);
 
         resourceInfo.annotations().forEach(a -> writeLine(a.annotation()));
         writeLine("interface %s {".formatted(resourceInfo.name()));
@@ -148,5 +117,19 @@ public class KotlinResourceWriter extends BaseWriter implements ResourceWriter {
         writeLine("}");
 
         writeLine("}");
+    }
+
+    private void writeImports(ResourceInfo resourceInfo) {
+        Set<String> imports = resourceInfo.aggregatedImports().stream()
+            .filter(not("java.util.List"::equals))
+            .filter(not("java.util.Map"::equals))
+            .filter(not(i -> i.contains("ROOT_PATH")))
+            .map("import %s"::formatted)
+            .collect(toCollection(TreeSet::new));
+
+        imports.add("import %s.%s.Companion.ROOT_PATH".formatted(opts.rootPackage(), resourceInfo.name()));
+
+        imports.forEach(this::writeLine);
+        writeNewLine();
     }
 }

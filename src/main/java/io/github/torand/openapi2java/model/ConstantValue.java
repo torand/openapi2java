@@ -29,9 +29,14 @@ public record ConstantValue (
      * @param value the constant value.
      */
     public ConstantValue(String value) {
-        this(value, new ImportInfo());
+        this(value, ImportInfo.empty());
     }
 
+    /**
+     * Returns a new {@link ConstantValue} object with specified static import added.
+     * @param staticImport the static import to add.
+     * @return the new and updated {@link ConstantValue} object.
+     */
     public ConstantValue withStaticImport(String staticImport) {
         return new ConstantValue(value, imports.withAddedStaticImport(staticImport));
     }

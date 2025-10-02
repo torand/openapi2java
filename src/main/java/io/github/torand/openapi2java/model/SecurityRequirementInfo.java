@@ -15,8 +15,8 @@
  */
 package io.github.torand.openapi2java.model;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
@@ -46,7 +46,7 @@ public record SecurityRequirementInfo (
      * @return the new and updated {@link SecurityRequirementInfo} object.
      */
     public SecurityRequirementInfo withScopes(Collection<String> scopes) {
-        return new SecurityRequirementInfo(scheme, new ArrayList<>(scopes), annotation);
+        return new SecurityRequirementInfo(scheme, new LinkedList<>(scopes), annotation);
     }
 
     /**

@@ -16,7 +16,6 @@
 package io.github.torand.openapi2java.writers.kotlin;
 
 import io.github.torand.openapi2java.generators.Options;
-import io.github.torand.openapi2java.model.AnnotationInfo;
 import io.github.torand.openapi2java.model.EnumInfo;
 import io.github.torand.openapi2java.writers.BaseWriter;
 import io.github.torand.openapi2java.writers.EnumWriter;
@@ -24,7 +23,6 @@ import io.github.torand.openapi2java.writers.EnumWriter;
 import java.io.Writer;
 
 import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
-import static io.github.torand.javacommons.collection.CollectionHelper.streamSafely;
 import static io.github.torand.openapi2java.utils.StringUtils.joinCsv;
 
 /**
@@ -41,12 +39,12 @@ public class KotlinEnumWriter extends BaseWriter implements EnumWriter {
         writeLine("package %s", opts.getModelPackage(enumInfo.modelSubpackage()));
         writeNewLine();
 
-        if (nonEmpty(enumInfo.imports().normalImports())) {
-            enumInfo.imports().normalImports().forEach(i -> writeLine("import %s".formatted(i)));
+        if (nonEmpty(enumInfo.aggregatedImports())) {
+            enumInfo.aggregatedImports().forEach(i -> writeLine("import %s".formatted(i)));
             writeNewLine();
         }
 
-        streamSafely(enumInfo.annotations()).map(AnnotationInfo::annotation).forEach(this::writeLine);
+        enumInfo.annotationsAsStrings().forEach(this::writeLine);
 
         writeLine("enum class %s {".formatted(enumInfo.name()));
         writeIndent(1);

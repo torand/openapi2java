@@ -19,11 +19,7 @@ import io.github.torand.openapi2java.generators.Options;
 import io.github.torand.openapi2java.model.AnnotationInfo;
 import io.github.torand.openapi2java.model.ImportInfo;
 import io.github.torand.openapi2java.model.OpenApiDefInfo;
-import io.swagger.v3.oas.models.security.OAuthFlow;
-import io.swagger.v3.oas.models.security.OAuthFlows;
-import io.swagger.v3.oas.models.security.Scopes;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.security.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +42,7 @@ public class OpenApiDefInfoCollector extends BaseCollector {
 
     public OpenApiDefInfo getOpenApiDefInfo(String name, List<SecurityRequirement> securityRequirements) {
         OpenApiDefInfo openApiDefInfo = new OpenApiDefInfo(name)
-            .withAddedImports("jakarta.ws.rs.core.Application");
+            .withAddedNormalImport("jakarta.ws.rs.core.Application");
 
         if (nonEmpty(securityRequirements)) {
             openApiDefInfo = openApiDefInfo.withAddedAnnotation(getSecuritySchemesAnnotation(securityRequirements));
@@ -72,7 +68,7 @@ public class OpenApiDefInfoCollector extends BaseCollector {
     private AnnotationInfo getSecuritySchemeAnnotation(String name) {
         SecurityScheme securityScheme = componentResolver.securitySchemes().getOrThrow(name);
 
-        ImportInfo imports = new ImportInfo();
+        ImportInfo imports = ImportInfo.empty();
         List<String> params = new ArrayList<>();
 
         params.add("securitySchemeName = \"%s\"".formatted(name));
@@ -115,7 +111,7 @@ public class OpenApiDefInfoCollector extends BaseCollector {
     }
 
     private AnnotationInfo getOAuthFlowsAnnotation(OAuthFlows flows) {
-        ImportInfo imports = new ImportInfo();
+        ImportInfo imports = ImportInfo.empty();
         List<String> params = new ArrayList<>();
 
         if (nonNull(flows.getAuthorizationCode())) {
@@ -146,7 +142,7 @@ public class OpenApiDefInfoCollector extends BaseCollector {
     }
 
     private AnnotationInfo getOAuthFlowAnnotation(OAuthFlow flow) {
-        ImportInfo imports = new ImportInfo();
+        ImportInfo imports = ImportInfo.empty();
         List<String> params = new ArrayList<>();
 
         if (nonBlank(flow.getAuthorizationUrl())) {
@@ -160,7 +156,7 @@ public class OpenApiDefInfoCollector extends BaseCollector {
         }
         if (nonEmpty(flow.getScopes())) {
             List<AnnotationInfo> scopesAnnotations = getScopesAnnotations(flow.getScopes());
-            imports = imports.withAddedImports(ImportInfo.concatImports(scopesAnnotations));
+            imports = imports.withAddedImports(scopesAnnotations);
             params.add("scopes = %s".formatted(formatAnnotationNamedParam(scopesAnnotations.stream().map(AnnotationInfo::annotation).toList())));
         }
 

@@ -18,7 +18,6 @@ package io.github.torand.openapi2java.model;
 import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.stream.Stream;
 
 import static io.github.torand.javacommons.collection.CollectionHelper.streamSafely;
 import static java.util.Collections.emptySet;
@@ -33,24 +32,14 @@ public record ImportInfo(
     Set<String> staticImports
 ) implements ImportsSupplier {
 
-    public static ImportInfo concatImports(Collection<? extends ImportsSupplier> importSuppliers) {
-        return streamSafely(importSuppliers)
-            .map(ImportsSupplier::imports)
-            .reduce(ImportInfo::withAddedImports)
-            .orElseGet(ImportInfo::new);
-    }
-
-    public static Stream<String> streamNormalImports(Collection<? extends ImportsSupplier> importSuppliers) {
-        return streamSafely(importSuppliers)
-            .map(ImportsSupplier::imports)
-            .map(ImportInfo::normalImports)
-            .flatMap(Collection::stream);
+    public static ImportInfo empty() {
+        return new ImportInfo();
     }
 
     /**
      * Constructs an {@link ImportInfo} object.
      */
-    public ImportInfo() {
+    private ImportInfo() {
         this(emptySet(), emptySet());
     }
 

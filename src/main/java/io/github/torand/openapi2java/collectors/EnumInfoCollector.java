@@ -23,7 +23,6 @@ import io.swagger.v3.oas.models.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static io.github.torand.openapi2java.collectors.Extensions.EXT_MODEL_SUBDIR;
 import static io.github.torand.openapi2java.collectors.Extensions.extensions;

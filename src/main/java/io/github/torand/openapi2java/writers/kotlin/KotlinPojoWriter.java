@@ -25,12 +25,9 @@ import io.github.torand.openapi2java.writers.PojoWriter;
 import java.io.Writer;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static io.github.torand.javacommons.collection.CollectionHelper.concatStream;
 import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
 import static io.github.torand.javacommons.collection.CollectionHelper.streamSafely;
 import static io.github.torand.openapi2java.utils.KotlinTypeMapper.toKotlinNative;
@@ -52,29 +49,7 @@ public class KotlinPojoWriter extends BaseWriter implements PojoWriter {
         writeLine("package %s", opts.getModelPackage(pojoInfo.modelSubpackage()));
         writeNewLine();
 
-        Predicate<String> isModelType = qt -> isModelPackage(qt, pojoInfo.modelSubpackage());
-
-        Set<String> imports = new TreeSet<>();
-        imports.addAll(pojoInfo.imports().normalImports());
-        pojoInfo.properties().stream()
-            .flatMap(p -> p.imports().normalImports().stream())
-            .forEach(imports::add);
-        pojoInfo.properties().stream()
-            .flatMap(p -> p.type().typeImports())
-            .filter(not(isModelType))
-            .forEach(imports::add);
-        pojoInfo.properties().stream()
-            .flatMap(p -> p.type().annotationImports())
-            .filter(not(isModelType))
-            .forEach(imports::add);
-
-        imports.removeIf(i -> i.equals("java.util.List"));
-        imports.removeIf(i -> i.equals("java.util.Map"));
-
-        if (nonEmpty(imports)) {
-            imports.forEach(ti -> writeLine("import %s".formatted(ti)));
-            writeNewLine();
-        }
+        writeImports(pojoInfo);
 
         if (pojoInfo.isDeprecated()) {
             writeLine("@Deprecated(\"%s\")".formatted(pojoInfo.deprecationMessage()));
@@ -125,6 +100,20 @@ public class KotlinPojoWriter extends BaseWriter implements PojoWriter {
         writeLine(")");
     }
 
+    private void writeImports(PojoInfo pojoInfo) {
+        List<String> imports = pojoInfo.aggregatedNormalImports().stream()
+            .filter(ni -> !isInPackage(ni, pojoInfo.modelSubpackage()))
+            .filter(not("java.util.List"::equals))
+            .filter(not("java.util.Map"::equals))
+            .map("import %s"::formatted)
+            .toList();
+
+        if (nonEmpty(imports)) {
+            imports.forEach(this::writeLine);
+            writeNewLine();
+        }
+    }
+
     private void writePropertyAnnotationLines(PropertyInfo propInfo) {
         if (propInfo.isDeprecated()) {
             writeIndent(1);
@@ -154,7 +143,7 @@ public class KotlinPojoWriter extends BaseWriter implements PojoWriter {
         return "@field:"+annotation.substring(1);
     }
 
-    private boolean isModelPackage(String qualifiedType, String pojoModelSubpackage) {
+    private boolean isInPackage(String qualifiedType, String pojoModelSubpackage) {
         // Remove class name from qualifiedType value
         int lastDotIdx = qualifiedType.lastIndexOf(".");
         String typePackage = qualifiedType.substring(0, lastDotIdx);

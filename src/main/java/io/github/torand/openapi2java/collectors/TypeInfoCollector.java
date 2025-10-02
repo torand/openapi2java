@@ -25,15 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static io.github.torand.javacommons.collection.CollectionHelper.isEmpty;
-import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
-import static io.github.torand.javacommons.collection.CollectionHelper.streamSafely;
+import static io.github.torand.javacommons.collection.CollectionHelper.*;
 import static io.github.torand.javacommons.lang.Exceptions.illegalStateException;
 import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
-import static io.github.torand.openapi2java.collectors.Extensions.EXT_JSON_SERIALIZER;
-import static io.github.torand.openapi2java.collectors.Extensions.EXT_NULLABLE;
-import static io.github.torand.openapi2java.collectors.Extensions.EXT_VALIDATION_CONSTRAINT;
-import static io.github.torand.openapi2java.collectors.Extensions.extensions;
+import static io.github.torand.openapi2java.collectors.Extensions.*;
 import static io.github.torand.openapi2java.collectors.TypeInfoCollector.NullabilityResolution.FORCE_NOT_NULLABLE;
 import static io.github.torand.openapi2java.collectors.TypeInfoCollector.NullabilityResolution.FORCE_NULLABLE;
 import static io.github.torand.openapi2java.utils.StringUtils.joinCsv;
@@ -92,7 +87,7 @@ public class TypeInfoCollector extends BaseCollector {
                         .withNullable(nullable);
 
                     String modelSubpackage = schemaResolver.getModelSubpackage($ref).orElse(null);
-                    typeInfo = typeInfo.withAddedImport(opts.getModelPackage(modelSubpackage) + "." + typeInfo.name());
+                    typeInfo = typeInfo.withAddedNormalImport(opts.getModelPackage(modelSubpackage) + "." + typeInfo.name());
                     if (!schemaResolver.isEnumType(schema.get$ref())) {
                         AnnotationInfo validAnnotation = getValidAnnotation();
                         typeInfo = typeInfo.withAddedAnnotation(validAnnotation);
@@ -172,7 +167,7 @@ public class TypeInfoCollector extends BaseCollector {
         if ("uri".equals(schema.getFormat())) {
             typeInfo = typeInfo.withName("URI")
                 .withSchemaFormat(schema.getFormat())
-                .withAddedImport("java.net.URI");
+                .withAddedNormalImport("java.net.URI");
             if (!typeInfo.nullable()) {
                 AnnotationInfo notNullAnnotation = getNotNullAnnotation();
                 typeInfo = typeInfo.withAddedAnnotation(notNullAnnotation);
@@ -180,7 +175,7 @@ public class TypeInfoCollector extends BaseCollector {
         } else if ("uuid".equals(schema.getFormat())) {
             typeInfo = typeInfo.withName("UUID")
                 .withSchemaFormat(schema.getFormat())
-                .withAddedImport("java.util.UUID");
+                .withAddedNormalImport("java.util.UUID");
             if (!typeInfo.nullable()) {
                 AnnotationInfo notNullAnnotation = getNotNullAnnotation();
                 typeInfo = typeInfo.withAddedAnnotation(notNullAnnotation);
@@ -188,7 +183,7 @@ public class TypeInfoCollector extends BaseCollector {
         } else if ("duration".equals(schema.getFormat())) {
             typeInfo = typeInfo.withName("Duration")
                 .withSchemaFormat(schema.getFormat())
-                .withAddedImport("java.time.Duration");
+                .withAddedNormalImport("java.time.Duration");
             if (!typeInfo.nullable() && opts.addJakartaBeanValidationAnnotations()) {
                 AnnotationInfo notNullAnnotation = getNotNullAnnotation();
                 typeInfo = typeInfo.withAddedAnnotation(notNullAnnotation);
@@ -196,7 +191,7 @@ public class TypeInfoCollector extends BaseCollector {
         } else if ("date".equals(schema.getFormat())) {
             typeInfo = typeInfo.withName("LocalDate")
                 .withSchemaFormat(schema.getFormat())
-                .withAddedImport("java.time.LocalDate");
+                .withAddedNormalImport("java.time.LocalDate");
             if (!typeInfo.nullable() && opts.addJakartaBeanValidationAnnotations()) {
                 AnnotationInfo notNullAnnotation = getNotNullAnnotation();
                 typeInfo = typeInfo.withAddedAnnotation(notNullAnnotation);
@@ -206,7 +201,7 @@ public class TypeInfoCollector extends BaseCollector {
         } else if ("date-time".equals(schema.getFormat())) {
             typeInfo = typeInfo.withName("LocalDateTime")
                 .withSchemaFormat(schema.getFormat())
-                .withAddedImport("java.time.LocalDateTime");
+                .withAddedNormalImport("java.time.LocalDateTime");
             if (!typeInfo.nullable() && opts.addJakartaBeanValidationAnnotations()) {
                 AnnotationInfo notNullAnnotation = getNotNullAnnotation();
                 typeInfo = typeInfo.withAddedAnnotation(notNullAnnotation);
@@ -266,7 +261,7 @@ public class TypeInfoCollector extends BaseCollector {
             typeInfo = typeInfo.withName("Float");
         } else {
             typeInfo = typeInfo.withName("BigDecimal")
-                .withAddedImport("java.math.BigDecimal");
+                .withAddedNormalImport("java.math.BigDecimal");
         }
         typeInfo = typeInfo.withSchemaFormat(schema.getFormat());
         if (opts.addJakartaBeanValidationAnnotations()) {
@@ -325,10 +320,10 @@ public class TypeInfoCollector extends BaseCollector {
         typeInfo = typeInfo.withPrimitive(false);
         if (TRUE.equals(schema.getUniqueItems())) {
             typeInfo = typeInfo.withName("Set")
-                .withAddedImport("java.util.Set");
+                .withAddedNormalImport("java.util.Set");
         } else {
             typeInfo = typeInfo.withName("List")
-                .withAddedImport("java.util.List");
+                .withAddedNormalImport("java.util.List");
         }
 
         if (opts.addJakartaBeanValidationAnnotations()) {
@@ -357,7 +352,7 @@ public class TypeInfoCollector extends BaseCollector {
 
     private TypeInfo populateJsonMapType(TypeInfo typeInfo, Schema<?> schema) {
         typeInfo = typeInfo.withName("Map")
-            .withAddedImport("java.util.Map");
+            .withAddedNormalImport("java.util.Map");
 
         if (opts.addJakartaBeanValidationAnnotations()) {
             AnnotationInfo validAnnotation = getValidAnnotation();
@@ -420,8 +415,8 @@ public class TypeInfoCollector extends BaseCollector {
 
     private AnnotationInfo getJsonSerializeAnnotation(String jsonSerializer) {
         return new AnnotationInfo("@JsonSerialize(using = %s)".formatted(getJsonSerializerClass(jsonSerializer)))
-            .withAddedImport("com.fasterxml.jackson.databind.annotation.JsonSerialize")
-            .withAddedImport(jsonSerializer);
+            .withAddedNormalImport("com.fasterxml.jackson.databind.annotation.JsonSerialize")
+            .withAddedNormalImport(jsonSerializer);
     }
 
     private AnnotationInfo getJsonFormatAnnotation(String pattern) {

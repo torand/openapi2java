@@ -21,8 +21,6 @@ import io.github.torand.openapi2java.writers.BaseWriter;
 import io.github.torand.openapi2java.writers.OpenApiDefWriter;
 
 import java.io.Writer;
-import java.util.Set;
-import java.util.TreeSet;
 
 import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
 
@@ -40,16 +38,17 @@ public class JavaOpenApiDefWriter extends BaseWriter implements OpenApiDefWriter
         writeLine("package %s;", opts.rootPackage());
         writeNewLine();
 
-        Set<String> imports = new TreeSet<>();
-        imports.addAll(openApiDefInfo.imports().normalImports());
-        openApiDefInfo.annotations().forEach(a -> imports.addAll(a.imports().normalImports()));
-
-        if (nonEmpty(imports)) {
-            imports.forEach(i -> writeLine("import %s;".formatted(i)));
+        if (nonEmpty(openApiDefInfo.aggregatedNormalImports())) {
+            openApiDefInfo.aggregatedNormalImports().forEach(i -> writeLine("import %s;".formatted(i)));
             writeNewLine();
         }
 
-        openApiDefInfo.annotations().forEach(a -> writeLine(a.annotation()));
+        if (nonEmpty(openApiDefInfo.aggregatedStaticImports())) {
+            openApiDefInfo.aggregatedStaticImports().forEach(i -> writeLine("import static %s;".formatted(i)));
+            writeNewLine();
+        }
+
+        openApiDefInfo.annotationsAsStrings().forEach(this::writeLine);
 
         writeLine("public class %s extends Application {", openApiDefInfo.name());
         writeLine("}");

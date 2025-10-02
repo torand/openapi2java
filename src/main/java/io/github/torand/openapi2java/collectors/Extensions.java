@@ -16,7 +16,6 @@
 package io.github.torand.openapi2java.collectors;
 
 import io.github.torand.openapi2java.utils.OpenApi2JavaException;
-import org.apache.maven.model.PluginExecution;
 
 import java.util.Collections;
 import java.util.Map;

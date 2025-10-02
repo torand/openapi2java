@@ -15,7 +15,11 @@
  */
 package io.github.torand.openapi2java.model;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import static java.util.Collections.emptyList;
 
 /**
  * Describes an enum class.
@@ -31,18 +35,13 @@ public record EnumInfo (
     String modelSubdir,
     String modelSubpackage,
     List<AnnotationInfo> annotations
-) implements ImportsSupplier {
+) implements EntityInfo {
     /**
      * Constructs an {@link EnumInfo} object.
      * @param name the enum name.
      */
     public EnumInfo(String name, List<String> constants) {
-        this(name, constants, null, null, new LinkedList<>());
-    }
-
-    @Override
-    public ImportInfo imports() {
-        return ImportInfo.concatImports(annotations);
+        this(name, constants, null, null, emptyList());
     }
 
     /**
@@ -72,5 +71,15 @@ public record EnumInfo (
         List<AnnotationInfo> newAnnotations = new LinkedList<>(this.annotations);
         newAnnotations.add(annotation);
         return new EnumInfo(name, constants, modelSubdir, modelSubpackage, newAnnotations);
+    }
+
+    @Override
+    public Set<String> aggregatedNormalImports() {
+        return ImportInfo.empty().withAddedImports(annotations).normalImports();
+    }
+
+    @Override
+    public Set<String> aggregatedStaticImports() {
+        return ImportInfo.empty().withAddedImports(annotations).staticImports();
     }
 }

@@ -26,22 +26,20 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
 import static io.github.torand.javacommons.collection.CollectionHelper.streamSafely;
-import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
-import static io.github.torand.javacommons.lang.StringHelper.quote;
-import static io.github.torand.javacommons.lang.StringHelper.stripTail;
-import static io.github.torand.javacommons.lang.StringHelper.uncapitalize;
+import static io.github.torand.javacommons.lang.StringHelper.*;
 import static io.github.torand.openapi2java.collectors.SchemaResolver.isObjectType;
 import static io.github.torand.openapi2java.collectors.TypeInfoCollector.NullabilityResolution.FORCE_NOT_NULLABLE;
 import static io.github.torand.openapi2java.collectors.TypeInfoCollector.NullabilityResolution.FORCE_NULLABLE;
 import static io.github.torand.openapi2java.utils.StringUtils.joinCsv;
 import static java.lang.Boolean.TRUE;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static java.util.Objects.requireNonNull;
+import static java.util.Objects.*;
 
 /**
  * Collects information about a method from an operation.
@@ -244,7 +242,7 @@ public class MethodInfoCollector extends BaseCollector {
         if ("file".equals(name)) {
             bodyType = new TypeInfo()
                 .withName("File")
-                .withAddedImport("java.io.File")
+                .withAddedNormalImport("java.io.File")
                 .withNullable(false)
                 .withAddedAnnotation(new AnnotationInfo("@NotNull", "jakarta.validation.constraints.NotNull"))
                 .withDescription(schema.getDescription());
@@ -293,7 +291,7 @@ public class MethodInfoCollector extends BaseCollector {
         String mediaTypesString = formatAnnotationDefaultParam(mediaTypes.stream().map(ConstantValue::value).toList());
 
         return new AnnotationInfo("@Consumes(%s)".formatted(mediaTypesString))
-            .withAddedImport("jakarta.ws.rs.Consumes")
+            .withAddedNormalImport("jakarta.ws.rs.Consumes")
             .withAddedImports(mediaTypes);
     }
 
@@ -314,7 +312,7 @@ public class MethodInfoCollector extends BaseCollector {
         String mediaTypesString = formatAnnotationDefaultParam(mediaTypes.stream().map(ConstantValue::value).toList());
 
         return new AnnotationInfo("@Produces(%s)".formatted(mediaTypesString))
-            .withAddedImport("jakarta.ws.rs.Produces")
+            .withAddedNormalImport("jakarta.ws.rs.Produces")
             .withAddedImports(mediaTypes);
     }
 
@@ -380,7 +378,7 @@ public class MethodInfoCollector extends BaseCollector {
         }
 
         return parameterAnnotation.withAnnotation("@Parameter(%s)".formatted(joinCsv(params)))
-            .withAddedImport("org.eclipse.microprofile.openapi.annotations.parameters.Parameter");
+            .withAddedNormalImport("org.eclipse.microprofile.openapi.annotations.parameters.Parameter");
     }
 
     private ConstantValue getParameterInValue(Parameter parameter) {
@@ -436,7 +434,7 @@ public class MethodInfoCollector extends BaseCollector {
 
         return apiResponseAnnotation
             .withAnnotation("@APIResponse(%s)".formatted(joinCsv(params)))
-            .withAddedImport("org.eclipse.microprofile.openapi.annotations.responses.APIResponse");
+            .withAddedNormalImport("org.eclipse.microprofile.openapi.annotations.responses.APIResponse");
     }
 
     private AnnotationInfo getMethodParameterAnnotation(Parameter parameter) {
@@ -453,11 +451,11 @@ public class MethodInfoCollector extends BaseCollector {
         if (paramAnnotationName.equals("HeaderParam")) {
             ConstantValue headerNameConstant = getHeaderNameConstant(parameter.getName());
             return new AnnotationInfo("@%s(%s)".formatted(paramAnnotationName, headerNameConstant.value()))
-                .withAddedImport(annotationImport)
+                .withAddedNormalImport(annotationImport)
                 .withAddedImports(headerNameConstant);
         } else {
             return new AnnotationInfo("@%s(\"%s\")".formatted(paramAnnotationName, parameter.getName()))
-                .withAddedImport(annotationImport);
+                .withAddedNormalImport(annotationImport);
         }
     }
 
@@ -481,7 +479,7 @@ public class MethodInfoCollector extends BaseCollector {
         AnnotationInfo schemaAnnotation = getSchemaAnnotation(mediaType.getSchema());
 
         return new AnnotationInfo(formatInnerAnnotation("Content(mediaType = %s, schema = %s)", mediaTypeConstant.value(), schemaAnnotation.annotation()))
-            .withAddedImport("org.eclipse.microprofile.openapi.annotations.media.Content")
+            .withAddedNormalImport("org.eclipse.microprofile.openapi.annotations.media.Content")
             .withAddedImports(mediaTypeConstant)
             .withAddedImports(schemaAnnotation);
     }
@@ -515,7 +513,7 @@ public class MethodInfoCollector extends BaseCollector {
         }
 
         return schemaAnnotation.withAnnotation(formatInnerAnnotation("Schema(%s)", joinCsv(params)))
-            .withAddedImport("org.eclipse.microprofile.openapi.annotations.media.Schema");
+            .withAddedNormalImport("org.eclipse.microprofile.openapi.annotations.media.Schema");
     }
 
     private AnnotationInfo getHeaderAnnotation(String name, Header header) {
@@ -526,7 +524,7 @@ public class MethodInfoCollector extends BaseCollector {
 
         AnnotationInfo schemaAnnotation = getSchemaAnnotation(realHeader.getSchema());
         return new AnnotationInfo(formatInnerAnnotation("Header(name = \"%s\", description = \"%s\", schema = %s)", name, normalizeDescription(realHeader.getDescription()), schemaAnnotation.annotation()))
-            .withAddedImport("org.eclipse.microprofile.openapi.annotations.headers.Header")
+            .withAddedNormalImport("org.eclipse.microprofile.openapi.annotations.headers.Header")
             .withAddedImports(schemaAnnotation);
     }
 
