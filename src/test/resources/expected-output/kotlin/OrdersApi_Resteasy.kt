@@ -30,6 +30,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement
 import org.eclipse.microprofile.openapi.annotations.tags.Tag
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam
+import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 import org.jboss.resteasy.reactive.RestResponse
 
@@ -37,6 +38,7 @@ import org.jboss.resteasy.reactive.RestResponse
 @Tag(name = "Orders", description = "Retrieving and modifying orders")
 @RegisterRestClient(configKey = "order-api")
 @ClientHeaderParam(name = AUTHORIZATION, value = [ "Bearer {order-api/mp-rest/api-key}" ])
+@RegisterClientHeaders(io.github.torand.openapi2java.test.MyClientHeadersFactory::class)
 @Path(ROOT_PATH)
 interface OrdersApi_Resteasy {
 

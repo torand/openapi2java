@@ -31,6 +31,7 @@ import static java.util.Objects.nonNull;
 public class Extensions {
     public static final String EXT_RESTCLIENT_CONFIGKEY = "x-restclient-configkey";
     public static final String EXT_RESTCLIENT_HEADERS = "x-restclient-headers";
+    public static final String EXT_RESTCLIENT_HEADERSFACTORY = "x-restclient-headersfactory";
     public static final String EXT_JSON_SERIALIZER = "x-json-serializer";
     public static final String EXT_VALIDATION_CONSTRAINT = "x-validation-constraint";
     public static final String EXT_NULLABLE = "x-nullable";

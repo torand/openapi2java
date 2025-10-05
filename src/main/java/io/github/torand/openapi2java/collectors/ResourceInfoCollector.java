@@ -34,6 +34,7 @@ import java.util.Optional;
 import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
 import static io.github.torand.openapi2java.collectors.Extensions.EXT_RESTCLIENT_CONFIGKEY;
 import static io.github.torand.openapi2java.collectors.Extensions.EXT_RESTCLIENT_HEADERS;
+import static io.github.torand.openapi2java.collectors.Extensions.EXT_RESTCLIENT_HEADERSFACTORY;
 import static io.github.torand.openapi2java.collectors.Extensions.extensions;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -89,6 +90,14 @@ public class ResourceInfoCollector extends BaseCollector {
                     List<AnnotationInfo> clientHeaderAnnotations = getClientHeaderParamAnnotations(maybeHeaders.get());
                     resourceInfo = resourceInfo.withAddedAnnotations(clientHeaderAnnotations);
                 }
+
+                Optional<String> maybeHeaderFactory = extensions(tag.getExtensions())
+                    .getString(EXT_RESTCLIENT_HEADERSFACTORY);
+
+                if (maybeHeaderFactory.isPresent()) {
+                    AnnotationInfo registerClientHeadersAnnotation = getRegisterClientHeadersAnnotation(maybeHeaderFactory.get());
+                    resourceInfo = resourceInfo.withAddedAnnotation(registerClientHeadersAnnotation);
+                }
             }
         }
 
@@ -121,6 +130,13 @@ public class ResourceInfoCollector extends BaseCollector {
         }
 
         return resourceInfo;
+    }
+
+    private AnnotationInfo getRegisterClientHeadersAnnotation(String headerFactory) {
+        return new AnnotationInfo(
+            "@RegisterClientHeaders(%s%sclass)".formatted(headerFactory, opts.useKotlinSyntax() ? "::" : "."),
+            "org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders"
+        );
     }
 
     private AnnotationInfo getPathAnnotation(ResourceInfo resourceInfo) {
