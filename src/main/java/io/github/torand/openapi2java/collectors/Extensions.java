@@ -30,6 +30,7 @@ import static java.util.Objects.nonNull;
  */
 public class Extensions {
     public static final String EXT_RESTCLIENT_CONFIGKEY = "x-restclient-configkey";
+    public static final String EXT_RESTCLIENT_HEADERS = "x-restclient-headers";
     public static final String EXT_JSON_SERIALIZER = "x-json-serializer";
     public static final String EXT_VALIDATION_CONSTRAINT = "x-validation-constraint";
     public static final String EXT_NULLABLE = "x-nullable";
@@ -71,5 +72,17 @@ public class Extensions {
         }
 
         return Optional.of((Boolean)value);
+    }
+
+    public Optional<Map<String, Object>> getMap(String name) {
+        Object value = schemaExtensions.get(name);
+        if (isNull(value)) {
+            return Optional.empty();
+        }
+        if (!(value instanceof Map)) {
+            throw new RuntimeException("Value of extension %s is not a Map (object)".formatted(name));
+        }
+
+        return Optional.of((Map<String, Object>)value);
     }
 }

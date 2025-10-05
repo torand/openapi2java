@@ -16,7 +16,12 @@
 package io.github.torand.openapi2java.collectors;
 
 import io.github.torand.openapi2java.generators.Options;
-import io.github.torand.openapi2java.model.*;
+import io.github.torand.openapi2java.model.AnnotationInfo;
+import io.github.torand.openapi2java.model.ConstantValue;
+import io.github.torand.openapi2java.model.MethodInfo;
+import io.github.torand.openapi2java.model.MethodParamInfo;
+import io.github.torand.openapi2java.model.SecurityRequirementInfo;
+import io.github.torand.openapi2java.model.TypeInfo;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.headers.Header;
 import io.swagger.v3.oas.models.media.MediaType;
@@ -32,14 +37,19 @@ import java.util.Map;
 import java.util.Optional;
 
 import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
-import static io.github.torand.javacommons.lang.StringHelper.*;
+import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
+import static io.github.torand.javacommons.lang.StringHelper.quote;
+import static io.github.torand.javacommons.lang.StringHelper.stripTail;
+import static io.github.torand.javacommons.lang.StringHelper.uncapitalize;
 import static io.github.torand.javacommons.stream.StreamHelper.streamSafely;
 import static io.github.torand.openapi2java.collectors.SchemaResolver.isObjectType;
 import static io.github.torand.openapi2java.collectors.TypeInfoCollector.NullabilityResolution.FORCE_NOT_NULLABLE;
 import static io.github.torand.openapi2java.collectors.TypeInfoCollector.NullabilityResolution.FORCE_NULLABLE;
 import static io.github.torand.openapi2java.utils.StringUtils.joinCsv;
 import static java.lang.Boolean.TRUE;
-import static java.util.Objects.*;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Collects information about a method from an operation.
@@ -463,21 +473,6 @@ public class MethodInfoCollector extends BaseCollector {
             return new AnnotationInfo("@%s(\"%s\")".formatted(paramAnnotationName, parameter.getName()))
                 .withAddedNormalImport(annotationImport);
         }
-    }
-
-    private ConstantValue getHeaderNameConstant(String name) {
-        String standardHeaderConstant = switch (name.toUpperCase()) {
-            case "ACCEPT-LANGUAGE" -> "ACCEPT_LANGUAGE";
-            case "CONTENT-LANGUAGE" -> "CONTENT_LANGUAGE";
-            case "LOCATION" -> "LOCATION";
-            default -> null;
-        };
-
-        if (nonNull(standardHeaderConstant)) {
-            return new ConstantValue(standardHeaderConstant).withStaticImport("jakarta.ws.rs.core.HttpHeaders." + standardHeaderConstant);
-        }
-
-        return new ConstantValue(quote(name));
     }
 
     private AnnotationInfo getContentAnnotation(String contentType, MediaType mediaType) {

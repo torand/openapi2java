@@ -32,7 +32,10 @@
     {
       "name": "Orders",
       "description": "Retrieving and modifying orders",
-      "x-restclient-configkey": "order-api"
+      "x-restclient-configkey": "order-api",
+      "x-restclient-headers": {
+        "Authorization": "Bearer {order-api/mp-rest/api-key}"
+      }
     },
     {
       "name": "Users",

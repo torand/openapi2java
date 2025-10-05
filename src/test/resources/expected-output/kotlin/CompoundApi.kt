@@ -21,7 +21,6 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.HttpHeaders.ACCEPT_LANGUAGE
-import jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION
 import jakarta.ws.rs.core.MediaType.APPLICATION_JSON
 import jakarta.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM
 import jakarta.ws.rs.core.MediaType.MULTIPART_FORM_DATA
@@ -40,14 +39,12 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement
-import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 import org.jboss.resteasy.reactive.PartType
 import org.jboss.resteasy.reactive.RestForm
 
 @SecurityRequirement(name = "oidc")
 @RegisterRestClient(configKey = "compound-api")
-@ClientHeaderParam(name = AUTHORIZATION, value = [ "{authorization}" ])
 @Path(ROOT_PATH)
 interface CompoundApi {
 
@@ -275,6 +272,5 @@ interface CompoundApi {
 
     companion object {
         const val ROOT_PATH: String = "api"
-        fun authorization() = "TODO"
     }
 }

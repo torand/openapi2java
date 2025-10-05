@@ -17,6 +17,7 @@ package io.github.torand.openapi2java.collectors;
 
 import io.github.torand.openapi2java.generators.Options;
 import io.github.torand.openapi2java.model.AnnotationInfo;
+import io.github.torand.openapi2java.model.ConstantValue;
 import io.github.torand.openapi2java.model.MethodInfo;
 import io.github.torand.openapi2java.model.ResourceInfo;
 import io.github.torand.openapi2java.model.SecurityRequirementInfo;
@@ -28,9 +29,11 @@ import io.swagger.v3.oas.models.tags.Tag;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
 import static io.github.torand.openapi2java.collectors.Extensions.EXT_RESTCLIENT_CONFIGKEY;
+import static io.github.torand.openapi2java.collectors.Extensions.EXT_RESTCLIENT_HEADERS;
 import static io.github.torand.openapi2java.collectors.Extensions.extensions;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -39,8 +42,6 @@ import static java.util.Objects.nonNull;
  * Collects information about a resource from a collection of path items.
  */
 public class ResourceInfoCollector extends BaseCollector {
-    public static final String AUTH_METHOD_NAME = "authorization";
-
     private final MethodInfoCollector methodInfoCollector;
     private final SecurityRequirementCollector securityRequirementCollector;
 
@@ -66,10 +67,7 @@ public class ResourceInfoCollector extends BaseCollector {
         }
 
         if (opts.addMpOpenApiAnnotations() && nonNull(tag)) {
-            AnnotationInfo tagAnnotation = new AnnotationInfo(
-                "@Tag(name = \"%s\", description = \"%s\")".formatted(tag.getName(), normalizeDescription(tag.getDescription())),
-                "org.eclipse.microprofile.openapi.annotations.tags.Tag"
-            );
+            AnnotationInfo tagAnnotation = getTagAnnotation(tag);
             resourceInfo = resourceInfo.withAddedAnnotation(tagAnnotation);
         }
 
@@ -80,23 +78,21 @@ public class ResourceInfoCollector extends BaseCollector {
                     .orElse(tag.getName().toLowerCase()+"-api") :
                 resourceName.toLowerCase()+"-api";
 
-            AnnotationInfo registerRestClientAnnotation = new AnnotationInfo(
-                "@RegisterRestClient(configKey = \"%s\")".formatted(configKey),
-                "org.eclipse.microprofile.rest.client.inject.RegisterRestClient"
-            );
-            AnnotationInfo clientHeaderParamAnnotation = new AnnotationInfo(
-                "@ClientHeaderParam(name = AUTHORIZATION, value = %s)".formatted(formatAnnotationNamedParam(List.of("\"{%s}\"".formatted(AUTH_METHOD_NAME)))),
-                "org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam"
-            ).withAddedStaticImport("jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION");
+            AnnotationInfo registerRestClientAnnotation = getRegisterRestClientAnnotation(configKey);
+            resourceInfo = resourceInfo.withAddedAnnotation(registerRestClientAnnotation);
 
-            resourceInfo = resourceInfo
-                .withAddedAnnotation(registerRestClientAnnotation)
-                .withAddedAnnotation(clientHeaderParamAnnotation)
-                .withAuthMethod(getAuthMethodInfo());
+            if (nonNull(tag)) {
+                Optional<Map<String, Object>> maybeHeaders = extensions(tag.getExtensions())
+                    .getMap(EXT_RESTCLIENT_HEADERS);
+
+                if (maybeHeaders.isPresent()) {
+                    List<AnnotationInfo> clientHeaderAnnotations = getClientHeaderParamAnnotations(maybeHeaders.get());
+                    resourceInfo = resourceInfo.withAddedAnnotations(clientHeaderAnnotations);
+                }
+            }
         }
 
-        AnnotationInfo pathAnnotation = new AnnotationInfo("@Path(ROOT_PATH)", "jakarta.ws.rs.Path")
-            .withAddedStaticImport("%s.%s.ROOT_PATH".formatted(opts.rootPackage(), resourceInfo.name()));
+        AnnotationInfo pathAnnotation = getPathAnnotation(resourceInfo);
         resourceInfo = resourceInfo.withAddedAnnotation(pathAnnotation);
 
         String tagName = nonNull(tag) ? tag.getName() : null;
@@ -127,14 +123,40 @@ public class ResourceInfoCollector extends BaseCollector {
         return resourceInfo;
     }
 
-    private MethodInfo getAuthMethodInfo() {
-        MethodInfo authMethod = new MethodInfo(AUTH_METHOD_NAME);
+    private AnnotationInfo getPathAnnotation(ResourceInfo resourceInfo) {
+        return new AnnotationInfo("@Path(ROOT_PATH)", "jakarta.ws.rs.Path")
+            .withAddedStaticImport("%s.%s.ROOT_PATH".formatted(opts.rootPackage(), resourceInfo.name()));
+    }
 
-        if (!opts.useKotlinSyntax()) {
-            authMethod = authMethod.withAddedAnnotation(new AnnotationInfo("@SuppressWarnings(\"unused\") // Used by @ClientHeaderParam"));
+    private AnnotationInfo getTagAnnotation(Tag tag) {
+        return new AnnotationInfo(
+            "@Tag(name = \"%s\", description = \"%s\")".formatted(tag.getName(), normalizeDescription(tag.getDescription())),
+            "org.eclipse.microprofile.openapi.annotations.tags.Tag"
+        );
+    }
+
+    private static AnnotationInfo getRegisterRestClientAnnotation(String configKey) {
+        return new AnnotationInfo(
+            "@RegisterRestClient(configKey = \"%s\")".formatted(configKey),
+            "org.eclipse.microprofile.rest.client.inject.RegisterRestClient"
+        );
+    }
+
+    private List<AnnotationInfo> getClientHeaderParamAnnotations(Map<String, Object> headers) {
+        List<AnnotationInfo> clientHeaderAnnotations = new ArrayList<>();
+
+        if (nonEmpty(headers)) {
+            headers.forEach((header, value) -> {
+                ConstantValue headerName = getHeaderNameConstant(header);
+                String formattedValue = formatAnnotationNamedParam(List.of("\"%s\"".formatted(value)));
+                AnnotationInfo clientHeaderAnnotation = new AnnotationInfo("@ClientHeaderParam(name = %s, value = %s)".formatted(headerName.value(), formattedValue))
+                    .withAddedNormalImport("org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam")
+                    .withAddedImports(headerName);
+                clientHeaderAnnotations.add(clientHeaderAnnotation);
+            });
         }
 
-        return authMethod;
+        return clientHeaderAnnotations;
     }
 
     private boolean shouldProcessOperation(Operation operation, String tag) {

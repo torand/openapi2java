@@ -15,7 +15,6 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.HttpHeaders.ACCEPT_LANGUAGE
-import jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION
 import jakarta.ws.rs.core.MediaType.APPLICATION_JSON
 import java.net.URI
 import org.eclipse.microprofile.openapi.annotations.Operation
@@ -28,14 +27,12 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement
 import org.eclipse.microprofile.openapi.annotations.tags.Tag
-import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 import org.jboss.resteasy.reactive.RestResponse
 
 @SecurityRequirement(name = "oidc")
 @Tag(name = "Users", description = "Retrieving and modifying user profiles")
 @RegisterRestClient(configKey = "users-api")
-@ClientHeaderParam(name = AUTHORIZATION, value = [ "{authorization}" ])
 @Path(ROOT_PATH)
 interface UsersApi_Resteasy {
 
@@ -90,6 +87,5 @@ interface UsersApi_Resteasy {
 
     companion object {
         const val ROOT_PATH: String = "api"
-        fun authorization() = "TODO"
     }
 }

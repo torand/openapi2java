@@ -24,7 +24,6 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.jboss.resteasy.reactive.PartType;
 import org.jboss.resteasy.reactive.RestForm;
@@ -35,7 +34,6 @@ import java.util.List;
 
 import static io.github.torand.openapi2java.test.ProductsApi.ROOT_PATH;
 import static jakarta.ws.rs.core.HttpHeaders.ACCEPT_LANGUAGE;
-import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 import static jakarta.ws.rs.core.MediaType.MULTIPART_FORM_DATA;
@@ -48,7 +46,6 @@ import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.ARRA
 @SecurityRequirement(name = "oidc")
 @Tag(name = "Products", description = "Retrieving and modifying products")
 @RegisterRestClient(configKey = "products-api")
-@ClientHeaderParam(name = AUTHORIZATION, value = "{authorization}")
 @Path(ROOT_PATH)
 public interface ProductsApi {
 
@@ -152,9 +149,4 @@ public interface ProductsApi {
         @RestForm("description") @PartType(TEXT_PLAIN) @NotBlank String description,
         @RestForm("file") @PartType(APPLICATION_OCTET_STREAM) @NotNull File file
     );
-
-    @SuppressWarnings("unused") // Used by @ClientHeaderParam
-    default String authorization() {
-        return "TODO";
-    }
 }

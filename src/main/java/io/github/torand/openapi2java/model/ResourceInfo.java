@@ -17,13 +17,13 @@ package io.github.torand.openapi2java.model;
 
 import io.github.torand.javacommons.collection.CollectionHelper;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 import static java.util.Collections.emptyList;
-import static java.util.Objects.nonNull;
 
 /**
  * Describes a resource.
@@ -31,14 +31,12 @@ import static java.util.Objects.nonNull;
  * @param imports the imports required by the resource.
  * @param annotations the annotations decorating this resource.
  * @param methods the methods of this resource.
- * @param authMethod the authorization method.
  */
 public record ResourceInfo (
     String name,
     ImportInfo imports,
     List<AnnotationInfo> annotations,
-    List<MethodInfo> methods,
-    MethodInfo authMethod
+    List<MethodInfo> methods
 ) implements EntityInfo, ImportsSupplier {
 
     /**
@@ -46,7 +44,7 @@ public record ResourceInfo (
      * @param name the resource name.
      */
     public ResourceInfo(String name) {
-        this(name, ImportInfo.empty(), emptyList(), emptyList(), null);
+        this(name, ImportInfo.empty(), emptyList(), emptyList());
     }
 
     /**
@@ -55,7 +53,7 @@ public record ResourceInfo (
      * @return the new and updated {@link ResourceInfo} object.
      */
     public ResourceInfo withAddedNormalImport(String normalImport) {
-        return new ResourceInfo(name, imports.withAddedNormalImport(normalImport), annotations, methods, authMethod);
+        return new ResourceInfo(name, imports.withAddedNormalImport(normalImport), annotations, methods);
     }
 
     /**
@@ -66,7 +64,18 @@ public record ResourceInfo (
     public ResourceInfo withAddedAnnotation(AnnotationInfo annotation) {
         List<AnnotationInfo> newAnnotations = new LinkedList<>(annotations);
         newAnnotations.add(annotation);
-        return new ResourceInfo(name, imports, newAnnotations, methods, authMethod);
+        return new ResourceInfo(name, imports, newAnnotations, methods);
+    }
+
+    /**
+     * Returns a new {@link ResourceInfo} object with specified annotations added.
+     * @param annotations the annotations to add.
+     * @return the new and updated {@link ResourceInfo} object.
+     */
+    public ResourceInfo withAddedAnnotations(Collection<AnnotationInfo> annotations) {
+        List<AnnotationInfo> newAnnotations = new LinkedList<>(this.annotations);
+        newAnnotations.addAll(annotations);
+        return new ResourceInfo(name, imports, newAnnotations, methods);
     }
 
     /**
@@ -77,16 +86,7 @@ public record ResourceInfo (
     public ResourceInfo withAddedMethod(MethodInfo method) {
         List<MethodInfo> newMethods = new LinkedList<>(methods);
         newMethods.add(method);
-        return new ResourceInfo(name, imports, annotations, newMethods, authMethod);
-    }
-
-    /**
-     * Returns a new {@link ResourceInfo} object with specified authorization method.
-     * @param authMethod the authorization method.
-     * @return the new and updated {@link ResourceInfo} object.
-     */
-    public ResourceInfo withAuthMethod(MethodInfo authMethod) {
-        return new ResourceInfo(name, imports, annotations, methods, authMethod);
+        return new ResourceInfo(name, imports, annotations, newMethods);
     }
 
     /**
@@ -103,9 +103,6 @@ public record ResourceInfo (
         aggregated.addAll(imports.normalImports());
         methods.stream().map(p -> p.aggregatedNormalImports()).forEach(aggregated::addAll);
         annotations.stream().map(a -> a.imports().normalImports()).forEach(aggregated::addAll);
-        if (nonNull(authMethod)) {
-            aggregated.addAll(authMethod.aggregatedNormalImports());
-        }
         return aggregated;
     }
 
@@ -115,9 +112,6 @@ public record ResourceInfo (
         aggregated.addAll(imports.staticImports());
         methods.stream().map(p -> p.aggregatedStaticImports()).forEach(aggregated::addAll);
         annotations.stream().map(a -> a.imports().staticImports()).forEach(aggregated::addAll);
-        if (nonNull(authMethod)) {
-            aggregated.addAll(authMethod.aggregatedStaticImports());
-        }
         return aggregated;
     }
 }

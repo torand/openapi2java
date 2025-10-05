@@ -36,7 +36,7 @@ import org.jboss.resteasy.reactive.RestResponse
 @SecurityRequirement(name = "oidc")
 @Tag(name = "Orders", description = "Retrieving and modifying orders")
 @RegisterRestClient(configKey = "order-api")
-@ClientHeaderParam(name = AUTHORIZATION, value = [ "{authorization}" ])
+@ClientHeaderParam(name = AUTHORIZATION, value = [ "Bearer {order-api/mp-rest/api-key}" ])
 @Path(ROOT_PATH)
 interface OrdersApi_Resteasy {
 
@@ -116,6 +116,5 @@ interface OrdersApi_Resteasy {
 
     companion object {
         const val ROOT_PATH: String = "api"
-        fun authorization() = "TODO"
     }
 }

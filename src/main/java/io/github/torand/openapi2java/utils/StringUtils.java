@@ -31,7 +31,7 @@ public class StringUtils {
         if (isBlank(value)) {
             return value;
         }
-        return value.replace("\\n", " ");
+        return value.replace("\n", " ");
     }
 
     public static String joinCsv(List<String> values) {

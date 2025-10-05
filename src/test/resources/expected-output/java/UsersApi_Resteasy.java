@@ -21,7 +21,6 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.jboss.resteasy.reactive.RestResponse;
 
@@ -29,7 +28,6 @@ import java.net.URI;
 
 import static io.github.torand.openapi2java.test.UsersApi_Resteasy.ROOT_PATH;
 import static jakarta.ws.rs.core.HttpHeaders.ACCEPT_LANGUAGE;
-import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.HEADER;
 import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.PATH;
@@ -37,7 +35,6 @@ import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.PAT
 @SecurityRequirement(name = "oidc")
 @Tag(name = "Users", description = "Retrieving and modifying user profiles")
 @RegisterRestClient(configKey = "users-api")
-@ClientHeaderParam(name = AUTHORIZATION, value = "{authorization}")
 @Path(ROOT_PATH)
 public interface UsersApi_Resteasy {
 
@@ -91,9 +88,4 @@ public interface UsersApi_Resteasy {
         @PathParam("userId") @NotBlank String userId,
         @NotBlank String string // Verification code entered by user
     );
-
-    @SuppressWarnings("unused") // Used by @ClientHeaderParam
-    default String authorization() {
-        return "TODO";
-    }
 }

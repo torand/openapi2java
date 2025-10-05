@@ -103,16 +103,6 @@ public class KotlinResourceWriter extends BaseWriter implements ResourceWriter {
         writeIndent(2);
         writeLine("const val ROOT_PATH: String = \"%s\"", opts.rootUrlPath());
 
-        if (nonNull(resourceInfo.authMethod())) {
-            resourceInfo.authMethod().annotations().forEach(a -> {
-                writeIndent(2);
-                writeLine(a.annotation());
-            });
-
-            writeIndent(2);
-            writeLine("fun %s() = \"TODO\"".formatted(resourceInfo.authMethod().name()));
-        }
-
         writeIndent(1);
         writeLine("}");
 

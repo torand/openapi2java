@@ -16,13 +16,18 @@
 package io.github.torand.openapi2java.collectors;
 
 import io.github.torand.openapi2java.generators.Options;
+import io.github.torand.openapi2java.model.ConstantValue;
 
 import java.util.List;
 import java.util.Map;
 
-import static io.github.torand.javacommons.lang.StringHelper.*;
+import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
+import static io.github.torand.javacommons.lang.StringHelper.quote;
+import static io.github.torand.javacommons.lang.StringHelper.stripHead;
+import static io.github.torand.javacommons.lang.StringHelper.stripTail;
 import static io.github.torand.openapi2java.utils.KotlinTypeMapper.toKotlinNative;
 import static io.github.torand.openapi2java.utils.StringUtils.joinCsv;
+import static java.util.Objects.nonNull;
 
 /**
  * Base class for all collectors.
@@ -50,7 +55,7 @@ public abstract class BaseCollector {
     }
 
     protected String dirPath2PackagePath(String dirPath) {
-        return dirPath.replace("\\/", ".");
+        return dirPath.replace("/", ".");
     }
 
     protected String modelName2SchemaName(String modelName) {
@@ -89,4 +94,21 @@ public abstract class BaseCollector {
     protected String formatDeprecationMessage(Map<String, Object> extensions) {
         return new Extensions(extensions).getString(Extensions.EXT_DEPRECATION_MESSAGE).orElse("Deprecated");
     }
+
+    protected ConstantValue getHeaderNameConstant(String name) {
+        String standardHeaderConstant = switch (name.toUpperCase()) {
+            case "ACCEPT-LANGUAGE" -> "ACCEPT_LANGUAGE";
+            case "AUTHORIZATION" -> "AUTHORIZATION";
+            case "CONTENT-LANGUAGE" -> "CONTENT_LANGUAGE";
+            case "LOCATION" -> "LOCATION";
+            default -> null;
+        };
+
+        if (nonNull(standardHeaderConstant)) {
+            return new ConstantValue(standardHeaderConstant).withStaticImport("jakarta.ws.rs.core.HttpHeaders." + standardHeaderConstant);
+        }
+
+        return new ConstantValue(quote(name));
+    }
+
 }

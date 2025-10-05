@@ -102,22 +102,6 @@ public class JavaResourceWriter extends BaseWriter implements ResourceWriter {
             writeLine(");");
         });
 
-        if (nonNull(resourceInfo.authMethod())) {
-            writeNewLine();
-
-            resourceInfo.authMethod().annotations().forEach(a -> {
-                writeIndent(1);
-                writeLine(a.annotation());
-            });
-
-            writeIndent(1);
-            writeLine("default String %s() {".formatted(resourceInfo.authMethod().name()));
-            writeIndent(2);
-            writeLine("return \"TODO\";");
-            writeIndent(1);
-            writeLine("}");
-        }
-
         writeLine("}");
     }
 

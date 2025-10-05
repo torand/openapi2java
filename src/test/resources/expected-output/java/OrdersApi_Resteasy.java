@@ -39,7 +39,7 @@ import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.ARRA
 @SecurityRequirement(name = "oidc")
 @Tag(name = "Orders", description = "Retrieving and modifying orders")
 @RegisterRestClient(configKey = "order-api")
-@ClientHeaderParam(name = AUTHORIZATION, value = "{authorization}")
+@ClientHeaderParam(name = AUTHORIZATION, value = "Bearer {order-api/mp-rest/api-key}")
 @Path(ROOT_PATH)
 public interface OrdersApi_Resteasy {
 
@@ -118,9 +118,4 @@ public interface OrdersApi_Resteasy {
         @HeaderParam("X-User-ID") @NotBlank String xUserID,
         @Valid @NotNull OrderItemV1Dto orderItemV1
     );
-
-    @SuppressWarnings("unused") // Used by @ClientHeaderParam
-    default String authorization() {
-        return "TODO";
-    }
 }
