@@ -65,7 +65,8 @@ public class TypeInfoCollector extends BaseCollector {
 
             if (nonNull(schema.getOneOf())) {
                 // Limited support for 'oneOf' in properties: use the first non-nullable subschema
-                Schema<?> subSchema = getNonNullableSubSchema(schema.getOneOf())
+                List<Schema<?>> oneOfSchemas = (List<Schema<?>>)(Object)schema.getOneOf();
+                Schema<?> subSchema = getNonNullableSubSchema(oneOfSchemas)
                     .orElseThrow(illegalStateException("Schema 'oneOf' must contain a non-nullable sub-schema"));
 
                 return getTypeInfo(subSchema, nullable ? FORCE_NULLABLE : FORCE_NOT_NULLABLE);
@@ -76,19 +77,19 @@ public class TypeInfoCollector extends BaseCollector {
                 return getTypeInfo(schema.getAllOf().get(0), nullable ? FORCE_NULLABLE : FORCE_NOT_NULLABLE);
             }
 
-            String $ref = schema.get$ref();
-            if (nonBlank($ref)) {
+            String ref = schema.get$ref();
+            if (nonBlank(ref)) {
                 TypeInfo typeInfo;
 
-                if (schemaResolver.isPrimitiveType($ref)) {
-                    Schema<?> $refSchema = schemaResolver.getOrThrow($ref);
-                    typeInfo = getTypeInfo($refSchema, nullable ? FORCE_NULLABLE : FORCE_NOT_NULLABLE);
+                if (schemaResolver.isPrimitiveType(ref)) {
+                    Schema<?> refSchema = schemaResolver.getOrThrow(ref);
+                    typeInfo = getTypeInfo(refSchema, nullable ? FORCE_NULLABLE : FORCE_NOT_NULLABLE);
                 } else {
                     typeInfo = new TypeInfo()
-                        .withName(schemaResolver.getTypeName($ref) + opts.pojoNameSuffix())
+                        .withName(schemaResolver.getTypeName(ref) + opts.pojoNameSuffix())
                         .withNullable(nullable);
 
-                    String modelSubpackage = schemaResolver.getModelSubpackage($ref).orElse(null);
+                    String modelSubpackage = schemaResolver.getModelSubpackage(ref).orElse(null);
                     typeInfo = typeInfo.withAddedNormalImport(opts.getModelPackage(modelSubpackage) + "." + typeInfo.name());
                     if (!schemaResolver.isEnumType(schema.get$ref())) {
                         AnnotationInfo validAnnotation = getValidAnnotation();
@@ -106,14 +107,14 @@ public class TypeInfoCollector extends BaseCollector {
 
                 return typeInfo;
             } else if (isEmpty(schema.getAllOf())) {
-                throw new IllegalStateException("No types, no $ref: %s".formatted(schema.toString()));
+                throw new IllegalStateException("No types, no ref: %s".formatted(schema.toString()));
             }
         }
 
         return getJsonType(schema, nullabilityResolution);
     }
 
-    public Optional<Schema> getNonNullableSubSchema(List<Schema> subSchemas) {
+    public Optional<Schema<?>> getNonNullableSubSchema(List<Schema<?>> subSchemas) {
         return subSchemas.stream()
             .filter(subSchema -> !isNullable(subSchema))
             .findFirst();
@@ -403,7 +404,7 @@ public class TypeInfoCollector extends BaseCollector {
             } else if (nonBlank(schema.get$ref())) {
                 return isNullableByExtension(schema);
             } else {
-                throw new IllegalStateException("No types, no $ref: %s".formatted(schema.toString()));
+                throw new IllegalStateException("No types, no ref: %s".formatted(schema.toString()));
             }
         }
 

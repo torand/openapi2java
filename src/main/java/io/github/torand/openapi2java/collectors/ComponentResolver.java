@@ -16,6 +16,9 @@
 package io.github.torand.openapi2java.collectors;
 
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.media.Schema;
+
+import java.util.Map;
 
 /**
  * Resolves all components referenced in an OpenAPI specification.
@@ -31,7 +34,7 @@ public class ComponentResolver {
         this.headers = new HeaderResolver(openApiDoc.getComponents().getHeaders());
         this.parameters = new ParameterResolver(openApiDoc.getComponents().getParameters());
         this.responses = new ResponseResolver(openApiDoc.getComponents().getResponses());
-        this.schemas = new SchemaResolver(openApiDoc.getComponents().getSchemas());
+        this.schemas = new SchemaResolver((Map<String, Schema<?>>)(Object)openApiDoc.getComponents().getSchemas());
         this.securitySchemes = new SecuritySchemeResolver(openApiDoc.getComponents().getSecuritySchemes());
     }
 

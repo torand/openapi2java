@@ -31,10 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -232,13 +229,14 @@ public class ModelGenerator {
         if (nonEmpty(parentSchema.getAllOf())) {
             parentSchema.getAllOf().forEach(subSchema -> schemaTypes.addAll(getNestedSchemaTypes(subSchema, schemaResolver, typeInfoCollector)));
         } else if (nonEmpty(parentSchema.getOneOf())) {
-            Schema<?> subSchema = typeInfoCollector.getNonNullableSubSchema(parentSchema.getOneOf())
+            List<Schema<?>> oneOfSchemas = (List<Schema<?>>)(Object)parentSchema.getOneOf();
+            Schema<?> subSchema = typeInfoCollector.getNonNullableSubSchema(oneOfSchemas)
                 .orElseThrow(illegalStateException("Schema 'oneOf' must contain a non-nullable sub-schema"));
             schemaTypes.addAll(getNestedSchemaTypes(subSchema, schemaResolver, typeInfoCollector));
         } else if (nonBlank(parentSchema.get$ref())) {
             getPojoTypeName(parentSchema, typeInfoCollector).ifPresent(schemaTypes::add);
-            Schema<?> $refSchema = schemaResolver.getOrThrow(parentSchema.get$ref());
-            schemaTypes.addAll(getNestedSchemaTypes($refSchema, schemaResolver, typeInfoCollector));
+            Schema<?> refSchema = schemaResolver.getOrThrow(parentSchema.get$ref());
+            schemaTypes.addAll(getNestedSchemaTypes(refSchema, schemaResolver, typeInfoCollector));
         } else if (nonEmpty(parentSchema.getProperties())) {
             parentSchema.getProperties().forEach((propName, propSchema) ->
                 schemaTypes.addAll(getNestedSchemaTypes(propSchema, schemaResolver, typeInfoCollector))

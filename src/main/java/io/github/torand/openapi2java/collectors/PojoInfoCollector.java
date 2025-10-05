@@ -86,8 +86,8 @@ public class PojoInfoCollector extends BaseCollector {
         if (nonEmpty(schema.getAllOf())) {
             schema.getAllOf().forEach(subSchema -> props.addAll(getSchemaProperties(subSchema)));
         } else if (nonBlank(schema.get$ref())) {
-            Schema<?> $refSchema = schemaResolver.getOrThrow(schema.get$ref());
-            return getSchemaProperties($refSchema);
+            Schema<?> refSchema = schemaResolver.getOrThrow(schema.get$ref());
+            return getSchemaProperties(refSchema);
         } else {
             schema.getProperties().forEach((propName, propSchema) ->
                 props.add(propertyInfoCollector.getPropertyInfo(propName, propSchema, isRequired(schema, propName)))

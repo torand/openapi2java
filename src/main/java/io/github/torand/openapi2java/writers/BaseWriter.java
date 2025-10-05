@@ -16,6 +16,7 @@
 package io.github.torand.openapi2java.writers;
 
 import io.github.torand.openapi2java.generators.Options;
+import io.github.torand.openapi2java.utils.OpenApi2JavaException;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -37,7 +38,7 @@ public abstract class BaseWriter implements AutoCloseable {
         try {
             writer.append(format.formatted(args));
         } catch (IOException e) {
-            throw new RuntimeException("Failed to append to writer", e);
+            throw new OpenApi2JavaException("Failed to append to writer", e);
         }
     }
 
@@ -45,7 +46,7 @@ public abstract class BaseWriter implements AutoCloseable {
         try {
             writer.append(format.formatted(args)).append("\n");
         } catch (IOException e) {
-            throw new RuntimeException("Failed to append to writer", e);
+            throw new OpenApi2JavaException("Failed to append to writer", e);
         }
     }
 
@@ -53,7 +54,7 @@ public abstract class BaseWriter implements AutoCloseable {
         try {
             writer.append("\n");
         } catch (IOException e) {
-            throw new RuntimeException("Failed to append to writer", e);
+            throw new OpenApi2JavaException("Failed to append to writer", e);
         }
     }
 
@@ -67,7 +68,7 @@ public abstract class BaseWriter implements AutoCloseable {
             try {
                 writer.append(indent);
             } catch (IOException e) {
-                throw new RuntimeException("Failed to append to writer", e);
+                throw new OpenApi2JavaException("Failed to append to writer", e);
             }
         }
     }

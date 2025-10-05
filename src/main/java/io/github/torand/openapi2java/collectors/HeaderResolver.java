@@ -32,15 +32,15 @@ public class HeaderResolver {
         this.headers = headers;
     }
 
-    public String getHeaderName(String $ref) {
-        return $ref.replace("#/components/headers/", "");
+    public String getHeaderName(String ref) {
+        return ref.replace("#/components/headers/", "");
     }
 
-    public Optional<Header> get(String $ref) {
-        return Optional.ofNullable(headers.get(getHeaderName($ref)));
+    public Optional<Header> get(String ref) {
+        return Optional.ofNullable(headers.get(getHeaderName(ref)));
     }
 
-    public Header getOrThrow(String $ref) {
-        return get($ref).orElseThrow(illegalStateException("Header %s not found", $ref));
+    public Header getOrThrow(String ref) {
+        return get(ref).orElseThrow(illegalStateException("Header %s not found", ref));
     }
 }

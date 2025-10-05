@@ -16,7 +16,7 @@
 package io.github.torand.openapi2java.utils;
 
 /**
- * Generic runtime exception thrown by this plugin,
+ * Generic runtime exception thrown by this plugin.
  */
 public class OpenApi2JavaException extends RuntimeException {
 

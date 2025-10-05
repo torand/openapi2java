@@ -30,49 +30,49 @@ import static java.util.Objects.nonNull;
  * Resolves schema components referenced in an OpenAPI specification.
  */
 public class SchemaResolver {
-    private final Map<String, Schema> schemas;
+    private final Map<String, Schema<?>> schemas;
 
-    SchemaResolver(Map<String, Schema> schemas) {
+    SchemaResolver(Map<String, Schema<?>> schemas) {
         this.schemas = schemas;
     }
 
-    public String getTypeName(String $ref) {
-        return $ref.replace("#/components/schemas/", "");
+    public String getTypeName(String ref) {
+        return ref.replace("#/components/schemas/", "");
     }
 
-    public Optional<String> getModelSubpackage(String $ref) {
-        Schema schema = getOrThrow($ref);
+    public Optional<String> getModelSubpackage(String ref) {
+        Schema<?> schema = getOrThrow(ref);
         return extensions(schema.getExtensions())
             .getString(EXT_MODEL_SUBDIR)
             .map(subdir -> subdir.replace("\\/", "."));
     }
 
-    public Optional<Schema> get(String $ref) {
-        return Optional.ofNullable(schemas.get(getTypeName($ref)));
+    public Optional<Schema<?>> get(String ref) {
+        return Optional.ofNullable(schemas.get(getTypeName(ref)));
     }
 
-    public Schema getOrThrow(String $ref) {
-        return get($ref).orElseThrow(illegalStateException("Schema %s not found", $ref));
+    public Schema<?> getOrThrow(String ref) {
+        return get(ref).orElseThrow(illegalStateException("Schema %s not found", ref));
     }
 
-    public boolean isEnumType(String $ref) {
-        return get($ref).map(SchemaResolver::isEnumType).orElse(false);
+    public boolean isEnumType(String ref) {
+        return get(ref).map(SchemaResolver::isEnumType).orElse(false);
     }
 
-    public boolean isObjectType(String $ref) {
-        return get($ref).map(SchemaResolver::isObjectType).orElse(false);
+    public boolean isObjectType(String ref) {
+        return get(ref).map(SchemaResolver::isObjectType).orElse(false);
     }
 
-    public boolean isArrayType(String $ref) {
-        return get($ref).map(SchemaResolver::isArrayType).orElse(false);
+    public boolean isArrayType(String ref) {
+        return get(ref).map(SchemaResolver::isArrayType).orElse(false);
     }
 
-    public boolean isCompoundType(String $ref) {
-        return get($ref).map(SchemaResolver::isCompoundType).orElse(false);
+    public boolean isCompoundType(String ref) {
+        return get(ref).map(SchemaResolver::isCompoundType).orElse(false);
     }
 
-    public boolean isPrimitiveType(String $ref) {
-        return get($ref).map(SchemaResolver::isPrimitiveType).orElse(false);
+    public boolean isPrimitiveType(String ref) {
+        return get(ref).map(SchemaResolver::isPrimitiveType).orElse(false);
     }
 
     public static boolean isEnumType(Schema<?> schema) {

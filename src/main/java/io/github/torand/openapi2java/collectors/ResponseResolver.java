@@ -32,15 +32,15 @@ public class ResponseResolver {
         this.responses = responses;
     }
 
-    public String getResponseName(String $ref) {
-        return $ref.replace("#/components/responses/", "");
+    public String getResponseName(String ref) {
+        return ref.replace("#/components/responses/", "");
     }
 
-    public Optional<ApiResponse> get(String $ref) {
-        return Optional.ofNullable(responses.get(getResponseName($ref)));
+    public Optional<ApiResponse> get(String ref) {
+        return Optional.ofNullable(responses.get(getResponseName(ref)));
     }
 
-    public ApiResponse getOrThrow(String $ref) {
-        return get($ref).orElseThrow(illegalStateException("Response %s not found", $ref));
+    public ApiResponse getOrThrow(String ref) {
+        return get(ref).orElseThrow(illegalStateException("Response %s not found", ref));
     }
 }
