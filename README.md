@@ -83,28 +83,29 @@ $ mvn io.github.torand:openapi2java:1.2.3:generate \
 
 ## Configuration
 
-| Parameter                           | Default            | Description                                                                              |
-|-------------------------------------|--------------------|------------------------------------------------------------------------------------------|
-| openApiFile                         |                    | Filename of OpenAPI-file to generate Java code from                                      |
-| outputDir                           | Project build dir  | Directory to write Java code files to                                                    |
-| rootPackage                         |                    | Root package path of output Java classes                                                 |
-| rootUrlPath                         | "api"              | Root context path of REST resources                                                      |
-| resourceNameSuffix                  | "Api"              | Suffix for resource (REST client) interface names                                        |
-| resourceNameOverride                | "" (i.e. use tags) | Specify to generate a single resource interface, instead of one per tag                  |
-| pojoNameSuffix                      | "Dto"              | Suffix for POJO (model) class names                                                      |
-| pojosAsRecords                      | true               | Whether to output Java records instead of Java classes for models                        |
-| includeTags                         | "" (i.e. all)      | Tags (comma separated) to output resource interfaces for                                 |
-| generateResourceInterfaces          | true               | Whether to generate resource interfaces                                                  |
-| generateOpenApiDefClass             | true               | Whether to generate OpenAPI definition class                                             |
-| addJsonPropertyAnnotations          | true               | Whether to generate model files with JSON property annotations                           |
-| addJakartaBeanValidationAnnotations | true               | Whether to generate model files with Jakarta Bean Validation annotations                 |
-| addMpOpenApiAnnotations             | true               | Whether to generate files with Microprofile OpenAPI annotations                          |
-| addMpRestClientAnnotations          | true               | Whether to generate resource files with Microprofile Rest Client annotations             |
-| useKotlinSyntax                     | false              | Whether to generate files with Kotlin syntax                                             |
-| useResteasyResponse                 | false              | Whether to use RESTEasy's `RestResponse<>` as return type for generated resource methods |
-| indentWithTab                       | false              | Whether to output indents with the tab character                                         |
-| indentSize                          | 4                  | Number of spaces in one indentation level. Relevant only when 'indentWithTab' is false.  |
-| verbose                             | false              | Whether to log extra details                                                             |
+| Parameter                            | Default            | Description                                                                              |
+|--------------------------------------|--------------------|------------------------------------------------------------------------------------------|
+| openApiFile                          |                    | Filename of OpenAPI-file to generate Java code from                                      |
+| outputDir                            | Project build dir  | Directory to write Java code files to                                                    |
+| rootPackage                          |                    | Root package path of output Java classes                                                 |
+| rootUrlPath                          | "api"              | Root context path of REST resources                                                      |
+| resourceNameSuffix                   | "Api"              | Suffix for resource (MP Rest Client) interface names                                     |
+| resourceNameOverride                 | "" (i.e. use tags) | Specify to generate a single resource interface, instead of one per tag                  |
+| resourceClientHeadersFactoryOverride | ""                 | Specify to use same MP Rest Client header factory class for all resource interfaces      |
+| pojoNameSuffix                       | "Dto"              | Suffix for POJO (model) class names                                                      |
+| pojosAsRecords                       | true               | Whether to output Java records instead of Java classes for models                        |
+| includeTags                          | "" (i.e. all)      | Tags (comma separated) to output resource interfaces for                                 |
+| generateResourceInterfaces           | true               | Whether to generate resource interfaces                                                  |
+| generateOpenApiDefClass              | true               | Whether to generate OpenAPI definition class                                             |
+| addJsonPropertyAnnotations           | true               | Whether to generate model files with JSON property annotations                           |
+| addJakartaBeanValidationAnnotations  | true               | Whether to generate model files with Jakarta Bean Validation annotations                 |
+| addMpOpenApiAnnotations              | true               | Whether to generate files with Microprofile OpenAPI annotations                          |
+| addMpRestClientAnnotations           | true               | Whether to generate resource files with Microprofile Rest Client annotations             |
+| useKotlinSyntax                      | false              | Whether to generate files with Kotlin syntax                                             |
+| useResteasyResponse                  | false              | Whether to use RESTEasy's `RestResponse<>` as return type for generated resource methods |
+| indentWithTab                        | false              | Whether to output indents with the tab character                                         |
+| indentSize                           | 4                  | Number of spaces in one indentation level. Relevant only when 'indentWithTab' is false.  |
+| verbose                              | false              | Whether to log extra details                                                             |
 
 ## Type Mapping
 
@@ -193,7 +194,7 @@ The code generation can be customized by using the following extension propertie
 | Extension property          | Type         | Allowed where                       | Description                                                             |
 |-----------------------------|--------------|-------------------------------------|-------------------------------------------------------------------------|
 | x-restclient-configkey      | String       | In a tag                            | Config key used for getting MP Rest Client config                       |
-| x-restclient-headers        | Object (Map) | In a Tag                            | Map of custom client header names and values                            |
+| x-restclient-headers        | Object (Map) | In a Tag                            | Map of custom client header names and their values                      |
 | x-restclient-headersfactory | String       | In a Tag                            | Fully qualified classname of an MP Rest Client header factory           |
 | x-json-serializer           | String       | In a schema                         | Fully qualified classname of a JSON serializer class for the schema     |
 | x-validation-constraint     | String       | In a schema                         | Fully qualified classname of an annotation class to validate the schema |

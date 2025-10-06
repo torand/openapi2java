@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- ...
+- New tag extension 'x-restclient-headers' to define Microprofile client header params.
+- New tag extension 'x-restclient-headersfactory' to define Microprofile client headers factory.
+- New config parameter 'resourceClientHeadersFactoryOverride' to specify common Microprofile client header factory class for all resource interfaces.
 
 ### Changed
 - ...
@@ -26,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.2.3] - 2025-06-18
 
 ### Fixed
-- Config param 'resourceNameOverride' now applied even for OpenAPI specifications with tags.
+- Config parameter 'resourceNameOverride' now applied even for OpenAPI specifications with tags.
 
 ## [1.2.2] - 2025-05-30
 
@@ -36,9 +38,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.2.0] - 2025-05-23
 
 ### Added
-- New config param 'resourceNameOverride' to support OpenAPI specifications with no tags.
+- New config parameter 'resourceNameOverride' to support OpenAPI specifications with no tags.
 ### Changed
-- Config param 'generateResourceClasses' renamed to 'generateResourceInterfaces'.
+- Config parameter 'generateResourceClasses' renamed to 'generateResourceInterfaces'.
  
 ## [1.1.0] - 2025-05-20
 

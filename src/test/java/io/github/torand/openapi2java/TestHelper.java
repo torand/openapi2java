@@ -31,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static io.github.torand.openapi2java.TestHelper.ConfigVariant.COMMON_HEADERS_FACTORY;
 import static io.github.torand.openapi2java.TestHelper.ConfigVariant.RESTEASY;
 import static io.github.torand.openapi2java.utils.StringUtils.removeLineBreaks;
 import static java.util.Collections.emptyList;
@@ -44,7 +45,8 @@ public final class TestHelper {
 
     public enum ConfigVariant {
         RESTEASY("Resteasy"),
-        NO_HEADER_PARAM("NoHeaderParam");
+        NO_HEADER_PARAM("NoHeaderParam"),
+        COMMON_HEADERS_FACTORY("CommonHeadersFactory");
 
         String suffix;
 
@@ -89,6 +91,12 @@ public final class TestHelper {
         return baseOptions
             .withResourceNameSuffix(baseOptions.resourceNameSuffix() + "_" + RESTEASY.suffix)
             .withUseResteasyResponse(true);
+    }
+
+    public static Options withHeadersFactoryOverride(Options baseOptions) {
+        return baseOptions
+            .withResourceNameSuffix(baseOptions.resourceNameSuffix() + "_" + COMMON_HEADERS_FACTORY.suffix)
+            .withResourceClientHeadersFactoryOverride("io.github.torand.openapi2java.test.CommonClientHeadersFactory");
     }
 
     public static void assertSnippet(String path, String expectedSnippet) {

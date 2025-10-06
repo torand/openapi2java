@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
+import static io.github.torand.javacommons.lang.StringHelper.isBlank;
+import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
 import static io.github.torand.openapi2java.collectors.Extensions.EXT_RESTCLIENT_CONFIGKEY;
 import static io.github.torand.openapi2java.collectors.Extensions.EXT_RESTCLIENT_HEADERS;
 import static io.github.torand.openapi2java.collectors.Extensions.EXT_RESTCLIENT_HEADERSFACTORY;
@@ -90,14 +92,20 @@ public class ResourceInfoCollector extends BaseCollector {
                     List<AnnotationInfo> clientHeaderAnnotations = getClientHeaderParamAnnotations(maybeHeaders.get());
                     resourceInfo = resourceInfo.withAddedAnnotations(clientHeaderAnnotations);
                 }
+            }
 
-                Optional<String> maybeHeaderFactory = extensions(tag.getExtensions())
-                    .getString(EXT_RESTCLIENT_HEADERSFACTORY);
+            String clientHeadersFactory = opts.resourceClientHeadersFactoryOverride();
+            if (isBlank(clientHeadersFactory)) {
+                clientHeadersFactory = nonNull(tag) ?
+                    extensions(tag.getExtensions())
+                        .getString(EXT_RESTCLIENT_HEADERSFACTORY)
+                        .orElse("") :
+                    "";
+            }
 
-                if (maybeHeaderFactory.isPresent()) {
-                    AnnotationInfo registerClientHeadersAnnotation = getRegisterClientHeadersAnnotation(maybeHeaderFactory.get());
-                    resourceInfo = resourceInfo.withAddedAnnotation(registerClientHeadersAnnotation);
-                }
+            if (nonBlank(clientHeadersFactory)) {
+                AnnotationInfo registerClientHeadersAnnotation = getRegisterClientHeadersAnnotation(clientHeadersFactory);
+                resourceInfo = resourceInfo.withAddedAnnotation(registerClientHeadersAnnotation);
             }
         }
 

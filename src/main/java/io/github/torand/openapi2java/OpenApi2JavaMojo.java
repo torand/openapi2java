@@ -79,6 +79,13 @@ public class OpenApi2JavaMojo extends AbstractMojo {
     private String resourceNameOverride;
 
     /**
+     * Microprofile Rest Client headers factory override. Specify this to have all resources generated use the same client headers factory.
+     * If not specified, each resource gets a separate client headers factory based on a tag extension property (if any).
+     */
+    @Parameter( property = "resourceClientHeadersFactoryOverride", defaultValue = "" )
+    private String resourceClientHeadersFactoryOverride;
+
+    /**
      * Pojo name suffix.
      */
     @Parameter( property = "pojoNameSuffix", defaultValue = "Dto" )
@@ -177,6 +184,7 @@ public class OpenApi2JavaMojo extends AbstractMojo {
             rootUrlPath,
             resourceNameSuffix,
             resourceNameOverride,
+            resourceClientHeadersFactoryOverride,
             pojoNameSuffix,
             pojosAsRecords,
             includeTags,
