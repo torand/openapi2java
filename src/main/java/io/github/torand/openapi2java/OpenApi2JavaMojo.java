@@ -157,6 +157,12 @@ public class OpenApi2JavaMojo extends AbstractMojo {
     private boolean useResteasyResponse;
 
     /**
+     * Add the Quarkus OIDC client annotation to all resource interfaces.
+     */
+    @Parameter( property = "useOidcClientAnnotation", defaultValue = "false" )
+    private boolean useOidcClientAnnotation;
+
+    /**
      * Whether to output indents with the tab character.
      */
     @Parameter( property = "indentWithTab", defaultValue = "false" )
@@ -196,6 +202,7 @@ public class OpenApi2JavaMojo extends AbstractMojo {
             addMpRestClientAnnotations,
             useKotlinSyntax,
             useResteasyResponse,
+            useOidcClientAnnotation,
             indentWithTab,
             indentSize,
             verbose

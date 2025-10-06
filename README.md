@@ -103,6 +103,7 @@ $ mvn io.github.torand:openapi2java:1.2.3:generate \
 | addMpRestClientAnnotations           | true               | Whether to generate resource files with Microprofile Rest Client annotations             |
 | useKotlinSyntax                      | false              | Whether to generate files with Kotlin syntax                                             |
 | useResteasyResponse                  | false              | Whether to use RESTEasy's `RestResponse<>` as return type for generated resource methods |
+| useOidcClientAnnotation              | false              | Whether to add the Quarkus OIDC client annotation to the resource interfaces             |
 | indentWithTab                        | false              | Whether to output indents with the tab character                                         |
 | indentSize                           | 4                  | Number of spaces in one indentation level. Relevant only when 'indentWithTab' is false.  |
 | verbose                              | false              | Whether to log extra details                                                             |

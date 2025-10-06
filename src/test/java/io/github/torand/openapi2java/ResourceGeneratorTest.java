@@ -21,6 +21,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import org.junit.jupiter.api.Test;
 
 import static io.github.torand.openapi2java.TestHelper.ConfigVariant.COMMON_HEADERS_FACTORY;
+import static io.github.torand.openapi2java.TestHelper.ConfigVariant.OIDC_CLIENT_ANNOTATION;
 import static io.github.torand.openapi2java.TestHelper.ConfigVariant.RESTEASY;
 import static io.github.torand.openapi2java.TestHelper.assertMatchingJavaFiles;
 import static io.github.torand.openapi2java.TestHelper.assertMatchingJavaFilesVariant;
@@ -31,6 +32,7 @@ import static io.github.torand.openapi2java.TestHelper.getKotlinOptions;
 import static io.github.torand.openapi2java.TestHelper.loadOpenApi30Spec;
 import static io.github.torand.openapi2java.TestHelper.loadOpenApi31Spec;
 import static io.github.torand.openapi2java.TestHelper.withHeadersFactoryOverride;
+import static io.github.torand.openapi2java.TestHelper.withOidcClientAnnotation;
 import static io.github.torand.openapi2java.TestHelper.withResteasyResponse;
 import static java.util.Collections.emptyList;
 
@@ -104,6 +106,16 @@ class ResourceGeneratorTest {
     }
 
     @Test
+    void shouldGenerateJavaResource_withOidcClientAnnotation() {
+        Options opts = withOidcClientAnnotation(getJavaOptions());
+        OpenAPI openApiDoc = loadOpenApi31Spec();
+
+        new ResourceGenerator(opts).generate(openApiDoc);
+
+        assertMatchingJavaFilesVariant("%sApi".formatted("Orders"), OIDC_CLIENT_ANNOTATION);
+    }
+
+    @Test
     void shouldGenerateKotlinResources() {
         Options opts = getKotlinOptions();
         OpenAPI openApiDoc = loadOpenApi31Spec();
@@ -162,6 +174,16 @@ class ResourceGeneratorTest {
         for (String resource : RESOURCES) {
             assertMatchingKotlinFilesVariant("%sApi".formatted(resource), COMMON_HEADERS_FACTORY);
         }
+    }
+
+    @Test
+    void shouldGenerateKotlinResource_withOidcClientAnnotation() {
+        Options opts = withOidcClientAnnotation(getKotlinOptions());
+        OpenAPI openApiDoc = loadOpenApi31Spec();
+
+        new ResourceGenerator(opts).generate(openApiDoc);
+
+        assertMatchingKotlinFilesVariant("%sApi".formatted("Orders"), OIDC_CLIENT_ANNOTATION);
     }
 
     private void removeTags(OpenAPI openApiDoc) {

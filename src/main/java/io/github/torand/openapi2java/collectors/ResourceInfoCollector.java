@@ -107,6 +107,11 @@ public class ResourceInfoCollector extends BaseCollector {
                 AnnotationInfo registerClientHeadersAnnotation = getRegisterClientHeadersAnnotation(clientHeadersFactory);
                 resourceInfo = resourceInfo.withAddedAnnotation(registerClientHeadersAnnotation);
             }
+
+            if (opts.useOidcClientAnnotation()) {
+                AnnotationInfo oidcClientFilterAnnotation = getOidcClientFilterAnnotation(configKey);
+                resourceInfo = resourceInfo.withAddedAnnotation(oidcClientFilterAnnotation);
+            }
         }
 
         AnnotationInfo pathAnnotation = getPathAnnotation(resourceInfo);
@@ -138,6 +143,12 @@ public class ResourceInfoCollector extends BaseCollector {
         }
 
         return resourceInfo;
+    }
+
+    private static AnnotationInfo getOidcClientFilterAnnotation(String configKey) {
+        return new AnnotationInfo(
+            "@OidcClientFilter(\"%s\")".formatted(configKey),
+            "io.quarkus.oidc.client.filter.OidcClientFilter");
     }
 
     private AnnotationInfo getRegisterClientHeadersAnnotation(String headerFactory) {

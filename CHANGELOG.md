@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New tag extension 'x-restclient-headers' to define Microprofile client header params.
 - New tag extension 'x-restclient-headersfactory' to define Microprofile client headers factory.
 - New config parameter 'resourceClientHeadersFactoryOverride' to specify common Microprofile client header factory class for all resource interfaces.
+- New config parameter 'useOidcClientAnnotation' to generate Quarkus OIDC client annotation for all resource interfaces.
 
 ### Changed
 - ...
