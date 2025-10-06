@@ -1,5 +1,7 @@
 package io.github.torand.openapi2java.test;
 
+import io.github.torand.openapi2java.test.MyClientHeadersFactory;
+import io.github.torand.openapi2java.test.MyClientRequestFilter;
 import io.github.torand.openapi2java.test.model.OrderItemV1Dto;
 import io.github.torand.openapi2java.test.model.OrderV1Dto;
 import io.github.torand.openapi2java.test.model.common.ErrorDto;
@@ -23,6 +25,7 @@ import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
+import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.jboss.resteasy.reactive.RestResponse;
 
@@ -41,7 +44,8 @@ import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.ARRA
 @Tag(name = "Orders", description = "Retrieving and modifying orders")
 @RegisterRestClient(configKey = "order-api")
 @ClientHeaderParam(name = AUTHORIZATION, value = "Bearer {order-api/mp-rest/api-key}")
-@RegisterClientHeaders(io.github.torand.openapi2java.test.MyClientHeadersFactory.class)
+@RegisterClientHeaders(MyClientHeadersFactory.class)
+@RegisterProvider(MyClientRequestFilter.class)
 @Path(ROOT_PATH)
 public interface OrdersApi_Resteasy {
 

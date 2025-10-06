@@ -79,11 +79,25 @@ public class OpenApi2JavaMojo extends AbstractMojo {
     private String resourceNameOverride;
 
     /**
+     * Microprofile Rest Client config key override. Specify this to have all resources generated use the same config key.
+     * If not specified, each resource gets a separate config key based on a tag extension property (if any) or the resource name.
+     */
+    //@Parameter( property = "resourceConfigKeyOverride", defaultValue = "" )
+    //private String resourceConfigKeyOverride;
+
+    /**
      * Microprofile Rest Client headers factory override. Specify this to have all resources generated use the same client headers factory.
      * If not specified, each resource gets a separate client headers factory based on a tag extension property (if any).
      */
     @Parameter( property = "resourceClientHeadersFactoryOverride", defaultValue = "" )
     private String resourceClientHeadersFactoryOverride;
+
+    /**
+     * Microprofile Rest Client providers override. Specify this to have all resources generated register the same providers.
+     * If not specified, each resource gets a separate set of providers based on a tag extension property (if any).
+     */
+    @Parameter( property = "resourceProvidersOverride", defaultValue = "" )
+    private List<String> resourceProvidersOverride;
 
     /**
      * Pojo name suffix.
@@ -191,6 +205,7 @@ public class OpenApi2JavaMojo extends AbstractMojo {
             resourceNameSuffix,
             resourceNameOverride,
             resourceClientHeadersFactoryOverride,
+            resourceProvidersOverride,
             pojoNameSuffix,
             pojosAsRecords,
             includeTags,

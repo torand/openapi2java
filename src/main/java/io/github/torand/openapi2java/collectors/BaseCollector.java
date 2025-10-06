@@ -25,6 +25,7 @@ import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
 import static io.github.torand.javacommons.lang.StringHelper.quote;
 import static io.github.torand.javacommons.lang.StringHelper.stripHead;
 import static io.github.torand.javacommons.lang.StringHelper.stripTail;
+import static io.github.torand.openapi2java.collectors.Extensions.extensions;
 import static io.github.torand.openapi2java.utils.KotlinTypeMapper.toKotlinNative;
 import static io.github.torand.openapi2java.utils.StringUtils.joinCsv;
 import static java.util.Objects.nonNull;
@@ -91,8 +92,8 @@ public abstract class BaseCollector {
         }
     }
 
-    protected String formatDeprecationMessage(Map<String, Object> extensions) {
-        return new Extensions(extensions).getString(Extensions.EXT_DEPRECATION_MESSAGE).orElse("Deprecated");
+    protected String formatDeprecationMessage(Map<String, Object> extensionsByName) {
+        return extensions(extensionsByName).getString(Extensions.EXT_DEPRECATION_MESSAGE).orElse("Deprecated");
     }
 
     protected ConstantValue getHeaderNameConstant(String name) {

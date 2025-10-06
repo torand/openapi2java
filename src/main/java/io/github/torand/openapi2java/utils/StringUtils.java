@@ -41,4 +41,12 @@ public class StringUtils {
 
         return String.join(", ", values);
     }
+
+    public static String getClassNameFromFqn(String fqn) {
+        int lastDot = fqn.lastIndexOf(".");
+        if (lastDot == -1) {
+            throw new IllegalArgumentException("Unexpected fully qualified class name: %s".formatted(fqn));
+        }
+        return fqn.substring(lastDot+1);
+    }
 }

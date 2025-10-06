@@ -18,6 +18,7 @@ package io.github.torand.openapi2java.collectors;
 import io.github.torand.openapi2java.utils.OpenApi2JavaException;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -32,24 +33,25 @@ public class Extensions {
     public static final String EXT_RESTCLIENT_CONFIGKEY = "x-restclient-configkey";
     public static final String EXT_RESTCLIENT_HEADERS = "x-restclient-headers";
     public static final String EXT_RESTCLIENT_HEADERSFACTORY = "x-restclient-headersfactory";
+    public static final String EXT_RESTCLIENT_PROVIDERS = "x-restclient-providers";
     public static final String EXT_JSON_SERIALIZER = "x-json-serializer";
     public static final String EXT_VALIDATION_CONSTRAINT = "x-validation-constraint";
     public static final String EXT_NULLABLE = "x-nullable";
     public static final String EXT_MODEL_SUBDIR = "x-model-subdir";
     public static final String EXT_DEPRECATION_MESSAGE = "x-deprecation-message";
 
-    private final Map<String, Object> schemaExtensions;
+    private final Map<String, Object> extensionsByName;
 
-    public static Extensions extensions(Map<String, Object> schemaExtensions) {
-        return new Extensions(schemaExtensions);
+    public static Extensions extensions(Map<String, Object> extensionsByName) {
+        return new Extensions(extensionsByName);
     }
 
-    public Extensions(Map<String, Object> schemaExtensions) {
-        this.schemaExtensions = nonNull(schemaExtensions) ? schemaExtensions : Collections.emptyMap();
+    private Extensions(Map<String, Object> extensionsByName) {
+        this.extensionsByName = nonNull(extensionsByName) ? extensionsByName : Collections.emptyMap();
     }
 
     public Optional<String> getString(String name) {
-        Object value = schemaExtensions.get(name);
+        Object value = extensionsByName.get(name);
         if (isNull(value)) {
             return Optional.empty();
         }
@@ -63,8 +65,20 @@ public class Extensions {
         return Optional.empty();
     }
 
+    public Optional<List<String>> getStringArray(String name) {
+        Object value = extensionsByName.get(name);
+        if (isNull(value)) {
+            return Optional.empty();
+        }
+        if (!(value instanceof List)) {
+            throw new RuntimeException("Value of extension %s is not an array".formatted(name));
+        }
+
+        return Optional.of((List<String>)value);
+    }
+
     public Optional<Boolean> getBoolean(String name) {
-        Object value = schemaExtensions.get(name);
+        Object value = extensionsByName.get(name);
         if (isNull(value)) {
             return Optional.empty();
         }
@@ -76,7 +90,7 @@ public class Extensions {
     }
 
     public Optional<Map<String, Object>> getMap(String name) {
-        Object value = schemaExtensions.get(name);
+        Object value = extensionsByName.get(name);
         if (isNull(value)) {
             return Optional.empty();
         }

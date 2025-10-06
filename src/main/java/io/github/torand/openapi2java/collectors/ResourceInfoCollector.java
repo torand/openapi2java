@@ -31,13 +31,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.github.torand.javacommons.collection.CollectionHelper.isEmpty;
 import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
 import static io.github.torand.javacommons.lang.StringHelper.isBlank;
 import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
 import static io.github.torand.openapi2java.collectors.Extensions.EXT_RESTCLIENT_CONFIGKEY;
 import static io.github.torand.openapi2java.collectors.Extensions.EXT_RESTCLIENT_HEADERS;
 import static io.github.torand.openapi2java.collectors.Extensions.EXT_RESTCLIENT_HEADERSFACTORY;
+import static io.github.torand.openapi2java.collectors.Extensions.EXT_RESTCLIENT_PROVIDERS;
 import static io.github.torand.openapi2java.collectors.Extensions.extensions;
+import static io.github.torand.openapi2java.utils.StringUtils.getClassNameFromFqn;
+import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -108,6 +112,20 @@ public class ResourceInfoCollector extends BaseCollector {
                 resourceInfo = resourceInfo.withAddedAnnotation(registerClientHeadersAnnotation);
             }
 
+            List<String> providers = opts.resourceProvidersOverride();
+            if (isEmpty(providers)) {
+                providers = nonNull(tag) ?
+                    extensions(tag.getExtensions())
+                        .getStringArray(EXT_RESTCLIENT_PROVIDERS)
+                        .orElse(emptyList()) :
+                    emptyList();
+            }
+
+            if (nonEmpty(providers)) {
+                List<AnnotationInfo> registerProviderAnnotations = getRegisterProviderAnnotations(providers);
+                resourceInfo = resourceInfo.withAddedAnnotations(registerProviderAnnotations);
+            }
+
             if (opts.useOidcClientAnnotation()) {
                 AnnotationInfo oidcClientFilterAnnotation = getOidcClientFilterAnnotation(configKey);
                 resourceInfo = resourceInfo.withAddedAnnotation(oidcClientFilterAnnotation);
@@ -145,6 +163,20 @@ public class ResourceInfoCollector extends BaseCollector {
         return resourceInfo;
     }
 
+    private List<AnnotationInfo> getRegisterProviderAnnotations(List<String> providers) {
+        List<AnnotationInfo> registerProviderAnnotations = new ArrayList<>();
+
+        providers.forEach(provider -> {
+            AnnotationInfo registerProviderAnnotation = new AnnotationInfo(
+                "@RegisterProvider(%s%sclass)".formatted(getClassNameFromFqn(provider), opts.useKotlinSyntax() ? "::" : "."),
+                "org.eclipse.microprofile.rest.client.annotation.RegisterProvider"
+            ).withAddedNormalImport(provider);
+            registerProviderAnnotations.add(registerProviderAnnotation);
+        });
+
+        return registerProviderAnnotations;
+    }
+
     private static AnnotationInfo getOidcClientFilterAnnotation(String configKey) {
         return new AnnotationInfo(
             "@OidcClientFilter(\"%s\")".formatted(configKey),
@@ -153,9 +185,9 @@ public class ResourceInfoCollector extends BaseCollector {
 
     private AnnotationInfo getRegisterClientHeadersAnnotation(String headerFactory) {
         return new AnnotationInfo(
-            "@RegisterClientHeaders(%s%sclass)".formatted(headerFactory, opts.useKotlinSyntax() ? "::" : "."),
+            "@RegisterClientHeaders(%s%sclass)".formatted(getClassNameFromFqn(headerFactory), opts.useKotlinSyntax() ? "::" : "."),
             "org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders"
-        );
+        ).withAddedNormalImport(headerFactory);
     }
 
     private AnnotationInfo getPathAnnotation(ResourceInfo resourceInfo) {

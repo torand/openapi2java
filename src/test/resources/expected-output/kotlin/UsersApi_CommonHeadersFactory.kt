@@ -1,5 +1,6 @@
 package io.github.torand.openapi2java.test
 
+import io.github.torand.openapi2java.test.CommonClientHeadersFactory
 import io.github.torand.openapi2java.test.UsersApi_CommonHeadersFactory.Companion.ROOT_PATH
 import io.github.torand.openapi2java.test.model.NewUserProfileV1Dto
 import io.github.torand.openapi2java.test.model.UserProfileV1Dto
@@ -34,7 +35,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 @SecurityRequirement(name = "oidc")
 @Tag(name = "Users", description = "Retrieving and modifying user profiles")
 @RegisterRestClient(configKey = "users-api")
-@RegisterClientHeaders(io.github.torand.openapi2java.test.CommonClientHeadersFactory::class)
+@RegisterClientHeaders(CommonClientHeadersFactory::class)
 @Path(ROOT_PATH)
 interface UsersApi_CommonHeadersFactory {
 

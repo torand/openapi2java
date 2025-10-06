@@ -1,8 +1,8 @@
 package io.github.torand.openapi2java.test
 
+import io.github.torand.openapi2java.test.CommonClientRequestFilter
 import io.github.torand.openapi2java.test.MyClientHeadersFactory
-import io.github.torand.openapi2java.test.MyClientRequestFilter
-import io.github.torand.openapi2java.test.OrdersApi.Companion.ROOT_PATH
+import io.github.torand.openapi2java.test.OrdersApi_CommonProviders.Companion.ROOT_PATH
 import io.github.torand.openapi2java.test.model.OrderItemV1Dto
 import io.github.torand.openapi2java.test.model.OrderV1Dto
 import io.github.torand.openapi2java.test.model.common.ErrorDto
@@ -42,9 +42,9 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 @RegisterRestClient(configKey = "order-api")
 @ClientHeaderParam(name = AUTHORIZATION, value = [ "Bearer {order-api/mp-rest/api-key}" ])
 @RegisterClientHeaders(MyClientHeadersFactory::class)
-@RegisterProvider(MyClientRequestFilter::class)
+@RegisterProvider(CommonClientRequestFilter::class)
 @Path(ROOT_PATH)
-interface OrdersApi {
+interface OrdersApi_CommonProviders {
 
     @GET
     @Path("orders")

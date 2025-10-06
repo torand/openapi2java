@@ -27,6 +27,7 @@ import static io.github.torand.javacommons.lang.StringHelper.isBlank;
  * @param resourceNameSuffix the resource name suffix.
  * @param resourceNameOverride the resource name override.
  * @param resourceClientHeadersFactoryOverride the resource client headers factory override.
+ * @param resourceProvidersOverride the resource providers override.
  * @param pojoNameSuffix the Pojo name suffix.
  * @param pojosAsRecords the flag to use Java records for Pojos.
  * @param includeTags the tags to generate source code for. Includes all tags if not specified.
@@ -50,6 +51,7 @@ public record Options (
     String resourceNameSuffix,
     String resourceNameOverride,
     String resourceClientHeadersFactoryOverride,
+    List<String> resourceProvidersOverride,
     String pojoNameSuffix,
     boolean pojosAsRecords,
     List<String> includeTags,
@@ -74,6 +76,7 @@ public record Options (
             "Api",
             "",
             "",
+            null,
             "Dto",
             true,
             null,
@@ -92,7 +95,7 @@ public record Options (
         );
     }
 
-    private Options with(String outputDir, String rootPackage, String resourceNameSuffix, String resourceNameOverride, String resourceClientHeadersFactoryOverride, List<String> includeTags, boolean useKotlinSyntax, boolean useResteasyResponse, boolean useOidcClientAnnotation, boolean verbose) {
+    private Options with(String outputDir, String rootPackage, String resourceNameSuffix, String resourceNameOverride, String resourceClientHeadersFactoryOverride, List<String> resourceProvidersOverride, List<String> includeTags, boolean useKotlinSyntax, boolean useResteasyResponse, boolean useOidcClientAnnotation, boolean verbose) {
         return new Options(
             outputDir,
             rootPackage,
@@ -100,6 +103,7 @@ public record Options (
             resourceNameSuffix,
             resourceNameOverride,
             resourceClientHeadersFactoryOverride,
+            resourceProvidersOverride,
             this.pojoNameSuffix,
             this.pojosAsRecords,
             includeTags,
@@ -119,43 +123,47 @@ public record Options (
     }
 
     public Options withOutputDir(String outputDir) {
-        return with(outputDir, this.rootPackage, this.resourceNameSuffix,  this.resourceNameOverride, this.resourceClientHeadersFactoryOverride, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
+        return with(outputDir, this.rootPackage, this.resourceNameSuffix,  this.resourceNameOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
     public Options withRootPackage(String rootPackage) {
-        return with(this.outputDir, rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceClientHeadersFactoryOverride, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
+        return with(this.outputDir, rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
     public Options withResourceNameSuffix(String resourceNameSuffix) {
-        return with(this.outputDir, this.rootPackage, resourceNameSuffix, this.resourceNameOverride, this.resourceClientHeadersFactoryOverride, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
+        return with(this.outputDir, this.rootPackage, resourceNameSuffix, this.resourceNameOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
     public Options withResourceNameOverride(String resourceNameOverride) {
-        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, resourceNameOverride, this.resourceClientHeadersFactoryOverride, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
+        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, resourceNameOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
     public Options withResourceClientHeadersFactoryOverride(String resourceClientHeadersFactoryOverride) {
-        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, resourceClientHeadersFactoryOverride, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
+        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
+    }
+
+    public Options withResourceProvidersOverride(List<String> resourceProvidersOverride) {
+        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceClientHeadersFactoryOverride, resourceProvidersOverride, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
     public Options withIncludeTags(List<String> includeTags) {
-        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceClientHeadersFactoryOverride, includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation,  this.verbose);
+        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation,  this.verbose);
     }
 
     public Options withUseKotlinSyntax(boolean useKotlinSyntax) {
-        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceClientHeadersFactoryOverride, this.includeTags, useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
+        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.includeTags, useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
     public Options withUseResteasyResponse(boolean useResteasyResponse) {
-        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceClientHeadersFactoryOverride, this.includeTags, this.useKotlinSyntax, useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
+        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.includeTags, this.useKotlinSyntax, useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
     public Options withUseOidcClientAnnotation(boolean useOidcClientAnnotation) {
-        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceClientHeadersFactoryOverride, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, useOidcClientAnnotation, this.verbose);
+        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, useOidcClientAnnotation, this.verbose);
     }
 
     public Options withVerbose(boolean verbose) {
-        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceClientHeadersFactoryOverride, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, verbose);
+        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, verbose);
     }
 
     public String getModelOutputDir(String customSubdir) {

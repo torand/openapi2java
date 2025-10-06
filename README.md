@@ -92,6 +92,7 @@ $ mvn io.github.torand:openapi2java:1.2.3:generate \
 | resourceNameSuffix                   | "Api"              | Suffix for resource (MP Rest Client) interface names                                     |
 | resourceNameOverride                 | "" (i.e. use tags) | Specify to generate a single resource interface, instead of one per tag                  |
 | resourceClientHeadersFactoryOverride | ""                 | Specify to use same MP Rest Client header factory class for all resource interfaces      |
+| resourceProvidersOverride            |                    | Specify to use same MP Rest Client providers for all resource interfaces                 |
 | pojoNameSuffix                       | "Dto"              | Suffix for POJO (model) class names                                                      |
 | pojosAsRecords                       | true               | Whether to output Java records instead of Java classes for models                        |
 | includeTags                          | "" (i.e. all)      | Tags (comma separated) to output resource interfaces for                                 |
@@ -192,16 +193,17 @@ References outside the OpenAPI specification file are currently not resolved by 
 
 The code generation can be customized by using the following extension properties in the OpenAPI specification:
 
-| Extension property          | Type         | Allowed where                       | Description                                                             |
-|-----------------------------|--------------|-------------------------------------|-------------------------------------------------------------------------|
-| x-restclient-configkey      | String       | In a tag                            | Config key used for getting MP Rest Client config                       |
-| x-restclient-headers        | Object (Map) | In a Tag                            | Map of custom client header names and their values                      |
-| x-restclient-headersfactory | String       | In a Tag                            | Fully qualified classname of an MP Rest Client header factory           |
-| x-json-serializer           | String       | In a schema                         | Fully qualified classname of a JSON serializer class for the schema     |
-| x-validation-constraint     | String       | In a schema                         | Fully qualified classname of an annotation class to validate the schema |
-| x-nullable                  | Boolean      | In a schema type definition         | If `true` the type of the schema/property can be `null`                 |
-| x-model-subdir              | String       | In a component schema               | Subdirectory to place the generated DTO model class                     |
-| x-deprecation-message       | String       | Everywhere `deprecated` can be used | Describing why something is deprecated, and what to use instead         |
+| Extension property          | Type             | Allowed where                       | Description                                                             |
+|-----------------------------|------------------|-------------------------------------|-------------------------------------------------------------------------|
+| x-restclient-configkey      | String           | In a tag                            | Config key used for getting MP Rest Client config                       |
+| x-restclient-headers        | Object (Map)     | In a Tag                            | Map of custom client header names and their values                      |
+| x-restclient-headersfactory | String           | In a Tag                            | Fully qualified classname of an MP Rest Client header factory           |
+| x-restclient-providers      | Array of strings | In a Tag                            | Array of fully qualified classnames of MP Rest Client providers         |
+| x-json-serializer           | String           | In a schema                         | Fully qualified classname of a JSON serializer class for the schema     |
+| x-validation-constraint     | String           | In a schema                         | Fully qualified classname of an annotation class to validate the schema |
+| x-nullable                  | Boolean          | In a schema type definition         | If `true` the type of the schema/property can be `null`                 |
+| x-model-subdir              | String           | In a component schema               | Subdirectory to place the generated DTO model class                     |
+| x-deprecation-message       | String           | Everywhere `deprecated` can be used | Describing why something is deprecated, and what to use instead         |
 
 ### Mandatory Properties (Nullability)
 

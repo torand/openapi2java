@@ -1,5 +1,6 @@
 package io.github.torand.openapi2java.test;
 
+import io.github.torand.openapi2java.test.CommonClientHeadersFactory;
 import io.github.torand.openapi2java.test.model.NewUserProfileV1Dto;
 import io.github.torand.openapi2java.test.model.UserProfileV1Dto;
 import io.github.torand.openapi2java.test.model.common.ErrorDto;
@@ -36,7 +37,7 @@ import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.PAT
 @SecurityRequirement(name = "oidc")
 @Tag(name = "Users", description = "Retrieving and modifying user profiles")
 @RegisterRestClient(configKey = "users-api")
-@RegisterClientHeaders(io.github.torand.openapi2java.test.CommonClientHeadersFactory.class)
+@RegisterClientHeaders(CommonClientHeadersFactory.class)
 @Path(ROOT_PATH)
 public interface UsersApi_CommonHeadersFactory {
 

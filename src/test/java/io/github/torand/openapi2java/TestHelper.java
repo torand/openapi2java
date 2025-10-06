@@ -30,8 +30,10 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import static io.github.torand.openapi2java.TestHelper.ConfigVariant.COMMON_HEADERS_FACTORY;
+import static io.github.torand.openapi2java.TestHelper.ConfigVariant.COMMON_PROVIDERS;
 import static io.github.torand.openapi2java.TestHelper.ConfigVariant.OIDC_CLIENT_ANNOTATION;
 import static io.github.torand.openapi2java.TestHelper.ConfigVariant.RESTEASY;
 import static io.github.torand.openapi2java.utils.StringUtils.removeLineBreaks;
@@ -48,7 +50,8 @@ public final class TestHelper {
         RESTEASY("Resteasy"),
         NO_HEADER_PARAM("NoHeaderParam"),
         COMMON_HEADERS_FACTORY("CommonHeadersFactory"),
-        OIDC_CLIENT_ANNOTATION("OidcClientAnnotation");
+        OIDC_CLIENT_ANNOTATION("OidcClientAnnotation"),
+        COMMON_PROVIDERS("CommonProviders");
 
         String suffix;
 
@@ -99,6 +102,12 @@ public final class TestHelper {
         return baseOptions
             .withResourceNameSuffix(baseOptions.resourceNameSuffix() + "_" + COMMON_HEADERS_FACTORY.suffix)
             .withResourceClientHeadersFactoryOverride("io.github.torand.openapi2java.test.CommonClientHeadersFactory");
+    }
+
+    public static Options withProvidersOverride(Options baseOptions) {
+        return baseOptions
+            .withResourceNameSuffix(baseOptions.resourceNameSuffix() + "_" + COMMON_PROVIDERS.suffix)
+            .withResourceProvidersOverride(List.of("io.github.torand.openapi2java.test.CommonClientRequestFilter"));
     }
 
     public static Options withOidcClientAnnotation(Options baseOptions) {

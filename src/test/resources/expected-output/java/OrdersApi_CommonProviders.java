@@ -1,11 +1,10 @@
 package io.github.torand.openapi2java.test;
 
+import io.github.torand.openapi2java.test.CommonClientRequestFilter;
 import io.github.torand.openapi2java.test.MyClientHeadersFactory;
-import io.github.torand.openapi2java.test.MyClientRequestFilter;
 import io.github.torand.openapi2java.test.model.OrderItemV1Dto;
 import io.github.torand.openapi2java.test.model.OrderV1Dto;
 import io.github.torand.openapi2java.test.model.common.ErrorDto;
-import io.quarkus.oidc.client.filter.OidcClientFilter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -33,7 +32,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import java.net.URI;
 import java.util.List;
 
-import static io.github.torand.openapi2java.test.OrdersApi_OidcClientAnnotation.ROOT_PATH;
+import static io.github.torand.openapi2java.test.OrdersApi_CommonProviders.ROOT_PATH;
 import static jakarta.ws.rs.core.HttpHeaders.ACCEPT_LANGUAGE;
 import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -46,10 +45,9 @@ import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.ARRA
 @RegisterRestClient(configKey = "order-api")
 @ClientHeaderParam(name = AUTHORIZATION, value = "Bearer {order-api/mp-rest/api-key}")
 @RegisterClientHeaders(MyClientHeadersFactory.class)
-@RegisterProvider(MyClientRequestFilter.class)
-@OidcClientFilter("order-api")
+@RegisterProvider(CommonClientRequestFilter.class)
 @Path(ROOT_PATH)
-public interface OrdersApi_OidcClientAnnotation {
+public interface OrdersApi_CommonProviders {
 
     String ROOT_PATH = "api";
 

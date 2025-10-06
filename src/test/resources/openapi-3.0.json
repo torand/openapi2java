@@ -36,7 +36,8 @@
       "x-restclient-headers": {
         "Authorization": "Bearer {order-api/mp-rest/api-key}"
       },
-      "x-restclient-headersfactory": "io.github.torand.openapi2java.test.MyClientHeadersFactory"
+      "x-restclient-headersfactory": "io.github.torand.openapi2java.test.MyClientHeadersFactory",
+      "x-restclient-providers": ["io.github.torand.openapi2java.test.MyClientRequestFilter"]
     },
     {
       "name": "Users",

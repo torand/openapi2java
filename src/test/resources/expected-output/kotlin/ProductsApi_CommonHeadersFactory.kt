@@ -1,5 +1,6 @@
 package io.github.torand.openapi2java.test
 
+import io.github.torand.openapi2java.test.CommonClientHeadersFactory
 import io.github.torand.openapi2java.test.ProductsApi_CommonHeadersFactory.Companion.ROOT_PATH
 import io.github.torand.openapi2java.test.model.ProductV1Dto
 import io.github.torand.openapi2java.test.model.common.ErrorDto
@@ -44,7 +45,7 @@ import org.jboss.resteasy.reactive.RestForm
 @SecurityRequirement(name = "oidc")
 @Tag(name = "Products", description = "Retrieving and modifying products")
 @RegisterRestClient(configKey = "products-api")
-@RegisterClientHeaders(io.github.torand.openapi2java.test.CommonClientHeadersFactory::class)
+@RegisterClientHeaders(CommonClientHeadersFactory::class)
 @Path(ROOT_PATH)
 interface ProductsApi_CommonHeadersFactory {
 
