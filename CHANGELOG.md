@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New config parameter 'resourceClientHeadersFactoryOverride' to specify common Microprofile client header factory class for all resource interfaces.
 - New config parameter 'useOidcClientAnnotation' to generate Quarkus OIDC client annotation for all resource interfaces.
 - New config parameter 'resourceProvidersOverride' to specify common set of Microprofile client providers for all resource interfaces.
+- New config parameter 'resourceConfigKeyOverride' to specify the same Microprofile client config-key for all resource interfaces.
 
 ### Changed
 - ...

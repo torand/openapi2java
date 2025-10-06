@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static io.github.torand.openapi2java.TestHelper.ConfigVariant.COMMON_CONFIG_KEY;
 import static io.github.torand.openapi2java.TestHelper.ConfigVariant.COMMON_HEADERS_FACTORY;
 import static io.github.torand.openapi2java.TestHelper.ConfigVariant.COMMON_PROVIDERS;
 import static io.github.torand.openapi2java.TestHelper.ConfigVariant.OIDC_CLIENT_ANNOTATION;
@@ -49,6 +50,7 @@ public final class TestHelper {
     public enum ConfigVariant {
         RESTEASY("Resteasy"),
         NO_HEADER_PARAM("NoHeaderParam"),
+        COMMON_CONFIG_KEY("CommonConfigKey"),
         COMMON_HEADERS_FACTORY("CommonHeadersFactory"),
         OIDC_CLIENT_ANNOTATION("OidcClientAnnotation"),
         COMMON_PROVIDERS("CommonProviders");
@@ -96,6 +98,12 @@ public final class TestHelper {
         return baseOptions
             .withResourceNameSuffix(baseOptions.resourceNameSuffix() + "_" + RESTEASY.suffix)
             .withUseResteasyResponse(true);
+    }
+
+    public static Options withConfigKeyOverride(Options baseOptions) {
+        return baseOptions
+            .withResourceNameSuffix(baseOptions.resourceNameSuffix() + "_" + COMMON_CONFIG_KEY.suffix)
+            .withResourceConfigKeyOverride("commonconfigkey-api");
     }
 
     public static Options withHeadersFactoryOverride(Options baseOptions) {

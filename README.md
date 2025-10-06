@@ -91,6 +91,7 @@ $ mvn io.github.torand:openapi2java:1.2.3:generate \
 | rootUrlPath                          | "api"              | Root context path of REST resources                                                      |
 | resourceNameSuffix                   | "Api"              | Suffix for resource (MP Rest Client) interface names                                     |
 | resourceNameOverride                 | "" (i.e. use tags) | Specify to generate a single resource interface, instead of one per tag                  |
+| resourceConfigKeyOverride            | ""                 | Specify to use same MP Rest Client config key for all resource interfaces                |
 | resourceClientHeadersFactoryOverride | ""                 | Specify to use same MP Rest Client header factory class for all resource interfaces      |
 | resourceProvidersOverride            |                    | Specify to use same MP Rest Client providers for all resource interfaces                 |
 | pojoNameSuffix                       | "Dto"              | Suffix for POJO (model) class names                                                      |

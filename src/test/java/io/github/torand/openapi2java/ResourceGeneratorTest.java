@@ -20,6 +20,7 @@ import io.github.torand.openapi2java.generators.ResourceGenerator;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.junit.jupiter.api.Test;
 
+import static io.github.torand.openapi2java.TestHelper.ConfigVariant.COMMON_CONFIG_KEY;
 import static io.github.torand.openapi2java.TestHelper.ConfigVariant.COMMON_HEADERS_FACTORY;
 import static io.github.torand.openapi2java.TestHelper.ConfigVariant.COMMON_PROVIDERS;
 import static io.github.torand.openapi2java.TestHelper.ConfigVariant.OIDC_CLIENT_ANNOTATION;
@@ -32,6 +33,7 @@ import static io.github.torand.openapi2java.TestHelper.getJavaOptions;
 import static io.github.torand.openapi2java.TestHelper.getKotlinOptions;
 import static io.github.torand.openapi2java.TestHelper.loadOpenApi30Spec;
 import static io.github.torand.openapi2java.TestHelper.loadOpenApi31Spec;
+import static io.github.torand.openapi2java.TestHelper.withConfigKeyOverride;
 import static io.github.torand.openapi2java.TestHelper.withHeadersFactoryOverride;
 import static io.github.torand.openapi2java.TestHelper.withOidcClientAnnotation;
 import static io.github.torand.openapi2java.TestHelper.withProvidersOverride;
@@ -93,6 +95,16 @@ class ResourceGeneratorTest {
         new ResourceGenerator(opts).generate(openApiDoc);
 
         assertMatchingJavaFiles("%sApi.java".formatted(opts.resourceNameOverride()));
+    }
+
+    @Test
+    void shouldGenerateJavaResource_withConfigKeyOverride() {
+        Options opts = withConfigKeyOverride(getJavaOptions());
+        OpenAPI openApiDoc = loadOpenApi31Spec();
+
+        new ResourceGenerator(opts).generate(openApiDoc);
+
+        assertMatchingJavaFilesVariant("%sApi".formatted("Orders"), COMMON_CONFIG_KEY);
     }
 
     @Test
@@ -174,6 +186,16 @@ class ResourceGeneratorTest {
         new ResourceGenerator(opts).generate(openApiDoc);
 
         assertMatchingKotlinFiles("%sApi.kt".formatted(opts.resourceNameOverride()));
+    }
+
+    @Test
+    void shouldGenerateKotlinResource_withConfigKeyOverride() {
+        Options opts = withConfigKeyOverride(getKotlinOptions());
+        OpenAPI openApiDoc = loadOpenApi31Spec();
+
+        new ResourceGenerator(opts).generate(openApiDoc);
+
+        assertMatchingKotlinFilesVariant("%sApi".formatted("Orders"), COMMON_CONFIG_KEY);
     }
 
     @Test

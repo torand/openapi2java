@@ -79,11 +79,14 @@ public class ResourceInfoCollector extends BaseCollector {
         }
 
         if (opts.addMpRestClientAnnotations()) {
-            String configKey = nonNull(tag) ?
-                extensions(tag.getExtensions())
-                    .getString(EXT_RESTCLIENT_CONFIGKEY)
-                    .orElse(tag.getName().toLowerCase()+"-api") :
-                resourceName.toLowerCase()+"-api";
+            String configKey = opts.resourceConfigKeyOverride();
+            if (isBlank(configKey)) {
+                configKey = nonNull(tag) ?
+                    extensions(tag.getExtensions())
+                        .getString(EXT_RESTCLIENT_CONFIGKEY)
+                        .orElse(tag.getName().toLowerCase() + "-api") :
+                    resourceName.toLowerCase() + "-api";
+            }
 
             AnnotationInfo registerRestClientAnnotation = getRegisterRestClientAnnotation(configKey);
             resourceInfo = resourceInfo.withAddedAnnotation(registerRestClientAnnotation);
