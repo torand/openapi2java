@@ -30,18 +30,58 @@ import static java.util.Objects.nonNull;
  * Handles custom OpenAPI format extensions.
  */
 public class Extensions {
+    /**
+     * Config key used for getting MP Rest Client config.
+     */
     public static final String EXT_RESTCLIENT_CONFIGKEY = "x-restclient-configkey";
+
+    /**
+     * Map of custom client header names and their values.
+     */
     public static final String EXT_RESTCLIENT_HEADERS = "x-restclient-headers";
+
+    /**
+     * Fully qualified classname of an MP Rest Client header factory.
+     */
     public static final String EXT_RESTCLIENT_HEADERSFACTORY = "x-restclient-headersfactory";
+
+    /**
+     * Array of fully qualified classnames of MP Rest Client providers.
+     */
     public static final String EXT_RESTCLIENT_PROVIDERS = "x-restclient-providers";
+
+    /**
+     * Fully qualified classname of a JSON serializer class for the schema.
+     */
     public static final String EXT_JSON_SERIALIZER = "x-json-serializer";
+
+    /**
+     * Fully qualified classname of an annotation class to validate the schema.
+     */
     public static final String EXT_VALIDATION_CONSTRAINT = "x-validation-constraint";
+
+    /**
+     * If `true` the type of the schema/property can be `null`.
+     */
     public static final String EXT_NULLABLE = "x-nullable";
+
+    /**
+     * Subdirectory to place the generated DTO model class.
+     */
     public static final String EXT_MODEL_SUBDIR = "x-model-subdir";
+
+    /**
+     * Describing why something is deprecated, and what to use instead.
+     */
     public static final String EXT_DEPRECATION_MESSAGE = "x-deprecation-message";
 
     private final Map<String, Object> extensionsByName;
 
+    /**
+     * Returns an {@link Extensions} object processing the specified OpenAPI extension map.
+     * @param extensionsByName the OpenAPI extensions.
+     * @return the {@link Extensions} object.
+     */
     public static Extensions extensions(Map<String, Object> extensionsByName) {
         return new Extensions(extensionsByName);
     }
@@ -50,6 +90,11 @@ public class Extensions {
         this.extensionsByName = nonNull(extensionsByName) ? extensionsByName : Collections.emptyMap();
     }
 
+    /**
+     * Gets value of a string extension property.
+     * @param name the extension property name.
+     * @return the extension property string value, if found; else empty.
+     */
     public Optional<String> getString(String name) {
         Object value = extensionsByName.get(name);
         if (isNull(value)) {
@@ -65,6 +110,11 @@ public class Extensions {
         return Optional.empty();
     }
 
+    /**
+     * Gets value of a string array extension property.
+     * @param name the extension property name.
+     * @return the extension property value, if found; else empty.
+     */
     public Optional<List<String>> getStringArray(String name) {
         Object value = extensionsByName.get(name);
         if (isNull(value)) {
@@ -77,6 +127,11 @@ public class Extensions {
         return Optional.of((List<String>)value);
     }
 
+    /**
+     * Gets value of a boolean extension property.
+     * @param name the extension property name.
+     * @return the extension property value, if found; else empty.
+     */
     public Optional<Boolean> getBoolean(String name) {
         Object value = extensionsByName.get(name);
         if (isNull(value)) {
@@ -89,6 +144,11 @@ public class Extensions {
         return Optional.of((Boolean)value);
     }
 
+    /**
+     * Gets value of a map extension property.
+     * @param name the extension property name.
+     * @return the extension property value, if found; else empty.
+     */
     public Optional<Map<String, Object>> getMap(String name) {
         Object value = extensionsByName.get(name);
         if (isNull(value)) {

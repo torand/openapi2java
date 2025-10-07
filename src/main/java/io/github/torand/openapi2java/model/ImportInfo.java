@@ -32,6 +32,10 @@ public record ImportInfo(
     Set<String> staticImports
 ) implements ImportsSupplier {
 
+    /**
+     * Creates an {@link ImportInfo} object with no imports.
+     * @return the empty {@link ImportInfo} object.
+     */
     public static ImportInfo empty() {
         return new ImportInfo();
     }

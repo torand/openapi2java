@@ -39,6 +39,7 @@ public record EnumInfo (
     /**
      * Constructs an {@link EnumInfo} object.
      * @param name the enum name.
+     * @param constants the enum constants.
      */
     public EnumInfo(String name, List<String> constants) {
         this(name, constants, null, null, emptyList());

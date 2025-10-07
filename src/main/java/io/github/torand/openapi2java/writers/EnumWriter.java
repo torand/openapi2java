@@ -23,6 +23,11 @@ import java.io.IOException;
  * Defines a code writer for enums.
  */
 public interface EnumWriter extends AutoCloseable {
+
+    /**
+     * Writes code for specified enum.
+     * @param enumInfo the enum information.
+     */
     void write(EnumInfo enumInfo);
 
     @Override

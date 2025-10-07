@@ -70,6 +70,10 @@ public record Options (
     int indentSize,
     boolean verbose
 ) {
+    /**
+     * Returns the default settings.
+     * @return the default settings.
+     */
     public static Options defaults() {
         return new Options(
             null,
@@ -126,62 +130,136 @@ public record Options (
         );
     }
 
+    /**
+     * Returns a new {@link Options} object with specified output directory.
+     * @param outputDir the output directory.
+     * @return the new and updated {@link Options} object.
+     */
     public Options withOutputDir(String outputDir) {
         return with(outputDir, this.rootPackage, this.resourceNameSuffix,  this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
+    /**
+     * Returns a new {@link Options} object with specified root package.
+     * @param rootPackage the root package.
+     * @return the new and updated {@link Options} object.
+     */
     public Options withRootPackage(String rootPackage) {
         return with(this.outputDir, rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
+    /**
+     * Returns a new {@link Options} object with specified resource name suffix.
+     * @param resourceNameSuffix the resource name suffix.
+     * @return the new and updated {@link Options} object.
+     */
     public Options withResourceNameSuffix(String resourceNameSuffix) {
         return with(this.outputDir, this.rootPackage, resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
+    /**
+     * Returns a new {@link Options} object with specified resource name override.
+     * @param resourceNameOverride the resource name override.
+     * @return the new and updated {@link Options} object.
+     */
     public Options withResourceNameOverride(String resourceNameOverride) {
         return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
+    /**
+     * Returns a new {@link Options} object with specified resource config-key override.
+     * @param resourceConfigKeyOverride the resource config-key override.
+     * @return the new and updated {@link Options} object.
+     */
     public Options withResourceConfigKeyOverride(String resourceConfigKeyOverride) {
         return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
+    /**
+     * Returns a new {@link Options} object with specified resource client headers factory override.
+     * @param resourceClientHeadersFactoryOverride the resource client headers factory override.
+     * @return the new and updated {@link Options} object.
+     */
     public Options withResourceClientHeadersFactoryOverride(String resourceClientHeadersFactoryOverride) {
         return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
+    /**
+     * Returns a new {@link Options} object with specified resource providers override.
+     * @param resourceProvidersOverride the resource providers override.
+     * @return the new and updated {@link Options} object.
+     */
     public Options withResourceProvidersOverride(List<String> resourceProvidersOverride) {
         return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, resourceProvidersOverride, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
+    /**
+     * Returns a new {@link Options} object with specified included tags.
+     * @param includeTags the included tags.
+     * @return the new and updated {@link Options} object.
+     */
     public Options withIncludeTags(List<String> includeTags) {
         return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation,  this.verbose);
     }
 
+    /**
+     * Returns a new {@link Options} object with specified use Kotlin flag.
+     * @param useKotlinSyntax the use Kotlin flag.
+     * @return the new and updated {@link Options} object.
+     */
     public Options withUseKotlinSyntax(boolean useKotlinSyntax) {
         return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.includeTags, useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
+    /**
+     * Returns a new {@link Options} object with specified use RESTEasy flag.
+     * @param useResteasyResponse the use RESTEasy flag.
+     * @return the new and updated {@link Options} object.
+     */
     public Options withUseResteasyResponse(boolean useResteasyResponse) {
         return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.includeTags, this.useKotlinSyntax, useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
+    /**
+     * Returns a new {@link Options} object with specified use OIDC Client annotation flag.
+     * @param useOidcClientAnnotation the use OIDC Client annotation flag.
+     * @return the new and updated {@link Options} object.
+     */
     public Options withUseOidcClientAnnotation(boolean useOidcClientAnnotation) {
         return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, useOidcClientAnnotation, this.verbose);
     }
 
+    /**
+     * Returns a new {@link Options} object with specified verbose flag.
+     * @param verbose the verbose flag.
+     * @return the new and updated {@link Options} object.
+     */
     public Options withVerbose(boolean verbose) {
         return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, verbose);
     }
 
+    /**
+     * Returns a new {@link Options} object with specified model output directory.
+     * @param customSubdir the model output directory.
+     * @return the new and updated {@link Options} object.
+     */
     public String getModelOutputDir(String customSubdir) {
         return outputDir + "/model" + (isBlank(customSubdir) ? "" : "/"+customSubdir);
     }
 
+    /**
+     * Returns a new {@link Options} object with specified model package.
+     * @param customSubpackage the model subpackage.
+     * @return the new and updated {@link Options} object.
+     */
     public String getModelPackage(String customSubpackage) {
         return rootPackage + ".model" + (isBlank(customSubpackage) ? "" : "."+customSubpackage);
     }
 
+    /**
+     * Gets the language specific code file extension.
+     * @return the language specific code file extension.
+     */
     public String getFileExtension() {
         return useKotlinSyntax ? ".kt" : ".java";
     }

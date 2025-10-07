@@ -20,13 +20,26 @@ import java.util.List;
 import static io.github.torand.javacommons.collection.CollectionHelper.isEmpty;
 import static io.github.torand.javacommons.lang.StringHelper.isBlank;
 
+/**
+ * A collection of String utilities.
+ */
 public class StringUtils {
     private StringUtils() {}
 
+    /**
+     * Gets the plural suffix based on specified cardinality.
+     * @param count the cardinality.
+     * @return the plural suffix, or empty string if single count.
+     */
     public static String pluralSuffix(int count) {
         return count == 1 ? "" : "s";
     }
 
+    /**
+     * Returns specified string with line break characters removed.
+     * @param value the string to modify.
+     * @return the modified string.
+     */
     public static String removeLineBreaks(String value) {
         if (isBlank(value)) {
             return value;
@@ -34,6 +47,11 @@ public class StringUtils {
         return value.replace("\n", " ");
     }
 
+    /**
+     * Returns specified values as a comma-delimited string.
+     * @param values the values to join.
+     * @return the joined values.
+     */
     public static String joinCsv(List<String> values) {
         if (isEmpty(values)) {
             return "";
@@ -42,6 +60,11 @@ public class StringUtils {
         return String.join(", ", values);
     }
 
+    /**
+     * Returns the class base name from specified fully qualified class name.
+     * @param fqn the fully qualified class name.
+     * @return the class base name.
+     */
     public static String getClassNameFromFqn(String fqn) {
         int lastDot = fqn.lastIndexOf(".");
         if (lastDot == -1) {

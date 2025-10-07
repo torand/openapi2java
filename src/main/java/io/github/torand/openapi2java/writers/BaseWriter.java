@@ -27,13 +27,27 @@ import java.io.Writer;
 public abstract class BaseWriter implements AutoCloseable {
 
     private final Writer writer;
+
+    /**
+     * The plugin options.
+     */
     protected final Options opts;
 
+    /**
+     * Constructs a {@link BaseWriter} object.
+     * @param writer the java io writer to wrap.
+     * @param opts the plugin options.
+     */
     protected BaseWriter(Writer writer, Options opts) {
         this.writer = writer;
         this.opts = opts;
     }
 
+    /**
+     * Writes a formatted string without end-of-line.
+     * @param format the format.
+     * @param args the arguments.
+     */
     protected void write(String format, Object... args) {
         try {
             writer.append(format.formatted(args));
@@ -42,6 +56,11 @@ public abstract class BaseWriter implements AutoCloseable {
         }
     }
 
+    /**
+     * Writes a formatted string with end-of-line.
+     * @param format the format.
+     * @param args the arguments.
+     */
     protected void writeLine(String format, Object... args) {
         try {
             writer.append(format.formatted(args)).append("\n");
@@ -50,6 +69,9 @@ public abstract class BaseWriter implements AutoCloseable {
         }
     }
 
+    /**
+     * Writes end-of-line.
+     */
     protected void writeNewLine() {
         try {
             writer.append("\n");
@@ -58,6 +80,10 @@ public abstract class BaseWriter implements AutoCloseable {
         }
     }
 
+    /**
+     * Writes specified number of indent levels.
+     * @param levels the number of indent levels.
+     */
     protected void writeIndent(int levels) {
         String indent = "\t";
         if (!opts.indentWithTab()) {

@@ -171,7 +171,7 @@ public class ResourceInfoCollector extends BaseCollector {
 
         providers.forEach(provider -> {
             AnnotationInfo registerProviderAnnotation = new AnnotationInfo(
-                "@RegisterProvider(%s%sclass)".formatted(getClassNameFromFqn(provider), opts.useKotlinSyntax() ? "::" : "."),
+                "@RegisterProvider(%s)".formatted(formatClassRef(getClassNameFromFqn(provider))),
                 "org.eclipse.microprofile.rest.client.annotation.RegisterProvider"
             ).withAddedNormalImport(provider);
             registerProviderAnnotations.add(registerProviderAnnotation);
@@ -188,7 +188,7 @@ public class ResourceInfoCollector extends BaseCollector {
 
     private AnnotationInfo getRegisterClientHeadersAnnotation(String headerFactory) {
         return new AnnotationInfo(
-            "@RegisterClientHeaders(%s%sclass)".formatted(getClassNameFromFqn(headerFactory), opts.useKotlinSyntax() ? "::" : "."),
+            "@RegisterClientHeaders(%s)".formatted(formatClassRef(getClassNameFromFqn(headerFactory))),
             "org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders"
         ).withAddedNormalImport(headerFactory);
     }

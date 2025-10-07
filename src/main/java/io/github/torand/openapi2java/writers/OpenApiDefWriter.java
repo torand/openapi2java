@@ -23,6 +23,11 @@ import java.io.IOException;
  * Defines a code writer for OpenAPI definitions.
  */
 public interface OpenApiDefWriter extends AutoCloseable {
+
+    /**
+     * Writes code for specified OpenAPI definition.
+     * @param openApiDefInfo the OpenAPI definition.
+     */
     void write(OpenApiDefInfo openApiDefInfo);
 
     @Override

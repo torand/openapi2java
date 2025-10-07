@@ -497,6 +497,6 @@ public class TypeInfoCollector extends BaseCollector {
 
     private String getJsonSerializerClass(String jsonSerializerFqn) {
         String className = getClassNameFromFqn(jsonSerializerFqn);
-        return opts.useKotlinSyntax() ? className+"::class" : className+".class";
+        return formatClassRef(className);
     }
 }

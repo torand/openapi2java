@@ -23,6 +23,11 @@ import java.io.IOException;
  * Defines a code writer for resources.
  */
 public interface ResourceWriter extends AutoCloseable {
+
+    /**
+     * Writes code for specified resource interface.
+     * @param resourceInfo the resource information.
+     */
     void write(ResourceInfo resourceInfo);
 
     @Override

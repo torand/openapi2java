@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- ...
+
+### Changed
+- ...
+
+### Deprecated
+- ...
+
+### Removed
+- ...
+
+### Fixed
+- ...
+
+## [1.3.0] - 2025-10-07
+
+### Added
 - New tag extension 'x-restclient-headers' to define Microprofile client header params for a resource interface.
 - New tag extension 'x-restclient-headersfactory' to define Microprofile client headers factory for a resource interface.
 - New tag extension 'x-restclient-providers' to define Microprofile client providers for a resource interface.
@@ -16,16 +33,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New config parameter 'useOidcClientAnnotation' to generate Quarkus OIDC client annotation for all resource interfaces.
 - New config parameter 'resourceProvidersOverride' to specify common set of Microprofile client providers for all resource interfaces.
 - New config parameter 'resourceConfigKeyOverride' to specify the same Microprofile client config-key for all resource interfaces.
-- Supporting 'style' og 'exploded' for Parameter annotations in resource interfaces.
+- Support 'style' og 'exploded' for Parameter annotations in resource interfaces.
 
 ### Changed
 - Bump dependency io.swagger.parser.v3:swagger-parser to v2.1.34
-
-### Deprecated
-- ...
-
-### Removed
-- ...
 
 ### Fixed
 - Bean validation annotations on subtypes of compound pojo property and resource method parameter types now generated.

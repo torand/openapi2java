@@ -30,6 +30,10 @@ public class ComponentResolver {
     private final SchemaResolver schemas;
     private final SecuritySchemeResolver securitySchemes;
 
+    /**
+     * Constructs a {@link ComponentResolver} object.
+     * @param openApiDoc the OpenAPI document.
+     */
     public ComponentResolver(OpenAPI openApiDoc) {
         this.headers = new HeaderResolver(openApiDoc.getComponents().getHeaders());
         this.parameters = new ParameterResolver(openApiDoc.getComponents().getParameters());
@@ -38,22 +42,42 @@ public class ComponentResolver {
         this.securitySchemes = new SecuritySchemeResolver(openApiDoc.getComponents().getSecuritySchemes());
     }
 
+    /**
+     * Gets a header resolver.
+     * @return the header resolver.
+     */
     public HeaderResolver headers() {
         return headers;
     }
 
+    /**
+     * Gets a parameter resolver.
+     * @return the parameter resolver.
+     */
     public ParameterResolver parameters() {
         return parameters;
     }
 
+    /**
+     * Gets a response resolver.
+     * @return the response resolver.
+     */
     public ResponseResolver responses() {
         return responses;
     }
 
+    /**
+     * Gets a schema resolver.
+     * @return the schema resolver.
+     */
     public SchemaResolver schemas() {
         return schemas;
     }
 
+    /**
+     * Gets a security scheme resolver.
+     * @return the security scheme resolver.
+     */
     public SecuritySchemeResolver securitySchemes() {
         return securitySchemes;
     }
