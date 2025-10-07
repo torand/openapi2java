@@ -16,6 +16,7 @@
 package io.github.torand.openapi2java.writers.kotlin;
 
 import io.github.torand.openapi2java.generators.Options;
+import io.github.torand.openapi2java.model.AnnotatedTypeName;
 import io.github.torand.openapi2java.model.AnnotationInfo;
 import io.github.torand.openapi2java.model.PojoInfo;
 import io.github.torand.openapi2java.model.PropertyInfo;
@@ -26,14 +27,11 @@ import java.io.Writer;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 
 import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
 import static io.github.torand.javacommons.stream.StreamHelper.streamSafely;
 import static io.github.torand.openapi2java.utils.KotlinTypeMapper.toKotlinNative;
-import static java.util.Objects.nonNull;
 import static java.util.function.Predicate.not;
-import static java.util.stream.Collectors.joining;
 
 /**
  * Writes Kotlin code for a pojo.
@@ -64,31 +62,7 @@ public class KotlinPojoWriter extends BaseWriter implements PojoWriter {
         pojoInfo.properties().forEach(propInfo -> {
             writeNewLine();
             writePropertyAnnotationLines(propInfo);
-
-            writeIndent(1);
-            write("val %s: ", escapeReservedKeywords(propInfo.name()));
-
-            String typeName = toKotlinNative(propInfo.type().name());
-
-            if (nonNull(propInfo.type().itemType())) {
-                String itemTypeWithAnnotations = Stream.concat(streamSafely(propInfo.type().itemType().annotations()).map(AnnotationInfo::annotation), Stream.of(propInfo.type().itemType().name()))
-                    .collect(joining(" "));
-
-                if (nonNull(propInfo.type().keyType())) {
-                    String keyTypeWithAnnotations = Stream.concat(streamSafely(propInfo.type().keyType().annotations()).map(AnnotationInfo::annotation), Stream.of(propInfo.type().keyType().name()))
-                        .collect(joining(" "));
-
-                    write("%s<%s, %s>".formatted(typeName, keyTypeWithAnnotations, itemTypeWithAnnotations));
-                } else {
-                    write("%s<%s>".formatted(typeName, itemTypeWithAnnotations));
-                }
-            } else {
-                write("%s".formatted(typeName));
-            }
-
-            if (!propInfo.required() || propInfo.type().nullable()) {
-                write("? = null");
-            }
+            writePropertyTypeAndName(propInfo);
 
             if (propNo.getAndIncrement() < pojoInfo.properties().size()) {
                 writeLine(",");
@@ -126,13 +100,25 @@ public class KotlinPojoWriter extends BaseWriter implements PojoWriter {
                 writeIndent(1);
                 writeLine(a);
             });
-        streamSafely(propInfo.type().annotations())
-            .map(AnnotationInfo::annotation)
+    }
+
+    private void writePropertyTypeAndName(PropertyInfo propInfo) {
+        AnnotatedTypeName annotatedTypeName = propInfo.type().getAnnotatedFullName();
+
+        annotatedTypeName.annotations()
             .map(this::prefixPropertyAnnotation)
             .forEach(a -> {
                 writeIndent(1);
                 writeLine(a);
             });
+
+        writeIndent(1);
+        write("val %s: ", escapeReservedKeywords(propInfo.name()));
+        write(toKotlinNative(annotatedTypeName.typeName()));
+
+        if (!propInfo.required() || propInfo.type().nullable()) {
+            write("? = null");
+        }
     }
 
     private String prefixPropertyAnnotation(String annotation) {

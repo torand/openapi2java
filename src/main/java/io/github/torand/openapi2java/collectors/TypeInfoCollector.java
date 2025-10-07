@@ -338,12 +338,9 @@ public class TypeInfoCollector extends BaseCollector {
             typeInfo = typeInfo.withAddedAnnotation(validAnnotation);
         }
 
-        TypeInfo itemType = getTypeInfo(schema.getItems()).withNoAnnotations();
+        TypeInfo itemType = getTypeInfo(schema.getItems());
 
         if (opts.addJakartaBeanValidationAnnotations()) {
-            AnnotationInfo itemNotNullAnnotation = getNotNullAnnotation();
-            itemType = itemType.withAddedAnnotation(itemNotNullAnnotation);
-
             if (!typeInfo.nullable()) {
                 AnnotationInfo notNullAnnotation = getNotNullAnnotation();
                 typeInfo = typeInfo.withAddedAnnotation(notNullAnnotation);

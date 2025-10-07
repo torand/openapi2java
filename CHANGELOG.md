@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New config parameter 'resourceConfigKeyOverride' to specify the same Microprofile client config-key for all resource interfaces.
 
 ### Changed
-- ...
+- Bump dependency io.swagger.parser.v3:swagger-parser to v2.1.34
 
 ### Deprecated
 - ...
@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ...
 
 ### Fixed
-- ...
+- Bean validation annotations on subtypes of compound pojo property and resource method parameter types now generated.
 
 ## [1.2.3] - 2025-06-18
 

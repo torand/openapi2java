@@ -16,6 +16,7 @@
 package io.github.torand.openapi2java.writers.kotlin;
 
 import io.github.torand.openapi2java.generators.Options;
+import io.github.torand.openapi2java.model.AnnotatedTypeName;
 import io.github.torand.openapi2java.model.AnnotationInfo;
 import io.github.torand.openapi2java.model.MethodParamInfo;
 import io.github.torand.openapi2java.model.ResourceInfo;
@@ -73,8 +74,14 @@ public class KotlinResourceWriter extends BaseWriter implements ResourceWriter {
                 if (nonEmpty(paramInfo.annotations())) {
                     write(String.join(" ", streamSafely(paramInfo.annotations()).map(AnnotationInfo::annotation).toList()) + " ");
                 }
+
+                AnnotatedTypeName annotatedTypeName = paramInfo.type().getAnnotatedFullName();
+                if (annotatedTypeName.hasAnnotations()) {
+                    write(annotatedTypeName.annotationsAsString() + " ");
+                }
                 write(paramInfo.name() + ": ");
-                write(toKotlinNative(paramInfo.type().getFullName()));
+                write(toKotlinNative(annotatedTypeName.typeName()));
+
                 if (paramInfo.nullable()) {
                     write("? = null");
                 }

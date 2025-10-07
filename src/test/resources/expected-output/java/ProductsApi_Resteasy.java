@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HeaderParam;
@@ -59,6 +60,7 @@ public interface ProductsApi_Resteasy {
     @Parameter(in = HEADER, name = "X-User-ID", description = "Unique user identifier (SHA1 fingerprint)", required = true, schema = @Schema(implementation = String.class))
     @Parameter(in = QUERY, name = "offset", description = "Offset of first result in returned page", schema = @Schema(implementation = Integer.class, defaultValue = "0"))
     @Parameter(in = QUERY, name = "limit", description = "Number of results in returned page", schema = @Schema(implementation = Integer.class, defaultValue = "10"))
+    @Parameter(in = QUERY, name = "keywords", description = "Keywords to search for", schema = @Schema(type = ARRAY, implementation = String.class))
     @APIResponse(responseCode = "200", description = "OK", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(type = ARRAY, implementation = ProductV1Dto.class)), @Content(mediaType = "application/vnd.test.api.product-v1+json", schema = @Schema(type = ARRAY, implementation = ProductV1Dto.class)) })
     @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
     @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
@@ -69,7 +71,8 @@ public interface ProductsApi_Resteasy {
         @HeaderParam(ACCEPT_LANGUAGE) String acceptLanguage,
         @HeaderParam("X-User-ID") @NotBlank String xUserID,
         @QueryParam("offset") @Min(0) Integer offset,
-        @QueryParam("limit") @Min(1) Integer limit
+        @QueryParam("limit") @Min(1) Integer limit,
+        @QueryParam("keywords") @Valid @Size(min = 1) List<@NotBlank @Size(min = 3) String> keywords
     );
 
     @POST

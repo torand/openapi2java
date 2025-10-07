@@ -87,8 +87,10 @@ public class JavaResourceWriter extends BaseWriter implements ResourceWriter {
                 if (nonEmpty(paramInfo.annotations())) {
                     write(String.join(" ", streamSafely(paramInfo.annotations()).map(AnnotationInfo::annotation).toList()) + " ");
                 }
-                write(paramInfo.type().getFullName() + " ");
+
+                write(paramInfo.type().getAnnotatedFullName().asString() + " ");
                 write(paramInfo.name());
+
                 if (i < (m.parameters().size()-1)) {
                     write(",");
                 }

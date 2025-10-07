@@ -15,13 +15,17 @@
  */
 package io.github.torand.openapi2java.model;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import static io.github.torand.javacommons.stream.StreamHelper.streamSafely;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static java.util.function.Predicate.not;
+import static java.util.stream.Collectors.joining;
 
 /**
  * Describes a type.
@@ -176,6 +180,37 @@ public record TypeInfo (
         } else {
             return name;
         }
+    }
+
+    /**
+     * Gets full type name, including bean validation annotations.
+     * @return the annotations and type name items.
+     */
+    public AnnotatedTypeName getAnnotatedFullName() {
+        List<String> annotatedFullName = new ArrayList<>();
+        streamSafely(annotations)
+            .map(AnnotationInfo::annotation)
+            .forEach(annotatedFullName::add);
+
+        if (nonNull(itemType)) {
+            String itemTypeWithAnnotations = itemType.getAnnotatedFullName().items()
+                .filter(not("@Valid"::equals))
+                .collect(joining(" "));
+
+            if (nonNull(keyType)) {
+                String keyTypeWithAnnotations = keyType.getAnnotatedFullName().items()
+                    .filter(not("@Valid"::equals))
+                    .collect(joining(" "));
+
+                annotatedFullName.add("%s<%s, %s>".formatted(name, keyTypeWithAnnotations, itemTypeWithAnnotations));
+            } else {
+                annotatedFullName.add("%s<%s>".formatted(name, itemTypeWithAnnotations));
+            }
+        } else {
+            annotatedFullName.add(name);
+        }
+
+        return new AnnotatedTypeName(annotatedFullName);
     }
 
     @Override

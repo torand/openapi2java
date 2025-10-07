@@ -273,6 +273,9 @@
           },
           {
             "$ref": "#/components/parameters/PageLimit"
+          },
+          {
+            "$ref": "#/components/parameters/Keywords"
           }
         ],
         "responses": {
@@ -1003,6 +1006,20 @@
           "type": "integer",
           "default": "10",
           "minimum": 1
+        }
+      },
+      "Keywords": {
+        "name": "keywords",
+        "in": "query",
+        "required": false,
+        "description": "Keywords to search for",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 3
+          },
+          "minItems": 1
         }
       }
     },

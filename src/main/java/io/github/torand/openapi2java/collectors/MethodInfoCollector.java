@@ -164,8 +164,7 @@ public class MethodInfoCollector extends BaseCollector {
                 paramInfo = paramInfo
                     .withType(paramType)
                     .withName(toParamName(realParam.getName()))
-                    .withComment(paramType.description())
-                    .withAddedAnnotations(paramType.annotations());
+                    .withComment(paramType.description());
 
                 if (TRUE.equals(realParam.getDeprecated())) {
                     paramInfo = paramInfo.withDeprecationMessage(formatDeprecationMessage(realParam.getExtensions()));
@@ -250,8 +249,7 @@ public class MethodInfoCollector extends BaseCollector {
         return new MethodParamInfo(toParamName(bodyType.name()))
             .withNullable(false)
             .withType(bodyType)
-            .withComment(bodyType.description())
-            .withAddedAnnotations(bodyType.annotations());
+            .withComment(bodyType.description());
     }
 
     private MethodParamInfo getMultipartPayloadMethodParameter(String name, Schema<?> schema) {
@@ -293,7 +291,6 @@ public class MethodInfoCollector extends BaseCollector {
             .withComment(bodyType.description())
             .withAddedAnnotation(new AnnotationInfo("@RestForm(\"%s\")".formatted(name), "org.jboss.resteasy.reactive.RestForm"))
             .withAddedAnnotation(new AnnotationInfo("@PartType(%s)".formatted(partMediaTypeConstant.value()), "org.jboss.resteasy.reactive.PartType"))
-            .withAddedAnnotations(bodyType.annotations())
             .withAddedImports(partMediaTypeConstant);
     }
 
