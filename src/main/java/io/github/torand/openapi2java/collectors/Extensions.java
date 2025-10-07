@@ -71,7 +71,7 @@ public class Extensions {
             return Optional.empty();
         }
         if (!(value instanceof List)) {
-            throw new RuntimeException("Value of extension %s is not an array".formatted(name));
+            throw new OpenApi2JavaException("Value of extension %s is not an array".formatted(name));
         }
 
         return Optional.of((List<String>)value);
@@ -95,7 +95,7 @@ public class Extensions {
             return Optional.empty();
         }
         if (!(value instanceof Map)) {
-            throw new RuntimeException("Value of extension %s is not a Map (object)".formatted(name));
+            throw new OpenApi2JavaException("Value of extension %s is not a Map (object)".formatted(name));
         }
 
         return Optional.of((Map<String, Object>)value);

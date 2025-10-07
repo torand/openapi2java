@@ -396,7 +396,7 @@ public class MethodInfoCollector extends BaseCollector {
         }
 
         if (nonNull(realParameter.getExplode())) {
-            boolean defaultValue = Parameter.StyleEnum.FORM.equals(realParameter.getStyle()) ? true : false;
+            boolean defaultValue = Parameter.StyleEnum.FORM.equals(realParameter.getStyle());
             if (!realParameter.getExplode().equals(defaultValue)) {
                 ConstantValue parameterExplode = getParameterExplode(realParameter);
                 params.add("explode = %s".formatted(parameterExplode.value()));
@@ -413,10 +413,10 @@ public class MethodInfoCollector extends BaseCollector {
 
     private Parameter.StyleEnum getDefaultParameterStyle(Parameter parameter) {
         return switch(parameter.getIn()) {
-            case "header" -> Parameter.StyleEnum.SIMPLE;
-            case "query" -> Parameter.StyleEnum.FORM;
-            case "path" -> Parameter.StyleEnum.SIMPLE;
-            case "cookie" -> Parameter.StyleEnum.FORM;
+            case PARAM_IN_HEADER -> Parameter.StyleEnum.SIMPLE;
+            case PARAM_IN_QUERY -> Parameter.StyleEnum.FORM;
+            case PARAM_IN_PATH -> Parameter.StyleEnum.SIMPLE;
+            case PARAM_IN_COOKIE -> Parameter.StyleEnum.FORM;
             default -> throw new IllegalStateException("Parameter in-value %s not supported".formatted(parameter.getIn()));
         };
     }
@@ -436,7 +436,7 @@ public class MethodInfoCollector extends BaseCollector {
     }
 
     private ConstantValue getParameterExplode(Parameter parameter) {
-        String explode = parameter.getExplode() ? "TRUE" : "FALSE";
+        String explode = TRUE.equals(parameter.getExplode()) ? "TRUE" : "FALSE";
         return new ConstantValue(explode).withStaticImport("org.eclipse.microprofile.openapi.annotations.enums.Explode." + explode);
     }
 

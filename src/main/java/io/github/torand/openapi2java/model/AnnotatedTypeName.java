@@ -41,7 +41,7 @@ public class AnnotatedTypeName {
         if (!hasAnnotations()) {
             return Stream.empty();
         }
-        return annotatedTypeNameItems.stream().limit(annotatedTypeNameItems.size()-1);
+        return annotatedTypeNameItems.stream().limit(annotatedTypeNameItems.size()-1L);
     }
 
     /**
