@@ -1012,6 +1012,8 @@
         "name": "keywords",
         "in": "query",
         "required": false,
+        "style": "simple",
+        "explode": true,
         "description": "Keywords to search for",
         "schema": {
           "type": "array",

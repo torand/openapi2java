@@ -39,9 +39,11 @@ import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 import static jakarta.ws.rs.core.MediaType.MULTIPART_FORM_DATA;
 import static jakarta.ws.rs.core.MediaType.TEXT_PLAIN;
+import static org.eclipse.microprofile.openapi.annotations.enums.Explode.TRUE;
 import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.HEADER;
 import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.PATH;
 import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.QUERY;
+import static org.eclipse.microprofile.openapi.annotations.enums.ParameterStyle.SIMPLE;
 import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.ARRAY;
 
 @SecurityRequirement(name = "oidc")
@@ -60,7 +62,7 @@ public interface ProductsApi_Resteasy {
     @Parameter(in = HEADER, name = "X-User-ID", description = "Unique user identifier (SHA1 fingerprint)", required = true, schema = @Schema(implementation = String.class))
     @Parameter(in = QUERY, name = "offset", description = "Offset of first result in returned page", schema = @Schema(implementation = Integer.class, defaultValue = "0"))
     @Parameter(in = QUERY, name = "limit", description = "Number of results in returned page", schema = @Schema(implementation = Integer.class, defaultValue = "10"))
-    @Parameter(in = QUERY, name = "keywords", description = "Keywords to search for", schema = @Schema(type = ARRAY, implementation = String.class))
+    @Parameter(in = QUERY, name = "keywords", description = "Keywords to search for", schema = @Schema(type = ARRAY, implementation = String.class), style = SIMPLE, explode = TRUE)
     @APIResponse(responseCode = "200", description = "OK", content = { @Content(mediaType = APPLICATION_JSON, schema = @Schema(type = ARRAY, implementation = ProductV1Dto.class)), @Content(mediaType = "application/vnd.test.api.product-v1+json", schema = @Schema(type = ARRAY, implementation = ProductV1Dto.class)) })
     @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))
     @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErrorDto.class)))

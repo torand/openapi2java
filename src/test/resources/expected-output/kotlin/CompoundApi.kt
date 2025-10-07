@@ -30,9 +30,11 @@ import jakarta.ws.rs.core.Response
 import java.io.File
 import java.net.URI
 import org.eclipse.microprofile.openapi.annotations.Operation
+import org.eclipse.microprofile.openapi.annotations.enums.Explode.TRUE
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.HEADER
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.PATH
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.QUERY
+import org.eclipse.microprofile.openapi.annotations.enums.ParameterStyle.SIMPLE
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType.ARRAY
 import org.eclipse.microprofile.openapi.annotations.headers.Header
 import org.eclipse.microprofile.openapi.annotations.media.Content
@@ -131,7 +133,7 @@ interface CompoundApi {
     @Parameter(`in` = HEADER, name = "X-User-ID", description = "Unique user identifier (SHA1 fingerprint)", required = true, schema = Schema(implementation = String::class))
     @Parameter(`in` = QUERY, name = "offset", description = "Offset of first result in returned page", schema = Schema(implementation = Int::class, defaultValue = "0"))
     @Parameter(`in` = QUERY, name = "limit", description = "Number of results in returned page", schema = Schema(implementation = Int::class, defaultValue = "10"))
-    @Parameter(`in` = QUERY, name = "keywords", description = "Keywords to search for", schema = Schema(type = ARRAY, implementation = String::class))
+    @Parameter(`in` = QUERY, name = "keywords", description = "Keywords to search for", schema = Schema(type = ARRAY, implementation = String::class), style = SIMPLE, explode = TRUE)
     @APIResponse(responseCode = "200", description = "OK", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(type = ARRAY, implementation = ProductV1Dto::class)), Content(mediaType = "application/vnd.test.api.product-v1+json", schema = Schema(type = ARRAY, implementation = ProductV1Dto::class)) ])
     @APIResponse(responseCode = "400", description = "Invalid input parameters supplied", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])
     @APIResponse(responseCode = "401", description = "Authentication credentials are invalid or missing", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(implementation = ErrorDto::class)) ])

@@ -386,12 +386,58 @@ public class MethodInfoCollector extends BaseCollector {
             parameterAnnotation = parameterAnnotation.withAddedImports(contentAnnotations);
         }
 
+        if (nonNull(realParameter.getStyle())) {
+            Parameter.StyleEnum defaultStyle = getDefaultParameterStyle(realParameter);
+            if (!realParameter.getStyle().equals(defaultStyle)) {
+                ConstantValue parameterStyle = getParameterStyle(realParameter);
+                params.add("style = %s".formatted(parameterStyle.value()));
+                parameterAnnotation = parameterAnnotation.withAddedImports(parameterStyle);
+            }
+        }
+
+        if (nonNull(realParameter.getExplode())) {
+            boolean defaultValue = Parameter.StyleEnum.FORM.equals(realParameter.getStyle()) ? true : false;
+            if (!realParameter.getExplode().equals(defaultValue)) {
+                ConstantValue parameterExplode = getParameterExplode(realParameter);
+                params.add("explode = %s".formatted(parameterExplode.value()));
+                parameterAnnotation = parameterAnnotation.withAddedImports(parameterExplode);
+            }
+        }
         if (TRUE.equals(realParameter.getDeprecated())) {
             params.add("deprecated = true");
         }
 
         return parameterAnnotation.withAnnotation("@Parameter(%s)".formatted(joinCsv(params)))
             .withAddedNormalImport("org.eclipse.microprofile.openapi.annotations.parameters.Parameter");
+    }
+
+    private Parameter.StyleEnum getDefaultParameterStyle(Parameter parameter) {
+        return switch(parameter.getIn()) {
+            case "header" -> Parameter.StyleEnum.SIMPLE;
+            case "query" -> Parameter.StyleEnum.FORM;
+            case "path" -> Parameter.StyleEnum.SIMPLE;
+            case "cookie" -> Parameter.StyleEnum.FORM;
+            default -> throw new IllegalStateException("Parameter in-value %s not supported".formatted(parameter.getIn()));
+        };
+    }
+
+    private ConstantValue getParameterStyle(Parameter parameter) {
+        String style = switch (parameter.getStyle()) {
+            case MATRIX -> "MATRIX";
+            case LABEL -> "LABEL";
+            case FORM -> "FORM";
+            case SIMPLE -> "SIMPLE";
+            case SPACEDELIMITED -> "SPACEDELIMITED";
+            case PIPEDELIMITED -> "PIPEDELIMITED";
+            case DEEPOBJECT -> "DEEPOBJECT";
+        };
+
+        return new ConstantValue(style).withStaticImport("org.eclipse.microprofile.openapi.annotations.enums.ParameterStyle." + style);
+    }
+
+    private ConstantValue getParameterExplode(Parameter parameter) {
+        String explode = parameter.getExplode() ? "TRUE" : "FALSE";
+        return new ConstantValue(explode).withStaticImport("org.eclipse.microprofile.openapi.annotations.enums.Explode." + explode);
     }
 
     private ConstantValue getParameterInValue(Parameter parameter) {
