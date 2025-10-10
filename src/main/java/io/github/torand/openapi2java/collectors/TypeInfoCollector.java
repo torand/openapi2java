@@ -30,16 +30,14 @@ import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
 import static io.github.torand.javacommons.lang.Exceptions.illegalStateException;
 import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
 import static io.github.torand.javacommons.stream.StreamHelper.streamSafely;
-import static io.github.torand.openapi2java.collectors.Extensions.EXT_JSON_SERIALIZER;
-import static io.github.torand.openapi2java.collectors.Extensions.EXT_NULLABLE;
-import static io.github.torand.openapi2java.collectors.Extensions.EXT_VALIDATION_CONSTRAINT;
-import static io.github.torand.openapi2java.collectors.Extensions.extensions;
+import static io.github.torand.openapi2java.collectors.Extensions.*;
 import static io.github.torand.openapi2java.collectors.TypeInfoCollector.NullabilityResolution.FORCE_NOT_NULLABLE;
 import static io.github.torand.openapi2java.collectors.TypeInfoCollector.NullabilityResolution.FORCE_NULLABLE;
 import static io.github.torand.openapi2java.utils.StringUtils.getClassNameFromFqn;
 import static io.github.torand.openapi2java.utils.StringUtils.joinCsv;
 import static java.lang.Boolean.TRUE;
 import static java.util.Objects.nonNull;
+import static java.util.function.Predicate.not;
 
 /**
  * Collects information about a type from a schema.
@@ -120,7 +118,7 @@ public class TypeInfoCollector extends BaseCollector {
 
     public Optional<Schema<?>> getNonNullableSubSchema(List<Schema<?>> subSchemas) {
         return subSchemas.stream()
-            .filter(subSchema -> !isNullable(subSchema))
+            .filter(not(this::isNullable))
             .findFirst();
     }
 
@@ -131,7 +129,7 @@ public class TypeInfoCollector extends BaseCollector {
             .withNullable(isNullable(schema, nullabilityResolution));
 
         String jsonType = streamSafely(schema.getTypes())
-            .filter(t -> !"null".equals(t))
+            .filter(not("null"::equals))
             .findFirst()
             .orElseThrow(illegalStateException("Unexpected types: %s", schema.toString()));
 
@@ -175,7 +173,7 @@ public class TypeInfoCollector extends BaseCollector {
             typeInfo = typeInfo.withName("URI")
                 .withSchemaFormat(schema.getFormat())
                 .withAddedNormalImport("java.net.URI");
-            if (!typeInfo.nullable()) {
+            if (!typeInfo.nullable() && opts.addJakartaBeanValidationAnnotations()) {
                 AnnotationInfo notNullAnnotation = getNotNullAnnotation();
                 typeInfo = typeInfo.withAddedAnnotation(notNullAnnotation);
             }
@@ -183,7 +181,7 @@ public class TypeInfoCollector extends BaseCollector {
             typeInfo = typeInfo.withName("UUID")
                 .withSchemaFormat(schema.getFormat())
                 .withAddedNormalImport("java.util.UUID");
-            if (!typeInfo.nullable()) {
+            if (!typeInfo.nullable() && opts.addJakartaBeanValidationAnnotations()) {
                 AnnotationInfo notNullAnnotation = getNotNullAnnotation();
                 typeInfo = typeInfo.withAddedAnnotation(notNullAnnotation);
             }
