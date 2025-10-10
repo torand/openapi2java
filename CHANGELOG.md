@@ -39,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump dependency io.swagger.parser.v3:swagger-parser to v2.1.34
 
 ### Fixed
-- Bean validation annotations on subtypes of compound pojo property and resource method parameter types now generated.
+- Bean validation annotations on primitive subtypes of compound pojo property and resource method parameter types now generated.
 
 ## [1.2.3] - 2025-06-18
 
