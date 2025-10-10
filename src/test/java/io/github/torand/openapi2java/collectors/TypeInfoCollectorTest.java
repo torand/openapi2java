@@ -180,9 +180,9 @@ class TypeInfoCollectorTest {
                 {"type": "array", "items": {"type": "string"}, "maxItems": 10}
             """, "List", "String", List.of("@Valid", "@NotNull", "@Size(max = 10)"), List.of("@NotBlank"));
 
-        assertNonNullableArrayType("""
-                {"type": "array", "items": {"type": "string", "minLength": 3}, "maxItems": 10}
-            """, "List", "String", List.of("@Valid", "@NotNull", "@Size(max = 10)"), List.of("@NotBlank", "@Size(min = 3)"));
+        assertNullableArrayType("""
+                {"type": ["array", "null"], "items": {"type": "string", "minLength": 3}, "maxItems": 10}
+            """, "List", "String", List.of("@Valid", "@Size(max = 10)"), List.of("@NotBlank", "@Size(min = 3)"));
     }
 
     private void assertNullableBooleanType(String jsonSchema, String... expectedAnnotations) {
