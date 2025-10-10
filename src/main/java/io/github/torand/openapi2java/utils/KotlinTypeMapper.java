@@ -15,6 +15,9 @@
  */
 package io.github.torand.openapi2java.utils;
 
+/**
+ * Provides functions to map between Java and Kotlin native types-
+ */
 public final class KotlinTypeMapper {
     private KotlinTypeMapper() {}
 
