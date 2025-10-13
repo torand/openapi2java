@@ -101,14 +101,6 @@ public class PojoInfoCollector extends BaseCollector {
         return props;
     }
 
-    private PropertyInfo getAdditionalProperties(Schema<?> additionalProperties) {
-        if (!schemaResolver.isPrimitiveType(additionalProperties)) {
-            throw new IllegalStateException("Expected primitive type, but got: %s".formatted(additionalProperties.toString()));
-        }
-
-        return propertyInfoCollector.getPropertyInfo("additionalProperties", additionalProperties, false);
-    }
-
     private boolean isRequired(Schema<?> schema, String propName) {
         return nonEmpty(schema.getRequired()) && schema.getRequired().contains(propName);
     }
