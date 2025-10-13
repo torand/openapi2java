@@ -188,13 +188,13 @@ class TypeInfoCollectorTest {
     @Test
     void shouldProcessAdditionalProperties() {
         String jsonSchema = """
-                {"type": "object", "additionalProperties": {"type": "integer"}}
+                {"type": "object", "additionalProperties": {"type": "integer"}, "minItems": 1, "maxItems":10}
             """;
 
         TypeInfo typeInfo = getTypeInfo(jsonSchema);
 
         assertThat(typeInfo.getFullName()).isEqualTo("Map<String,Integer>");
-        assertThat(typeInfo.getAnnotatedFullName().asString()).isEqualTo("@Valid @NotNull Map<@NotBlank String, @NotNull Integer>");
+        assertThat(typeInfo.getAnnotatedFullName().asString()).isEqualTo("@Valid @NotNull @Size(min = 1, max = 10) Map<@NotBlank String, @NotNull Integer>");
     }
 
     private void assertNullableBooleanType(String jsonSchema, String... expectedAnnotations) {
