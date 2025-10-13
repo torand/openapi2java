@@ -185,6 +185,18 @@ class TypeInfoCollectorTest {
             """, "List", "String", List.of("@Valid", "@Size(max = 10)"), List.of("@NotBlank", "@Size(min = 3)"));
     }
 
+    @Test
+    void shouldProcessAdditionalProperties() {
+        String jsonSchema = """
+                {"type": "object", "additionalProperties": {"type": "integer"}}
+            """;
+
+        TypeInfo typeInfo = getTypeInfo(jsonSchema);
+
+        assertThat(typeInfo.getFullName()).isEqualTo("Map<String,Integer>");
+        assertThat(typeInfo.getAnnotatedFullName().asString()).isEqualTo("@Valid @NotNull Map<@NotBlank String, @NotNull Integer>");
+    }
+
     private void assertNullableBooleanType(String jsonSchema, String... expectedAnnotations) {
         TypeInfo typeInfo = getTypeInfo(jsonSchema);
         assertPrimitiveType(typeInfo, "Boolean", null, null, true, expectedAnnotations);

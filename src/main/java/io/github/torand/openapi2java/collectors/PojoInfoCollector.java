@@ -62,6 +62,10 @@ public class PojoInfoCollector extends BaseCollector {
 
         pojoInfo = pojoInfo.withAddedProperties(getSchemaProperties(schema));
 
+        if (schema.getAdditionalProperties() instanceof Schema) {
+            throw new IllegalStateException("Schema-based 'additionalProperties' not supported for Pojos. Please specify this inside a property schema instead.");
+        }
+
         return pojoInfo;
     }
 
@@ -95,6 +99,14 @@ public class PojoInfoCollector extends BaseCollector {
         }
 
         return props;
+    }
+
+    private PropertyInfo getAdditionalProperties(Schema<?> additionalProperties) {
+        if (!schemaResolver.isPrimitiveType(additionalProperties)) {
+            throw new IllegalStateException("Expected primitive type, but got: %s".formatted(additionalProperties.toString()));
+        }
+
+        return propertyInfoCollector.getPropertyInfo("additionalProperties", additionalProperties, false);
     }
 
     private boolean isRequired(Schema<?> schema, String propName) {

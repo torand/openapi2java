@@ -143,7 +143,7 @@ public class TypeInfoCollector extends BaseCollector {
             typeInfo = populateJsonBooleanType(typeInfo);
         } else if ("array".equals(jsonType)) {
             typeInfo = populateJsonArrayType(typeInfo, schema);
-        } else if ("object".equals(jsonType) && schema.getAdditionalProperties() instanceof Schema) {
+        } else if ("object".equals(jsonType) && isEmpty(schema.getProperties()) && schema.getAdditionalProperties() instanceof Schema) {
             typeInfo = populateJsonMapType(typeInfo, schema);
         } else {
             // Schema not expected to be defined "inline" using type 'object'
