@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 Tore Eide Andersen
+ * Copyright (c) 2024-2026 Tore Eide Andersen
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,24 +20,8 @@ import io.github.torand.openapi2java.generators.ResourceGenerator;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.junit.jupiter.api.Test;
 
-import static io.github.torand.openapi2java.TestHelper.ConfigVariant.COMMON_CONFIG_KEY;
-import static io.github.torand.openapi2java.TestHelper.ConfigVariant.COMMON_HEADERS_FACTORY;
-import static io.github.torand.openapi2java.TestHelper.ConfigVariant.COMMON_PROVIDERS;
-import static io.github.torand.openapi2java.TestHelper.ConfigVariant.OIDC_CLIENT_ANNOTATION;
-import static io.github.torand.openapi2java.TestHelper.ConfigVariant.RESTEASY;
-import static io.github.torand.openapi2java.TestHelper.assertMatchingJavaFiles;
-import static io.github.torand.openapi2java.TestHelper.assertMatchingJavaFilesVariant;
-import static io.github.torand.openapi2java.TestHelper.assertMatchingKotlinFiles;
-import static io.github.torand.openapi2java.TestHelper.assertMatchingKotlinFilesVariant;
-import static io.github.torand.openapi2java.TestHelper.getJavaOptions;
-import static io.github.torand.openapi2java.TestHelper.getKotlinOptions;
-import static io.github.torand.openapi2java.TestHelper.loadOpenApi30Spec;
-import static io.github.torand.openapi2java.TestHelper.loadOpenApi31Spec;
-import static io.github.torand.openapi2java.TestHelper.withConfigKeyOverride;
-import static io.github.torand.openapi2java.TestHelper.withHeadersFactoryOverride;
-import static io.github.torand.openapi2java.TestHelper.withOidcClientAnnotation;
-import static io.github.torand.openapi2java.TestHelper.withProvidersOverride;
-import static io.github.torand.openapi2java.TestHelper.withResteasyResponse;
+import static io.github.torand.openapi2java.TestHelper.ConfigVariant.*;
+import static io.github.torand.openapi2java.TestHelper.*;
 import static java.util.Collections.emptyList;
 
 class ResourceGeneratorTest {

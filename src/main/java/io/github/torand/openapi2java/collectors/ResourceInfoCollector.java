@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 Tore Eide Andersen
+ * Copyright (c) 2024-2026 Tore Eide Andersen
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,7 @@
 package io.github.torand.openapi2java.collectors;
 
 import io.github.torand.openapi2java.generators.Options;
-import io.github.torand.openapi2java.model.AnnotationInfo;
-import io.github.torand.openapi2java.model.ConstantValue;
-import io.github.torand.openapi2java.model.MethodInfo;
-import io.github.torand.openapi2java.model.ResourceInfo;
-import io.github.torand.openapi2java.model.SecurityRequirementInfo;
+import io.github.torand.openapi2java.model.*;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
@@ -35,11 +31,7 @@ import static io.github.torand.javacommons.collection.CollectionHelper.isEmpty;
 import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
 import static io.github.torand.javacommons.lang.StringHelper.isBlank;
 import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
-import static io.github.torand.openapi2java.collectors.Extensions.EXT_RESTCLIENT_CONFIGKEY;
-import static io.github.torand.openapi2java.collectors.Extensions.EXT_RESTCLIENT_HEADERS;
-import static io.github.torand.openapi2java.collectors.Extensions.EXT_RESTCLIENT_HEADERSFACTORY;
-import static io.github.torand.openapi2java.collectors.Extensions.EXT_RESTCLIENT_PROVIDERS;
-import static io.github.torand.openapi2java.collectors.Extensions.extensions;
+import static io.github.torand.openapi2java.collectors.Extensions.*;
 import static io.github.torand.openapi2java.utils.StringUtils.getClassNameFromFqn;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;

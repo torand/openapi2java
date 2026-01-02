@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 Tore Eide Andersen
+ * Copyright (c) 2024-2026 Tore Eide Andersen
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,7 @@ import io.github.torand.openapi2java.model.ConstantValue;
 import java.util.List;
 import java.util.Map;
 
-import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
-import static io.github.torand.javacommons.lang.StringHelper.quote;
-import static io.github.torand.javacommons.lang.StringHelper.stripHead;
-import static io.github.torand.javacommons.lang.StringHelper.stripTail;
+import static io.github.torand.javacommons.lang.StringHelper.*;
 import static io.github.torand.openapi2java.collectors.Extensions.extensions;
 import static io.github.torand.openapi2java.utils.KotlinTypeMapper.toKotlinNative;
 import static io.github.torand.openapi2java.utils.StringUtils.joinCsv;

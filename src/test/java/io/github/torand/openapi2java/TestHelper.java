@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 Tore Eide Andersen
+ * Copyright (c) 2024-2026 Tore Eide Andersen
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,11 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static io.github.torand.openapi2java.TestHelper.ConfigVariant.COMMON_CONFIG_KEY;
-import static io.github.torand.openapi2java.TestHelper.ConfigVariant.COMMON_HEADERS_FACTORY;
-import static io.github.torand.openapi2java.TestHelper.ConfigVariant.COMMON_PROVIDERS;
-import static io.github.torand.openapi2java.TestHelper.ConfigVariant.OIDC_CLIENT_ANNOTATION;
-import static io.github.torand.openapi2java.TestHelper.ConfigVariant.RESTEASY;
+import static io.github.torand.openapi2java.TestHelper.ConfigVariant.*;
 import static io.github.torand.openapi2java.utils.StringUtils.removeLineBreaks;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
