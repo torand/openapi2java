@@ -847,6 +847,9 @@
             "description": "Product comment",
             "deprecated": true,
             "x-deprecation-message": "To be removed in next version"
+          },
+          "empty": {
+            "$ref": "#/components/schemas/EmptyObject"
           }
         },
         "required": ["number", "name", "category", "price"]
@@ -932,6 +935,11 @@
             "required": ["nationalIdentityNumber"]
           }
         ]
+      },
+      "EmptyObject": {
+        "type": "object",
+        "properties": {},
+        "x-model-subdir": "common"
       }
     },
     "parameters": {

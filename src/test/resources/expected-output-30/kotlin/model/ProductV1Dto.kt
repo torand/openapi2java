@@ -2,7 +2,9 @@ package io.github.torand.openapi2java.test.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import io.github.torand.openapi2java.test.model.common.EmptyObjectDto
 import io.github.torand.openapi2java.test.serialization.ProductNoSerializer
+import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
@@ -37,5 +39,10 @@ data class ProductV1Dto (
     @Deprecated("To be removed in next version")
     @field:Schema(description = "Product comment", deprecated = true)
     @JsonProperty("comment")
-    val comment: String? = null
+    val comment: String? = null,
+
+    @field:Schema(description = "TBD")
+    @JsonProperty("empty")
+    @field:Valid
+    val empty: EmptyObjectDto? = null
 )

@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ...
 
 ### Changed
-- ...
+- Bump dependency io.swagger.parser.v3:swagger-parser to v2.1.37
 
 ### Deprecated
 - ...
@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ...
 
 ### Fixed
-- ...
+- Generate valid Java and Kotlin code for POJOs with no properties
 
 ## [1.3.0] - 2025-10-07
 

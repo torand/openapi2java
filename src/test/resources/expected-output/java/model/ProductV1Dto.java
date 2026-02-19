@@ -2,7 +2,9 @@ package io.github.torand.openapi2java.test.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.github.torand.openapi2java.test.model.common.EmptyObjectDto;
 import io.github.torand.openapi2java.test.serialization.ProductNoSerializer;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -37,7 +39,12 @@ public record ProductV1Dto (
     @Deprecated
     @Schema(description = "Product comment", deprecated = true)
     @JsonProperty("comment")
-    String comment
+    String comment,
+
+    @Schema(description = "TBD")
+    @JsonProperty("empty")
+    @Valid
+    EmptyObjectDto empty
 ) {
 
 }

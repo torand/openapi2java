@@ -22,13 +22,22 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static io.github.torand.openapi2java.TestHelper.*;
+import static io.github.torand.openapi2java.TestHelper.assertMatchingJavaFiles;
+import static io.github.torand.openapi2java.TestHelper.assertMatchingJavaFilesForOpenApi30;
+import static io.github.torand.openapi2java.TestHelper.assertMatchingKotlinFiles;
+import static io.github.torand.openapi2java.TestHelper.assertMatchingKotlinFilesForOpenApi30;
+import static io.github.torand.openapi2java.TestHelper.assertSnippet;
+import static io.github.torand.openapi2java.TestHelper.getJavaOptions;
+import static io.github.torand.openapi2java.TestHelper.getKotlinOptions;
+import static io.github.torand.openapi2java.TestHelper.loadOpenApi30Spec;
+import static io.github.torand.openapi2java.TestHelper.loadOpenApi31Spec;
 
 class ModelGeneratorTest {
 
     private static final Set<String> COMMON_POJOS = Set.of(
         "AddressV1",
-        "Error"
+        "Error",
+        "EmptyObject"
     );
 
     private static final Set<String> DOMAIN_POJOS = Set.of(
@@ -133,5 +142,21 @@ class ModelGeneratorTest {
                 assertMatchingKotlinFiles(filename);
             }
         }
+    }
+
+    @Test
+    public void shouldSupportEmptyPojosAsJavaClasses() {
+        OpenAPI openApiDoc = loadOpenApi31Spec();
+
+        Options javaOpts = getJavaOptions().withPojosAsRecords(false);
+        new ModelGenerator(javaOpts).generate(openApiDoc);
+        assertSnippet("java/model/common/EmptyObjectDto.java", """
+            @Schema(name = "EmptyObject", description = "TBD")
+            public class EmptyObjectDto {
+            
+                public EmptyObjectDto() {
+                }
+            }
+            """);
     }
 }
