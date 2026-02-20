@@ -112,6 +112,18 @@ public class OpenApi2JavaMojo extends AbstractMojo {
     private boolean pojosAsRecords;
 
     /**
+     * Fully qualified name of the class to represent schemas of type "string" and format "date" in generated code.
+     */
+    @Parameter( property = "dateClassName", defaultValue = "java.time.LocalDate" )
+    private String dateClassName;
+
+    /**
+     * Fully qualified name of the class to represent schemas of type "string" and format "date-time" in generated code.
+     */
+    @Parameter( property = "dateTimeClassName", defaultValue = "java.time.LocalDateTime" )
+    private String dateTimeClassName;
+
+    /**
      * Tags to generate source code for. Includes all tags if not specified.
      */
     @Parameter( property = "includeTags", defaultValue = "" )
@@ -209,6 +221,8 @@ public class OpenApi2JavaMojo extends AbstractMojo {
             resourceProvidersOverride,
             pojoNameSuffix,
             pojosAsRecords,
+            dateClassName,
+            dateTimeClassName,
             includeTags,
             generateResourceInterfaces,
             generateOpenApiDefClass,

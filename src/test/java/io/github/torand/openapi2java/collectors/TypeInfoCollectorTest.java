@@ -37,9 +37,7 @@ class TypeInfoCollectorTest {
 
     @BeforeEach
     void setUp() {
-        Options opts = TestHelper.getJavaOptions();
-        SchemaResolver schemaResolver = new SchemaResolver(null);
-        collector = new TypeInfoCollector(schemaResolver, opts);
+        createTypeInfoCollector(TestHelper.getJavaOptions());
     }
 
     @Test
@@ -167,6 +165,15 @@ class TypeInfoCollectorTest {
     }
 
     @Test
+    void shouldMapDateTimeStringPropertiesWithCustomClass() {
+        createTypeInfoCollector(TestHelper.getJavaOptions().withDateTimeClassName("java.time.OffsetDateTime"));
+
+        assertNonNullableStringType("""
+                {"type": "string", "format": "date-time"}
+            """, "OffsetDateTime", "date-time", null, "@NotNull");
+    }
+
+    @Test
     void shouldMapArrayProperties() {
         assertNullableArrayType("""
                 {"type": ["array", "null"], "items": {"type": "string"}}
@@ -274,5 +281,10 @@ class TypeInfoCollectorTest {
         Schema schema = deserializer.getJsonSchema(jsonNode, null, result);
 
         return collector.getTypeInfo(schema);
+    }
+
+    private void createTypeInfoCollector(Options opts) {
+        SchemaResolver schemaResolver = new SchemaResolver(null);
+        collector = new TypeInfoCollector(schemaResolver, opts);
     }
 }

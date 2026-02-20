@@ -10,7 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - New schema extension 'x-json-deserializer' to specify a custom Jackson deserializer class.
-
+- New config parameter 'dateClassName' to specify a custom class to represent string schemas with format "date" in generated code.
+- New config parameter 'dateTimeClassName' to specify a custom class to represent string schemas with format "date-time" in generated code.
+ 
 ### Changed
 - Bump dependency io.swagger.parser.v3:swagger-parser to v2.1.37.
 - JsonFormat annotation on strings with format "date" or "date-time" made optional and customizable through a new schema extension 'x-json-format'.
