@@ -51,9 +51,14 @@ public class Extensions {
     public static final String EXT_RESTCLIENT_PROVIDERS = "x-restclient-providers";
 
     /**
-     * Fully qualified classname of a Jackson JSON serializer class for the schema.
+     * Fully qualified classname of a Jackson serializer class for the schema.
      */
     public static final String EXT_JSON_SERIALIZER = "x-json-serializer";
+
+    /**
+     * Fully qualified classname of a Jackson deserializer class for the schema.
+     */
+    public static final String EXT_JSON_DESERIALIZER = "x-json-deserializer";
 
     /**
      * Custom date/time format pattern for Jackson java.time.* deserializers/serializers.

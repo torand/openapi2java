@@ -1,8 +1,10 @@
 package io.github.torand.openapi2java.test.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.torand.openapi2java.test.model.common.EmptyObjectDto;
+import io.github.torand.openapi2java.test.serialization.ProductNoDeserializer;
 import io.github.torand.openapi2java.test.serialization.ProductNoSerializer;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -17,6 +19,7 @@ public record ProductV1Dto (
     @JsonProperty("number")
     @NotBlank
     @JsonSerialize(using = ProductNoSerializer.class)
+    @JsonDeserialize(using = ProductNoDeserializer.class)
     String number,
 
     @Schema(description = "Product name", required = true)

@@ -30,6 +30,7 @@ import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
 import static io.github.torand.javacommons.lang.Exceptions.illegalStateException;
 import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
 import static io.github.torand.javacommons.stream.StreamHelper.streamSafely;
+import static io.github.torand.openapi2java.collectors.Extensions.EXT_JSON_DESERIALIZER;
 import static io.github.torand.openapi2java.collectors.Extensions.EXT_JSON_FORMAT;
 import static io.github.torand.openapi2java.collectors.Extensions.EXT_JSON_SERIALIZER;
 import static io.github.torand.openapi2java.collectors.Extensions.EXT_NULLABLE;
@@ -158,6 +159,12 @@ public class TypeInfoCollector extends BaseCollector {
         if (maybeJsonSerializer.isPresent()) {
             AnnotationInfo jsonSerializeAnnotation = getJsonSerializeAnnotation(maybeJsonSerializer.get());
             typeInfo = typeInfo.withAddedAnnotation(jsonSerializeAnnotation);
+        }
+
+        Optional<String> maybeJsonDeserializer = extensions(schema.getExtensions()).getString(EXT_JSON_DESERIALIZER);
+        if (maybeJsonDeserializer.isPresent()) {
+            AnnotationInfo jsonDeserializeAnnotation = getJsonDeserializeAnnotation(maybeJsonDeserializer.get());
+            typeInfo = typeInfo.withAddedAnnotation(jsonDeserializeAnnotation);
         }
 
         Optional<String> maybeValidationConstraint = extensions(schema.getExtensions()).getString(EXT_VALIDATION_CONSTRAINT);
@@ -418,9 +425,15 @@ public class TypeInfoCollector extends BaseCollector {
     }
 
     private AnnotationInfo getJsonSerializeAnnotation(String jsonSerializer) {
-        return new AnnotationInfo("@JsonSerialize(using = %s)".formatted(getJsonSerializerClass(jsonSerializer)))
+        return new AnnotationInfo("@JsonSerialize(using = %s)".formatted(getClassRefFromFullyQualifiedClassName(jsonSerializer)))
             .withAddedNormalImport("com.fasterxml.jackson.databind.annotation.JsonSerialize")
             .withAddedNormalImport(jsonSerializer);
+    }
+
+    private AnnotationInfo getJsonDeserializeAnnotation(String jsonDeserializer) {
+        return new AnnotationInfo("@JsonDeserialize(using = %s)".formatted(getClassRefFromFullyQualifiedClassName(jsonDeserializer)))
+            .withAddedNormalImport("com.fasterxml.jackson.databind.annotation.JsonDeserialize")
+            .withAddedNormalImport(jsonDeserializer);
     }
 
     private AnnotationInfo getJsonFormatAnnotation(String pattern) {
@@ -503,8 +516,8 @@ public class TypeInfoCollector extends BaseCollector {
             "jakarta.validation.constraints.Size");
     }
 
-    private String getJsonSerializerClass(String jsonSerializerFqn) {
-        String className = getClassNameFromFqn(jsonSerializerFqn);
+    private String getClassRefFromFullyQualifiedClassName(String fullyQualifiedClassName) {
+        String className = getClassNameFromFqn(fullyQualifiedClassName);
         return formatClassRef(className);
     }
 }
