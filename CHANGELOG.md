@@ -12,7 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ...
 
 ### Changed
-- Bump dependency io.swagger.parser.v3:swagger-parser to v2.1.37
+- Bump dependency io.swagger.parser.v3:swagger-parser to v2.1.37.
+- JsonFormat annotation on strings with format "date" or "date-time" made optional and customizable through a new schema extension 'x-json-format'.
 
 ### Deprecated
 - ...
@@ -21,8 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ...
 
 ### Fixed
-- Generate valid Java and Kotlin code for POJOs with no properties
-- Detect correct type when resolving $ref to component of type 'array'
+- Generate valid Java and Kotlin code for POJOs with no properties.
+- Detect correct type when resolving $ref to component of type 'array'.
 
 ## [1.3.0] - 2025-10-07
 

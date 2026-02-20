@@ -194,17 +194,18 @@ References outside the OpenAPI specification file are currently not resolved by 
 
 The code generation can be customized by using the following extension properties in the OpenAPI specification:
 
-| Extension property          | Type             | Allowed where                       | Description                                                             |
-|-----------------------------|------------------|-------------------------------------|-------------------------------------------------------------------------|
-| x-restclient-configkey      | String           | In a tag                            | Config key used for getting MP Rest Client config                       |
-| x-restclient-headers        | Object (Map)     | In a Tag                            | Map of custom client header names and their values                      |
-| x-restclient-headersfactory | String           | In a Tag                            | Fully qualified classname of an MP Rest Client header factory           |
-| x-restclient-providers      | Array of strings | In a Tag                            | Array of fully qualified classnames of MP Rest Client providers         |
-| x-json-serializer           | String           | In a schema                         | Fully qualified classname of a JSON serializer class for the schema     |
-| x-validation-constraint     | String           | In a schema                         | Fully qualified classname of an annotation class to validate the schema |
-| x-nullable                  | Boolean          | In a schema type definition         | If `true` the type of the schema/property can be `null`                 |
-| x-model-subdir              | String           | In a component schema               | Subdirectory to place the generated DTO model class                     |
-| x-deprecation-message       | String           | Everywhere `deprecated` can be used | Describing why something is deprecated, and what to use instead         |
+| Extension property          | Type             | Allowed where                                              | Description                                                                                                                                                                        |
+|-----------------------------|------------------|------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| x-restclient-configkey      | String           | In a tag                                                   | Config key used for getting MP Rest Client config                                                                                                                                  |
+| x-restclient-headers        | Object (Map)     | In a Tag                                                   | Map of custom client header names and their values                                                                                                                                 |
+| x-restclient-headersfactory | String           | In a Tag                                                   | Fully qualified classname of an MP Rest Client header factory                                                                                                                      |
+| x-restclient-providers      | Array of strings | In a Tag                                                   | Array of fully qualified classnames of MP Rest Client providers                                                                                                                    |
+| x-json-serializer           | String           | In a schema                                                | Fully qualified classname of a Jackson serializer class for the schema                                                                                                             |
+| x-json-format               | String           | In a schema of type "string", format "date" or date-time"  | Custom [date/time format pattern](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/text/SimpleDateFormat.html) for Jackson java.time.* deserializers/serializers. |
+| x-validation-constraint     | String           | In a schema                                                | Fully qualified classname of an annotation class to validate the schema                                                                                                            |
+| x-nullable                  | Boolean          | In a schema type definition                                | If `true` the type of the schema/property can be `null`                                                                                                                            |
+| x-model-subdir              | String           | In a component schema                                      | Subdirectory to place the generated DTO model class                                                                                                                                |
+| x-deprecation-message       | String           | Everywhere `deprecated` can be used                        | Describing why something is deprecated, and what to use instead                                                                                                                    |
 
 ### Mandatory Properties (Nullability)
 

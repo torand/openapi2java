@@ -30,6 +30,7 @@ import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
 import static io.github.torand.javacommons.lang.Exceptions.illegalStateException;
 import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
 import static io.github.torand.javacommons.stream.StreamHelper.streamSafely;
+import static io.github.torand.openapi2java.collectors.Extensions.EXT_JSON_FORMAT;
 import static io.github.torand.openapi2java.collectors.Extensions.EXT_JSON_SERIALIZER;
 import static io.github.torand.openapi2java.collectors.Extensions.EXT_NULLABLE;
 import static io.github.torand.openapi2java.collectors.Extensions.EXT_VALIDATION_CONSTRAINT;
@@ -204,8 +205,11 @@ public class TypeInfoCollector extends BaseCollector {
                 AnnotationInfo notNullAnnotation = getNotNullAnnotation();
                 typeInfo = typeInfo.withAddedAnnotation(notNullAnnotation);
             }
-            AnnotationInfo jsonFormatAnnotation = getJsonFormatAnnotation("yyyy-MM-dd");
-            typeInfo = typeInfo.withAddedAnnotation(jsonFormatAnnotation);
+            Optional<String> maybeJsonFormat = extensions(schema.getExtensions()).getString(EXT_JSON_FORMAT);
+            if (maybeJsonFormat.isPresent()) {
+                AnnotationInfo jsonFormatAnnotation = getJsonFormatAnnotation(maybeJsonFormat.get());
+                typeInfo = typeInfo.withAddedAnnotation(jsonFormatAnnotation);
+            }
         } else if ("date-time".equals(schema.getFormat())) {
             typeInfo = typeInfo.withName("LocalDateTime")
                 .withSchemaFormat(schema.getFormat())
@@ -214,8 +218,11 @@ public class TypeInfoCollector extends BaseCollector {
                 AnnotationInfo notNullAnnotation = getNotNullAnnotation();
                 typeInfo = typeInfo.withAddedAnnotation(notNullAnnotation);
             }
-            AnnotationInfo jsonFormatAnnotation = getJsonFormatAnnotation("yyyy-MM-dd'T'HH:mm:ss");
-            typeInfo = typeInfo.withAddedAnnotation(jsonFormatAnnotation);
+            Optional<String> maybeJsonFormat = extensions(schema.getExtensions()).getString(EXT_JSON_FORMAT);
+            if (maybeJsonFormat.isPresent()) {
+                AnnotationInfo jsonFormatAnnotation = getJsonFormatAnnotation(maybeJsonFormat.get());
+                typeInfo = typeInfo.withAddedAnnotation(jsonFormatAnnotation);
+            }
         } else if ("email".equals(schema.getFormat())) {
             typeInfo = typeInfo.withName("String")
                 .withSchemaFormat(schema.getFormat());
