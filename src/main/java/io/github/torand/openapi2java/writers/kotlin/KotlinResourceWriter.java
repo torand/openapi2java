@@ -15,6 +15,7 @@
  */
 package io.github.torand.openapi2java.writers.kotlin;
 
+import io.github.torand.javacommons.stream.StreamHelper;
 import io.github.torand.openapi2java.generators.Options;
 import io.github.torand.openapi2java.model.AnnotatedTypeName;
 import io.github.torand.openapi2java.model.AnnotationInfo;
@@ -26,11 +27,13 @@ import io.github.torand.openapi2java.writers.ResourceWriter;
 import java.io.Writer;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Predicate;
 
 import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
 import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
 import static io.github.torand.javacommons.stream.StreamHelper.streamSafely;
 import static io.github.torand.openapi2java.utils.KotlinTypeMapper.toKotlinNative;
+import static io.github.torand.openapi2java.utils.PackageUtils.isFqnInPackage;
 import static java.util.Objects.nonNull;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toCollection;
@@ -117,10 +120,16 @@ public class KotlinResourceWriter extends BaseWriter implements ResourceWriter {
     }
 
     private void writeImports(ResourceInfo resourceInfo) {
-        Set<String> imports = resourceInfo.aggregatedImports().stream()
-            .filter(not("java.util.List"::equals))
-            .filter(not("java.util.Map"::equals))
-            .filter(not(i -> i.contains("ROOT_PATH")))
+        Predicate<String> isInSamePackage = fqn -> isFqnInPackage(fqn, opts.rootPackage());
+
+        Set<String> imports = StreamHelper.concatStreams(
+            resourceInfo.aggregatedNormalImports().stream()
+                .filter(not(isInSamePackage))
+                .filter(not("java.util.List"::equals))
+                .filter(not("java.util.Map"::equals)),
+            resourceInfo.aggregatedStaticImports().stream()
+                .filter(not(i -> i.contains("ROOT_PATH")))
+            )
             .map("import %s"::formatted)
             .collect(toCollection(TreeSet::new));
 

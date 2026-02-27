@@ -19,15 +19,18 @@ import io.github.torand.openapi2java.generators.Options;
 import io.github.torand.openapi2java.model.AnnotationInfo;
 import io.github.torand.openapi2java.model.MethodParamInfo;
 import io.github.torand.openapi2java.model.ResourceInfo;
+import io.github.torand.openapi2java.utils.PackageUtils;
 import io.github.torand.openapi2java.writers.BaseWriter;
 import io.github.torand.openapi2java.writers.ResourceWriter;
 
 import java.io.Writer;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
 import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
 import static io.github.torand.javacommons.stream.StreamHelper.streamSafely;
+import static io.github.torand.openapi2java.utils.PackageUtils.isFqnInPackage;
 import static java.util.Objects.nonNull;
 import static java.util.function.Predicate.not;
 
@@ -109,7 +112,7 @@ public class JavaResourceWriter extends BaseWriter implements ResourceWriter {
 
     private void writeJavaImports(ResourceInfo resourceInfo) {
         List<String> imports = resourceInfo.aggregatedNormalImports().stream()
-            .filter(this::isJavaPackage)
+            .filter(PackageUtils::isJavaPackage)
             .map("import %s;"::formatted)
             .toList();
 
@@ -120,8 +123,11 @@ public class JavaResourceWriter extends BaseWriter implements ResourceWriter {
     }
 
     private void writeNonJavaImports(ResourceInfo resourceInfo) {
+        Predicate<String> isInSamePackage = fqn -> isFqnInPackage(fqn, opts.rootPackage());
+
         List<String> imports = resourceInfo.aggregatedNormalImports().stream()
-            .filter(not(this::isJavaPackage))
+            .filter(not(PackageUtils::isJavaPackage))
+            .filter(not(isInSamePackage))
             .map("import %s;"::formatted)
             .toList();
 
@@ -140,9 +146,5 @@ public class JavaResourceWriter extends BaseWriter implements ResourceWriter {
             imports.forEach(this::writeLine);
             writeNewLine();
         }
-    }
-
-    private boolean isJavaPackage(String qualifiedType) {
-        return qualifiedType.startsWith("java.");
     }
 }

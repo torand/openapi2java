@@ -1,6 +1,5 @@
 package io.github.torand.openapi2java.test;
 
-import io.github.torand.openapi2java.test.CommonClientHeadersFactory;
 import io.github.torand.openapi2java.test.model.NewUserProfileV1Dto;
 import io.github.torand.openapi2java.test.model.UserProfileV1Dto;
 import io.github.torand.openapi2java.test.model.common.ErrorDto;

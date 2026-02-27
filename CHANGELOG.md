@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Generate valid Java and Kotlin code for schema components of type 'object' with no properties.
 - Detect correct type when resolving $ref to schema component of type 'array'.
+- Skip imports of classes in same package as generated code.
 
 ## [1.3.0] - 2025-10-07
 
