@@ -12,7 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New schema extension 'x-json-deserializer' to specify a custom Jackson deserializer class.
 - New config parameter 'dateClassName' to specify a custom class to represent string schemas with format "date" in generated code.
 - New config parameter 'dateTimeClassName' to specify a custom class to represent string schemas with format "date-time" in generated code.
- 
+- Support 'minLength' and 'maxLength' for Schema annotations on schemas of type 'string'.
+
 ### Changed
 - Bump dependency io.swagger.parser.v3:swagger-parser to v2.1.38.
 - JsonFormat annotation on strings with format "date" or "date-time" made optional and customizable through a new schema extension 'x-json-format'.
@@ -37,7 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New config parameter 'useOidcClientAnnotation' to generate Quarkus OIDC client annotation for all resource interfaces.
 - New config parameter 'resourceProvidersOverride' to specify common set of Microprofile client providers for all resource interfaces.
 - New config parameter 'resourceConfigKeyOverride' to specify the same Microprofile client config-key for all resource interfaces.
-- Support 'style' og 'exploded' for Parameter annotations in resource interfaces.
+- Support 'style' and 'exploded' for Parameter annotations in resource interfaces.
 
 ### Changed
 - Bump dependency io.swagger.parser.v3:swagger-parser to v2.1.34

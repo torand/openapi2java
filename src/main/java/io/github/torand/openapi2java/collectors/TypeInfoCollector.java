@@ -25,11 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static io.github.torand.javacommons.collection.CollectionHelper.isEmpty;
-import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
 import static io.github.torand.javacommons.lang.Exceptions.illegalStateException;
 import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
-import static io.github.torand.javacommons.stream.StreamHelper.streamSafely;
 import static io.github.torand.openapi2java.collectors.Extensions.EXT_JSON_DESERIALIZER;
 import static io.github.torand.openapi2java.collectors.Extensions.EXT_JSON_FORMAT;
 import static io.github.torand.openapi2java.collectors.Extensions.EXT_JSON_SERIALIZER;
@@ -267,6 +264,9 @@ public class TypeInfoCollector extends BaseCollector {
                         .withAddedAnnotation(getPatternAnnotation(schema));
                 }
                 if (nonNull(schema.getMinLength()) || nonNull(schema.getMaxLength())) {
+                    typeInfo = typeInfo
+                        .withSchemaMinLength(schema.getMinLength())
+                        .withSchemaMaxLength(schema.getMaxLength());
                     AnnotationInfo sizeAnnotation = getStringSizeAnnotation(schema);
                     typeInfo = typeInfo.withAddedAnnotation(sizeAnnotation);
                 }
