@@ -52,7 +52,7 @@ The package is available from the [Maven Central Repository](https://central.son
     <plugin>
       <groupId>io.github.torand</groupId>
       <artifactId>openapi2java</artifactId>
-      <version>1.3.0</version>
+      <version>1.4.0</version>
       <executions>
         <execution>
          <id>generate</id>
@@ -75,7 +75,7 @@ The package is available from the [Maven Central Repository](https://central.son
 ### Run from the Command Line
 
 ```bash
-$ mvn io.github.torand:openapi2java:1.3.0:generate \
+$ mvn io.github.torand:openapi2java:1.4.0:generate \
   -DopenApiFile=openapi.json \
   -DoutputDir=target/openapi2java \
   -DrootPackage=io.github.torand.myapi
@@ -83,65 +83,69 @@ $ mvn io.github.torand:openapi2java:1.3.0:generate \
 
 ## Configuration
 
-| Parameter                            | Default                   | Description                                                                                                      |
-|--------------------------------------|---------------------------|------------------------------------------------------------------------------------------------------------------|
-| openApiFile                          |                           | Filename of OpenAPI-file to generate Java code from                                                              |
-| outputDir                            | Project build dir         | Directory to write Java code files to                                                                            |
-| rootPackage                          |                           | Root package path of output Java classes                                                                         |
-| rootUrlPath                          | "api"                     | Root context path of REST resources                                                                              |
-| resourceNameSuffix                   | "Api"                     | Suffix for resource (MP Rest Client) interface names                                                             |
-| resourceNameOverride                 | "" (i.e. use tags)        | Specify to generate a single resource interface, instead of one per tag                                          |
-| resourceConfigKeyOverride            | ""                        | Specify to use same MP Rest Client config key for all resource interfaces                                        |
-| resourceClientHeadersFactoryOverride | ""                        | Specify to use same MP Rest Client header factory class for all resource interfaces                              |
-| resourceProvidersOverride            |                           | Specify to use same MP Rest Client providers for all resource interfaces                                         |
-| pojoNameSuffix                       | "Dto"                     | Suffix for POJO (model) class names                                                                              |
-| pojosAsRecords                       | true                      | Whether to output Java records instead of Java classes for models                                                |
-| dateClassName                        | "java.time.LocalDate"     | Fully qualified name of the class to represent schemas of type "string" and format "date" in generated code      |
-| dateTimeClassName                    | "java.time.LocalDateTime" | Fully qualified name of the class to represent schemas of type "string" and format "date-time" in generated code |
-| includeTags                          | "" (i.e. all)             | Tags (comma separated) to output resource interfaces for                                                         |
-| generateResourceInterfaces           | true                      | Whether to generate resource interfaces                                                                          |
-| generateOpenApiDefClass              | true                      | Whether to generate OpenAPI definition class                                                                     |
-| addJsonPropertyAnnotations           | true                      | Whether to generate model files with JSON property annotations                                                   |
-| addJakartaBeanValidationAnnotations  | true                      | Whether to generate model files with Jakarta Bean Validation annotations                                         |
-| addMpOpenApiAnnotations              | true                      | Whether to generate files with Microprofile OpenAPI annotations                                                  |
-| addMpRestClientAnnotations           | true                      | Whether to generate resource files with Microprofile Rest Client annotations                                     |
-| useKotlinSyntax                      | false                     | Whether to generate files with Kotlin syntax                                                                     |
-| useResteasyResponse                  | false                     | Whether to use RESTEasy's `RestResponse<>` as return type for generated resource methods                         |
-| useOidcClientAnnotation              | false                     | Whether to add the Quarkus OIDC client annotation to the resource interfaces                                     |
-| indentWithTab                        | false                     | Whether to output indents with the tab character                                                                 |
-| indentSize                           | 4                         | Number of spaces in one indentation level. Relevant only when 'indentWithTab' is false.                          |
-| verbose                              | false                     | Whether to log extra details                                                                                     |
+| Parameter                            | Default                   | Description                                                                                                        |
+|--------------------------------------|---------------------------|--------------------------------------------------------------------------------------------------------------------|
+| openApiFile                          |                           | Filename of OpenAPI-file to generate Java code from                                                                |
+| outputDir                            | Project build dir         | Directory to write Java code files to                                                                              |
+| rootPackage                          |                           | Root package path of output Java classes                                                                           |
+| rootUrlPath                          | "api"                     | Root context path of REST resources                                                                                |
+| resourceNameSuffix                   | "Api"                     | Suffix for resource (MP Rest Client) interface names                                                               |
+| resourceNameOverride                 | "" (i.e. use tags)        | Specify to generate a single resource interface, instead of one per tag                                            |
+| resourceConfigKeyOverride            | ""                        | Specify to use same MP Rest Client config key for all resource interfaces                                          |
+| resourceClientHeadersFactoryOverride | ""                        | Specify to use same MP Rest Client header factory class for all resource interfaces                                |
+| resourceProvidersOverride            |                           | Specify to use same MP Rest Client providers for all resource interfaces                                           |
+| pojoNameSuffix                       | "Dto"                     | Suffix for POJO (model) class names                                                                                |
+| pojosAsRecords                       | true                      | Whether to output Java records instead of Java classes for models                                                  |
+| durationClassName                    | "java.time.Duration"      | Fully qualified name of the class to represent schemas of type "string" and format "duration" in generated code    |
+| dateClassName                        | "java.time.LocalDate"     | Fully qualified name of the class to represent schemas of type "string" and format "date" in generated code        |
+| dateTimeClassName                    | "java.time.LocalDateTime" | Fully qualified name of the class to represent schemas of type "string" and format "date-time" in generated code   |
+| includeTags                          | "" (i.e. all)             | Tags (comma separated) to output resource interfaces for                                                           |
+| generateResourceInterfaces           | true                      | Whether to generate resource interfaces                                                                            |
+| generateOpenApiDefClass              | true                      | Whether to generate OpenAPI definition class                                                                       |
+| addJsonPropertyAnnotations           | true                      | Whether to generate model files with JSON property annotations                                                     |
+| addJakartaBeanValidationAnnotations  | true                      | Whether to generate model files with Jakarta Bean Validation annotations                                           |
+| addMpOpenApiAnnotations              | true                      | Whether to generate files with Microprofile OpenAPI annotations                                                    |
+| addMpRestClientAnnotations           | true                      | Whether to generate resource files with Microprofile Rest Client annotations                                       |
+| useKotlinSyntax                      | false                     | Whether to generate files with Kotlin syntax                                                                       |
+| useResteasyResponse                  | false                     | Whether to use RESTEasy's `RestResponse<>` as return type for generated resource methods                           |
+| useOidcClientAnnotation              | false                     | Whether to add the Quarkus OIDC client annotation to the resource interfaces                                       |
+| indentWithTab                        | false                     | Whether to output indents with the tab character                                                                   |
+| indentSize                           | 4                         | Number of spaces in one indentation level. Relevant only when 'indentWithTab' is false.                            |
+| verbose                              | false                     | Whether to log extra details                                                                                       |
 
 ## Type Mapping
 
 Schema types and formats map to the following Java and Kotlin types in generated source code:
 
-| Type                                         | Format            | Java type               | Kotlin type             |
-|----------------------------------------------|-------------------|-------------------------|-------------------------|
-| "array"                                      | N/A               | java.util.List          | java.util.List          |
-| "array" with "uniqueItems" = true            | N/A               | java.util.Set           | java.util.Set           |
-| "boolean"                                    | N/A               | Boolean                 | Boolean                 |
-| "integer"                                    |                   | Integer                 | Int                     |
-| "integer"                                    | "int32"           | Integer                 | Int                     |
-| "integer"                                    | "int64"           | Long                    | Long                    |
-| "number"                                     |                   | java.math.BigDecimal    | java.math.BigDecimal    |
-| "number"                                     | "double"          | Double                  | Double                  |
-| "number"                                     | "float"           | Float                   | Float                   |
-| "object"                                     | N/A               | [^1]                    | [^1]                    |
-| "object" with "additionalProperties" = {...} | N/A               | java.util.Map           | java.util.Map           |
-| "string"                                     |                   | String                  | String                  |
-| "string"                                     | "uri"             | java.net.URI            | java.net.URI            |
-| "string"                                     | "uuid"            | java.util.UUID          | java.util.UUID          |
-| "string"                                     | "duration"[^2]    | java.time.Duration      | java.time.Duration      |
-| "string"                                     | "date"[^3]        | java.time.LocalDate     | java.time.LocalDate     |
-| "string"                                     | "date-time"[^4]   | java.time.LocalDateTime | java.time.LocalDateTime |
-| "string"                                     | "binary"          | byte[]                  | ByteArray               |
-| "string"                                     | All other formats | String                  | String                  |
+| Type                                         | Format            | Java type                   | Kotlin type                 |
+|----------------------------------------------|-------------------|-----------------------------|-----------------------------|
+| "array"                                      | N/A               | java.util.List              | java.util.List              |
+| "array" with "uniqueItems" = true            | N/A               | java.util.Set               | java.util.Set               |
+| "boolean"                                    | N/A               | Boolean                     | Boolean                     |
+| "integer"                                    |                   | Integer                     | Int                         |
+| "integer"                                    | "int32"           | Integer                     | Int                         |
+| "integer"                                    | "int64"           | Long                        | Long                        |
+| "number"                                     |                   | java.math.BigDecimal        | java.math.BigDecimal        |
+| "number"                                     | "double"          | Double                      | Double                      |
+| "number"                                     | "float"           | Float                       | Float                       |
+| "object"                                     | N/A               | [^1]                        | [^1]                        |
+| "object" with "additionalProperties" = {...} | N/A               | java.util.Map               | java.util.Map               |
+| "string"                                     |                   | String                      | String                      |
+| "string"                                     | "uri"             | java.net.URI                | java.net.URI                |
+| "string"                                     | "uuid"            | java.util.UUID              | java.util.UUID              |
+| "string"                                     | "duration"[^2]    | java.time.Duration[^5]      | java.time.Duration[^5]      |
+| "string"                                     | "date"[^3]        | java.time.LocalDate[^6]     | java.time.LocalDate[^6]     |
+| "string"                                     | "date-time"[^4]   | java.time.LocalDateTime[^7] | java.time.LocalDateTime[^7] |
+| "string"                                     | "binary"          | byte[]                      | ByteArray                   |
+| "string"                                     | All other formats | String                      | String                      |
 
 [^1]: Inline objects not supported.
 [^2]: Expects string in the [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html) duration format.
 [^3]: Expects string in the [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html) local date format.
-[^4]: Expects string in the [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html) local date time format (without milliseconds).
+[^4]: Expects string in the [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html) local date time format (with or without milliseconds).
+[^5]: Can be overridden using the 'durationClassName' configuration parameter.
+[^6]: Can be overridden using the 'dateClassName' configuration parameter.
+[^7]: Can be overridden using the 'dateTimeClassName' configuration parameter.
 
 ## Constraint Mapping
 

@@ -21,6 +21,7 @@ import io.github.torand.openapi2java.model.AnnotatedTypeName;
 import io.github.torand.openapi2java.model.AnnotationInfo;
 import io.github.torand.openapi2java.model.MethodParamInfo;
 import io.github.torand.openapi2java.model.ResourceInfo;
+import io.github.torand.openapi2java.utils.PackageUtils;
 import io.github.torand.openapi2java.writers.BaseWriter;
 import io.github.torand.openapi2java.writers.ResourceWriter;
 
@@ -124,6 +125,7 @@ public class KotlinResourceWriter extends BaseWriter implements ResourceWriter {
 
         Set<String> imports = StreamHelper.concatStreams(
             resourceInfo.aggregatedNormalImports().stream()
+                .filter(not(PackageUtils::isFundamentalJavaClass))
                 .filter(not(isInSamePackage))
                 .filter(not("java.util.List"::equals))
                 .filter(not("java.util.Map"::equals)),

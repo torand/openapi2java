@@ -113,6 +113,7 @@ public class JavaResourceWriter extends BaseWriter implements ResourceWriter {
     private void writeJavaImports(ResourceInfo resourceInfo) {
         List<String> imports = resourceInfo.aggregatedNormalImports().stream()
             .filter(PackageUtils::isJavaPackage)
+            .filter(not(PackageUtils::isFundamentalJavaClass))
             .map("import %s;"::formatted)
             .toList();
 
