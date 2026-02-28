@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - ...
 
-## [1.4.0] - 2026-02-27
+## [1.4.0] - 2026-02-28
 
 ### Added
 - New schema extension 'x-json-deserializer' to specify a custom Jackson deserializer class.
