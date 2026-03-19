@@ -24,6 +24,7 @@ import io.swagger.v3.oas.models.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.github.torand.openapi2java.utils.StringUtils.escape;
 import static io.github.torand.openapi2java.utils.StringUtils.joinCsv;
 import static java.lang.Boolean.TRUE;
 import static java.util.Objects.nonNull;
@@ -80,7 +81,7 @@ public class PropertyInfoCollector extends BaseCollector {
             schemaParams.add("format = \"%s\"".formatted(typeInfo.schemaFormat()));
         }
         if (nonNull(typeInfo.schemaPattern())) {
-            schemaParams.add("pattern = \"%s\"".formatted(typeInfo.schemaPattern()));
+            schemaParams.add("pattern = \"%s\"".formatted(escape(typeInfo.schemaPattern())));
         }
         if (nonNull(typeInfo.schemaMinLength())) {
             schemaParams.add("minLength = %d".formatted(typeInfo.schemaMinLength()));

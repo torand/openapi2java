@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -150,7 +151,7 @@ public interface ProductsApi {
         @PathParam("productNo") @NotBlank String productNo,
         @HeaderParam(ACCEPT_LANGUAGE) String acceptLanguage,
         @HeaderParam("X-User-ID") @NotBlank String xUserID,
-        @RestForm("filename") @PartType(TEXT_PLAIN) @NotBlank String filename,
+        @RestForm("filename") @PartType(TEXT_PLAIN) @NotBlank @Pattern(regexp = "^[a-zA-Z0-9]{1,100}\\.[a-zA-Z0-9]{1,3}?$") String filename,
         @RestForm("description") @PartType(TEXT_PLAIN) @NotBlank String description,
         @RestForm("file") @PartType(APPLICATION_OCTET_STREAM) @NotNull File file
     );

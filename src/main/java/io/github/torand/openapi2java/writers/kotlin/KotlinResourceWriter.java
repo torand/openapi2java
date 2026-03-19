@@ -35,6 +35,7 @@ import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
 import static io.github.torand.javacommons.stream.StreamHelper.streamSafely;
 import static io.github.torand.openapi2java.utils.KotlinTypeMapper.toKotlinNative;
 import static io.github.torand.openapi2java.utils.PackageUtils.isFqnInPackage;
+import static io.github.torand.openapi2java.utils.StringUtils.escape;
 import static java.util.Objects.nonNull;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toCollection;
@@ -62,7 +63,7 @@ public class KotlinResourceWriter extends BaseWriter implements ResourceWriter {
             writeNewLine();
             if (m.isDeprecated()) {
                 writeIndent(1);
-                writeLine("@Deprecated(\"%s\")".formatted(m.deprecationMessage()));
+                writeLine("@Deprecated(\"%s\")".formatted(escape(m.deprecationMessage())));
             }
 
             m.annotations().forEach(a -> {
