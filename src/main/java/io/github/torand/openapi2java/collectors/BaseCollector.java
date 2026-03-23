@@ -21,9 +21,13 @@ import io.github.torand.openapi2java.model.ConstantValue;
 import java.util.List;
 import java.util.Map;
 
-import static io.github.torand.javacommons.lang.StringHelper.*;
+import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
+import static io.github.torand.javacommons.lang.StringHelper.quote;
+import static io.github.torand.javacommons.lang.StringHelper.stripHead;
+import static io.github.torand.javacommons.lang.StringHelper.stripTail;
 import static io.github.torand.openapi2java.collectors.Extensions.extensions;
 import static io.github.torand.openapi2java.utils.KotlinTypeMapper.toKotlinNative;
+import static io.github.torand.openapi2java.utils.StringUtils.escape;
 import static io.github.torand.openapi2java.utils.StringUtils.joinCsv;
 import static java.util.Objects.nonNull;
 
@@ -51,7 +55,7 @@ public abstract class BaseCollector {
      * @return the normalized description.
      */
     protected String normalizeDescription(String description) {
-        return nonBlank(description) ? description.replace("%", "%%") : "TBD";
+        return nonBlank(description) ? escape(description).replace("%", "%%") : "TBD";
     }
 
     /**

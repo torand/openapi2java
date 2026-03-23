@@ -27,6 +27,20 @@ public class StringUtils {
     private StringUtils() {}
 
     /**
+     * Replaces special Java String characters with escaped ones.
+     * @param str the string to escape
+     * @return the escaped string
+     */
+    public static String escape(String str) {
+        if (isBlank(str)) {
+            return str;
+        }
+
+        return str.replace("\\", "\\\\")
+            .replace("\"", "\\\"");
+    }
+
+    /**
      * Gets the plural suffix based on specified cardinality.
      * @param count the cardinality.
      * @return the plural suffix, or empty string if single count.
@@ -58,18 +72,5 @@ public class StringUtils {
         }
 
         return String.join(", ", values);
-    }
-
-    /**
-     * Returns the class base name from specified fully qualified class name.
-     * @param fqn the fully qualified class name.
-     * @return the class base name.
-     */
-    public static String getClassNameFromFqn(String fqn) {
-        int lastDot = fqn.lastIndexOf(".");
-        if (lastDot == -1) {
-            throw new IllegalArgumentException("Unexpected fully qualified class name: %s".formatted(fqn));
-        }
-        return fqn.substring(lastDot+1);
     }
 }

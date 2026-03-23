@@ -20,7 +20,7 @@
 
   <groupId>io.github.torand</groupId>
   <artifactId>openapi2java</artifactId>
-  <version>1.3.1-SNAPSHOT</version>
+  <version>1.4.1-SNAPSHOT</version>
 
   <packaging>maven-plugin</packaging>
 
@@ -75,18 +75,18 @@
     <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 
     <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
-    <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
+    <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
     <maven-plugin-plugin.version>3.15.2</maven-plugin-plugin.version>
-    <maven-plugin-api.version>3.9.12</maven-plugin-api.version>
-    <maven-model.version>3.9.12</maven-model.version>
-    <maven-artifact.version>3.9.12</maven-artifact.version>
+    <maven-plugin-api.version>3.9.14</maven-plugin-api.version>
+    <maven-model.version>3.9.14</maven-model.version>
+    <maven-artifact.version>3.9.14</maven-artifact.version>
     <maven-plugin-annotations.version>3.15.2</maven-plugin-annotations.version>
     <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
     <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
     <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
     <central-publishing-maven-plugin.version>0.10.0</central-publishing-maven-plugin.version>
 
-    <swagger-parser.version>2.1.37</swagger-parser.version>
+    <swagger-parser.version>2.1.39</swagger-parser.version>
     <java-commons.version>1.3.0</java-commons.version>
     <slf4j-simple.version>2.0.17</slf4j-simple.version>
     <sonar-maven-plugin.version>5.5.0.6356</sonar-maven-plugin.version>

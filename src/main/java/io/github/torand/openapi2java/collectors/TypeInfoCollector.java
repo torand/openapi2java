@@ -38,7 +38,8 @@ import static io.github.torand.openapi2java.collectors.Extensions.EXT_VALIDATION
 import static io.github.torand.openapi2java.collectors.Extensions.extensions;
 import static io.github.torand.openapi2java.collectors.TypeInfoCollector.NullabilityResolution.FORCE_NOT_NULLABLE;
 import static io.github.torand.openapi2java.collectors.TypeInfoCollector.NullabilityResolution.FORCE_NULLABLE;
-import static io.github.torand.openapi2java.utils.StringUtils.getClassNameFromFqn;
+import static io.github.torand.openapi2java.utils.PackageUtils.getClassNameFromFqn;
+import static io.github.torand.openapi2java.utils.StringUtils.escape;
 import static io.github.torand.openapi2java.utils.StringUtils.joinCsv;
 import static java.lang.Boolean.TRUE;
 import static java.util.Objects.nonNull;
@@ -197,9 +198,9 @@ public class TypeInfoCollector extends BaseCollector {
                 typeInfo = typeInfo.withAddedAnnotation(notNullAnnotation);
             }
         } else if ("duration".equals(schema.getFormat())) {
-            typeInfo = typeInfo.withName("Duration")
+            typeInfo = typeInfo.withName(getClassNameFromFqn(opts.durationClassName()))
                 .withSchemaFormat(schema.getFormat())
-                .withAddedNormalImport("java.time.Duration");
+                .withAddedNormalImport(opts.durationClassName());
             if (!typeInfo.nullable() && opts.addJakartaBeanValidationAnnotations()) {
                 AnnotationInfo notNullAnnotation = getNotNullAnnotation();
                 typeInfo = typeInfo.withAddedAnnotation(notNullAnnotation);
@@ -267,6 +268,9 @@ public class TypeInfoCollector extends BaseCollector {
                         .withAddedAnnotation(getPatternAnnotation(schema));
                 }
                 if (nonNull(schema.getMinLength()) || nonNull(schema.getMaxLength())) {
+                    typeInfo = typeInfo
+                        .withSchemaMinLength(schema.getMinLength())
+                        .withSchemaMaxLength(schema.getMaxLength());
                     AnnotationInfo sizeAnnotation = getStringSizeAnnotation(schema);
                     typeInfo = typeInfo.withAddedAnnotation(sizeAnnotation);
                 }
@@ -438,7 +442,7 @@ public class TypeInfoCollector extends BaseCollector {
 
     private AnnotationInfo getJsonFormatAnnotation(String pattern) {
         return new AnnotationInfo(
-            "@JsonFormat(pattern = \"%s\")".formatted(pattern),
+            "@JsonFormat(pattern = \"%s\")".formatted(escape(pattern)),
             "com.fasterxml.jackson.annotation.JsonFormat");
     }
 
@@ -480,7 +484,7 @@ public class TypeInfoCollector extends BaseCollector {
 
     private AnnotationInfo getPatternAnnotation(Schema<?> schema) {
         return new AnnotationInfo(
-            "@Pattern(regexp = \"%s\")".formatted(schema.getPattern()),
+            "@Pattern(regexp = \"%s\")".formatted(escape(schema.getPattern())),
             "jakarta.validation.constraints.Pattern");
     }
 

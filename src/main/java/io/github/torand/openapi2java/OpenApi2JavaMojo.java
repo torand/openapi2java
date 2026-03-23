@@ -112,6 +112,12 @@ public class OpenApi2JavaMojo extends AbstractMojo {
     private boolean pojosAsRecords;
 
     /**
+     * Fully qualified name of the class to represent schemas of type "string" and format "duration" in generated code.
+     */
+    @Parameter( property = "durationClassName", defaultValue = "java.time.Duration" )
+    private String durationClassName;
+
+    /**
      * Fully qualified name of the class to represent schemas of type "string" and format "date" in generated code.
      */
     @Parameter( property = "dateClassName", defaultValue = "java.time.LocalDate" )
@@ -221,6 +227,7 @@ public class OpenApi2JavaMojo extends AbstractMojo {
             resourceProvidersOverride,
             pojoNameSuffix,
             pojosAsRecords,
+            durationClassName,
             dateClassName,
             dateTimeClassName,
             includeTags,

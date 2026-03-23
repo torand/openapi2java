@@ -3,14 +3,16 @@ package io.github.torand.openapi2java.test.model.common;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Schema(name = "AddressV1", description = "TBD")
 public record AddressV1Dto (
 
-    @Schema(description = "Street name and number", required = true)
+    @Schema(description = "Street name and number", required = true, minLength = 1, maxLength = 100)
     @JsonProperty("streetAddress")
     @NotBlank
+    @Size(min = 1, max = 100)
     String streetAddress,
 
     @Schema(description = "Zip code of postal area", required = true)

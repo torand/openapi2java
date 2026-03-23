@@ -1,7 +1,5 @@
 package io.github.torand.openapi2java.test
 
-import io.github.torand.openapi2java.test.MyClientHeadersFactory
-import io.github.torand.openapi2java.test.MyClientRequestFilter
 import io.github.torand.openapi2java.test.OrdersApi.Companion.ROOT_PATH
 import io.github.torand.openapi2java.test.model.OrderItemV1Dto
 import io.github.torand.openapi2java.test.model.OrderV1Dto
