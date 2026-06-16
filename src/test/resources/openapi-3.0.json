@@ -51,7 +51,7 @@
           "Orders"
         ],
         "summary": "Get list of orders",
-        "operationId": "getOrders",
+        "operationId": "Get-Orders",
         "parameters": [
           {
             "$ref": "#/components/parameters/AcceptLanguage"

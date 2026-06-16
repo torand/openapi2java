@@ -55,7 +55,7 @@ interface CompoundApi {
     @GET
     @Path("orders")
     @Produces(APPLICATION_JSON, "application/vnd.test.api.order-v1+json")
-    @Operation(operationId = "getOrders", summary = "Get list of orders")
+    @Operation(operationId = "Get-Orders", summary = "Get list of orders")
     @Parameter(`in` = HEADER, name = ACCEPT_LANGUAGE, description = "Natural language and locale accepted by client", schema = Schema(implementation = String::class, defaultValue = "nb-NO"))
     @Parameter(`in` = HEADER, name = "X-User-ID", description = "Unique user identifier (SHA1 fingerprint)", required = true, schema = Schema(implementation = String::class))
     @APIResponse(responseCode = "200", description = "OK", content = [ Content(mediaType = APPLICATION_JSON, schema = Schema(type = ARRAY, implementation = OrderV1Dto::class)), Content(mediaType = "application/vnd.test.api.order-v1+json", schema = Schema(type = ARRAY, implementation = OrderV1Dto::class)) ])

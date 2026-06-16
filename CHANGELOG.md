@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Escape string values that may contain Java special characters
+- Transform operation ids, parameter names and property names to valid Java identifiers
 
 ## [1.4.0] - 2026-02-28
 

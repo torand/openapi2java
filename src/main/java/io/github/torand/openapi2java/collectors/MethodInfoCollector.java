@@ -22,6 +22,7 @@ import io.github.torand.openapi2java.model.MethodInfo;
 import io.github.torand.openapi2java.model.MethodParamInfo;
 import io.github.torand.openapi2java.model.SecurityRequirementInfo;
 import io.github.torand.openapi2java.model.TypeInfo;
+import io.github.torand.openapi2java.utils.OpenApi2JavaException;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.headers.Header;
 import io.swagger.v3.oas.models.media.MediaType;
@@ -37,14 +38,15 @@ import java.util.Map;
 import java.util.Optional;
 
 import static io.github.torand.javacommons.collection.CollectionHelper.nonEmpty;
+import static io.github.torand.javacommons.lang.StringHelper.isBlank;
 import static io.github.torand.javacommons.lang.StringHelper.nonBlank;
 import static io.github.torand.javacommons.lang.StringHelper.quote;
 import static io.github.torand.javacommons.lang.StringHelper.stripTail;
-import static io.github.torand.javacommons.lang.StringHelper.uncapitalize;
 import static io.github.torand.javacommons.stream.StreamHelper.streamSafely;
 import static io.github.torand.openapi2java.collectors.SchemaResolver.isObjectType;
 import static io.github.torand.openapi2java.collectors.TypeInfoCollector.NullabilityResolution.FORCE_NOT_NULLABLE;
 import static io.github.torand.openapi2java.collectors.TypeInfoCollector.NullabilityResolution.FORCE_NULLABLE;
+import static io.github.torand.openapi2java.utils.IdentifierUtils.toJavaIdentifier;
 import static io.github.torand.openapi2java.utils.StringUtils.escape;
 import static io.github.torand.openapi2java.utils.StringUtils.joinCsv;
 import static java.lang.Boolean.TRUE;
@@ -87,7 +89,7 @@ public class MethodInfoCollector extends BaseCollector {
     }
 
     public MethodInfo getMethodInfo(String verb, String path, Operation operation) {
-        MethodInfo methodInfo = new MethodInfo(operation.getOperationId())
+        MethodInfo methodInfo = new MethodInfo(toMethodName(operation.getOperationId()))
             .withAddedAnnotation(getVerbAnnotation(verb))
             .withAddedAnnotation(getPathAnnotation(path));
 
@@ -141,7 +143,20 @@ public class MethodInfoCollector extends BaseCollector {
         return methodInfo.withAddedParameters(methodParams);
     }
 
-    List<MethodParamInfo> getMethodParams(Operation operation) {
+    private String toMethodName(String operationId) {
+        if (isBlank(operationId)) {
+            throw new OpenApi2JavaException("Blank operationId not allowed");
+        }
+
+        String methodName = toJavaIdentifier(operationId);
+        if (isBlank(methodName)) {
+            throw new OpenApi2JavaException("Operation id '%s' can't be transformed into a valid %s method name".formatted(operationId, opts.useKotlinSyntax() ? "Kotlin" : "Java"));
+        }
+
+        return methodName;
+    }
+
+    private List<MethodParamInfo> getMethodParams(Operation operation) {
         List<MethodParamInfo> methodParams = new ArrayList<>();
 
         // Regular parameters
@@ -164,7 +179,7 @@ public class MethodInfoCollector extends BaseCollector {
                 TypeInfo paramType = typeInfoCollector.getTypeInfo(realParam.getSchema(), paramInfo.nullable() ? FORCE_NULLABLE : FORCE_NOT_NULLABLE);
                 paramInfo = paramInfo
                     .withType(paramType)
-                    .withName(toParamName(realParam.getName()))
+                    .withName(toMethodParamName(realParam.getName()))
                     .withComment(paramType.description());
 
                 if (TRUE.equals(realParam.getDeprecated())) {
@@ -247,7 +262,7 @@ public class MethodInfoCollector extends BaseCollector {
     private MethodParamInfo getSingularPayloadMethodParameter(Schema<?> schema) {
         TypeInfo bodyType = typeInfoCollector.getTypeInfo(schema, FORCE_NOT_NULLABLE);
 
-        return new MethodParamInfo(toParamName(bodyType.name()))
+        return new MethodParamInfo(toMethodParamName(bodyType.name()))
             .withNullable(false)
             .withType(bodyType)
             .withComment(bodyType.description());
@@ -573,16 +588,25 @@ public class MethodInfoCollector extends BaseCollector {
             .withAddedImports(schemaAnnotation);
     }
 
-    private String toParamName(String paramName) {
-        requireNonNull(paramName);
-        if (nonBlank(opts.pojoNameSuffix()) && paramName.endsWith(opts.pojoNameSuffix())) {
-            paramName = stripTail(paramName, opts.pojoNameSuffix().length());
+    private String toMethodParamName(String paramName) {
+        if (isBlank(paramName)) {
+            throw new OpenApi2JavaException("Blank parameter name not allowed");
         }
-        paramName = paramName.replace("-", "");
+
+        String methodParamName = paramName;
+        if (nonBlank(opts.pojoNameSuffix()) && methodParamName.endsWith(opts.pojoNameSuffix())) {
+            methodParamName = stripTail(methodParamName, opts.pojoNameSuffix().length());
+        }
 
         // paramName may contain array-symbol, replace with plural "s"
-        paramName = paramName.replace("[]", "s");
-        return uncapitalize(paramName);
+        methodParamName = methodParamName.replace("[]", "s");
+
+        methodParamName = toJavaIdentifier(methodParamName);
+        if (isBlank(methodParamName)) {
+            throw new OpenApi2JavaException("Parameter '%s' can't be transformed into a valid %s method parameter name".formatted(paramName, opts.useKotlinSyntax() ? "Kotlin" : "Java"));
+        }
+
+        return methodParamName;
     }
 
     private Optional<ApiResponse> getSuccessResponse(ApiResponses responses) {

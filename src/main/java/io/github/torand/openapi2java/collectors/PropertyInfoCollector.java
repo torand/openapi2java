@@ -19,11 +19,14 @@ import io.github.torand.openapi2java.generators.Options;
 import io.github.torand.openapi2java.model.AnnotationInfo;
 import io.github.torand.openapi2java.model.PropertyInfo;
 import io.github.torand.openapi2java.model.TypeInfo;
+import io.github.torand.openapi2java.utils.OpenApi2JavaException;
 import io.swagger.v3.oas.models.media.Schema;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.github.torand.javacommons.lang.StringHelper.isBlank;
+import static io.github.torand.openapi2java.utils.IdentifierUtils.toJavaIdentifier;
 import static io.github.torand.openapi2java.utils.StringUtils.escape;
 import static io.github.torand.openapi2java.utils.StringUtils.joinCsv;
 import static java.lang.Boolean.TRUE;
@@ -41,7 +44,7 @@ public class PropertyInfoCollector extends BaseCollector {
     }
 
     public PropertyInfo getPropertyInfo(String name, Schema<?> property, boolean required) {
-        PropertyInfo propInfo = new PropertyInfo(name)
+        PropertyInfo propInfo = new PropertyInfo(toPropertyName(name))
             .withRequired(required);
 
         var nullabilityResolution = required
@@ -64,6 +67,19 @@ public class PropertyInfoCollector extends BaseCollector {
         }
 
         return propInfo;
+    }
+
+    private String toPropertyName(String propertyName) {
+        if (isBlank(propertyName)) {
+            throw new OpenApi2JavaException("Blank property name not allowed");
+        }
+
+        String pojoPropertyName = toJavaIdentifier(propertyName);
+        if (isBlank(pojoPropertyName)) {
+            throw new OpenApi2JavaException("Property name '%s' can't be transformed into a valid %s property name".formatted(propertyName, opts.useKotlinSyntax() ? "Kotlin" : "Java"));
+        }
+
+        return pojoPropertyName;
     }
 
     private AnnotationInfo getSchemaAnnotation(Schema<?> property, TypeInfo typeInfo) {
