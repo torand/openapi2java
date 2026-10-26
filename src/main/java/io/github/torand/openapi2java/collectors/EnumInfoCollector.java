@@ -45,6 +45,10 @@ public class EnumInfoCollector extends BaseCollector {
             .withModelSubdir(maybeModelSubdir.orElse(null))
             .withModelSubpackage(maybeModelSubdir.map(this::dirPath2PackagePath).orElse(null));
 
+        if (opts.addJakartaGeneratedAnnotations()) {
+            enumInfo = enumInfo.withAddedAnnotation(getGeneratedAnnotation());
+        }
+
         if (opts.addMpOpenApiAnnotations()) {
             enumInfo = enumInfo.withAddedAnnotation(getSchemaAnnotation(name, schema));
         }

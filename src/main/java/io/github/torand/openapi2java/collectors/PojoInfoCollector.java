@@ -52,6 +52,10 @@ public class PojoInfoCollector extends BaseCollector {
         pojoInfo = pojoInfo.withModelSubdir(maybeModelSubdir.orElse(null))
             .withModelSubpackage(maybeModelSubdir.map(this::dirPath2PackagePath).orElse(null));
 
+        if (opts.addJakartaGeneratedAnnotations()) {
+            pojoInfo = pojoInfo.withAddedAnnotation(getGeneratedAnnotation());
+        }
+
         if (opts.addMpOpenApiAnnotations()) {
             pojoInfo = pojoInfo.withAddedAnnotation(getSchemaAnnotation(name, schema));
         }

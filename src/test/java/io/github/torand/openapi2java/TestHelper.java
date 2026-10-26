@@ -32,7 +32,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static io.github.torand.openapi2java.TestHelper.ConfigVariant.*;
+import static io.github.torand.openapi2java.TestHelper.ConfigVariant.COMMON_CONFIG_KEY;
+import static io.github.torand.openapi2java.TestHelper.ConfigVariant.COMMON_HEADERS_FACTORY;
+import static io.github.torand.openapi2java.TestHelper.ConfigVariant.COMMON_PROVIDERS;
+import static io.github.torand.openapi2java.TestHelper.ConfigVariant.JAKARTA_GENERATED_ANNOTATION;
+import static io.github.torand.openapi2java.TestHelper.ConfigVariant.OIDC_CLIENT_ANNOTATION;
+import static io.github.torand.openapi2java.TestHelper.ConfigVariant.RESTEASY;
 import static io.github.torand.openapi2java.utils.StringUtils.removeLineBreaks;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
@@ -49,7 +54,8 @@ public final class TestHelper {
         COMMON_CONFIG_KEY("CommonConfigKey"),
         COMMON_HEADERS_FACTORY("CommonHeadersFactory"),
         OIDC_CLIENT_ANNOTATION("OidcClientAnnotation"),
-        COMMON_PROVIDERS("CommonProviders");
+        COMMON_PROVIDERS("CommonProviders"),
+        JAKARTA_GENERATED_ANNOTATION("JakartaGeneratedAnnotation");
 
         String suffix;
 
@@ -75,6 +81,7 @@ public final class TestHelper {
             .withRootPackage("io.github.torand.openapi2java.test")
             .withOutputDir("target/test-output/java")
             .withIncludeTags(emptyList())
+            .withAddJakartaGeneratedAnnotations(false)
             .withUseKotlinSyntax(false)
             .withUseResteasyResponse(false)
             .withVerbose(true);
@@ -85,6 +92,7 @@ public final class TestHelper {
             .withRootPackage("io.github.torand.openapi2java.test")
             .withOutputDir("target/test-output/kotlin")
             .withIncludeTags(emptyList())
+            .withAddJakartaGeneratedAnnotations(false)
             .withUseKotlinSyntax(true)
             .withUseResteasyResponse(false)
             .withVerbose(true);
@@ -118,6 +126,12 @@ public final class TestHelper {
         return baseOptions
             .withResourceNameSuffix(baseOptions.resourceNameSuffix() + "_" + OIDC_CLIENT_ANNOTATION.suffix)
             .withUseOidcClientAnnotation(true);
+    }
+
+    public static Options withJakartaGeneratedAnnotation(Options baseOptions) {
+        return baseOptions
+            .withResourceNameSuffix(baseOptions.resourceNameSuffix() + "_" + JAKARTA_GENERATED_ANNOTATION.suffix)
+            .withAddJakartaGeneratedAnnotations(true);
     }
 
     public static void assertSnippet(String path, String expectedSnippet) {

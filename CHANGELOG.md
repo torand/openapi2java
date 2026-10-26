@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- ...
+- Outputs the Jakarta Generated annotation for all generated classes, interfaces and records. Can be disabled using the 'addJakartaGeneratedAnnotations' config parameter.
 
 ### Changed
 - Bump dependency io.swagger.parser.v3:swagger-parser to v2.1.42.

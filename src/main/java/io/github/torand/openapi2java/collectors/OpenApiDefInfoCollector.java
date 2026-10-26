@@ -19,7 +19,11 @@ import io.github.torand.openapi2java.generators.Options;
 import io.github.torand.openapi2java.model.AnnotationInfo;
 import io.github.torand.openapi2java.model.ImportInfo;
 import io.github.torand.openapi2java.model.OpenApiDefInfo;
-import io.swagger.v3.oas.models.security.*;
+import io.swagger.v3.oas.models.security.OAuthFlow;
+import io.swagger.v3.oas.models.security.OAuthFlows;
+import io.swagger.v3.oas.models.security.Scopes;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +47,10 @@ public class OpenApiDefInfoCollector extends BaseCollector {
     public OpenApiDefInfo getOpenApiDefInfo(String name, List<SecurityRequirement> securityRequirements) {
         OpenApiDefInfo openApiDefInfo = new OpenApiDefInfo(name)
             .withAddedNormalImport("jakarta.ws.rs.core.Application");
+
+        if (opts.addJakartaGeneratedAnnotations()) {
+            openApiDefInfo = openApiDefInfo.withAddedAnnotation(getGeneratedAnnotation());
+        }
 
         if (nonEmpty(securityRequirements)) {
             openApiDefInfo = openApiDefInfo.withAddedAnnotation(getSecuritySchemesAnnotation(securityRequirements));

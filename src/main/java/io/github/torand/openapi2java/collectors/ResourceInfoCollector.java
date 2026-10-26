@@ -68,6 +68,10 @@ public class ResourceInfoCollector extends BaseCollector {
             resourceInfo = resourceInfo.withAddedNormalImport("jakarta.ws.rs.core.Response");
         }
 
+        if (opts.addJakartaGeneratedAnnotations()) {
+            resourceInfo = resourceInfo.withAddedAnnotation(getGeneratedAnnotation());
+        }
+
         if (nonEmpty(securityRequirements)) {
             SecurityRequirementInfo secReqInfo = securityRequirementCollector.getSequrityRequirementInfo(securityRequirements);
             resourceInfo = resourceInfo.withAddedAnnotation(secReqInfo.annotation());

@@ -16,8 +16,11 @@
 package io.github.torand.openapi2java.collectors;
 
 import io.github.torand.openapi2java.generators.Options;
+import io.github.torand.openapi2java.model.AnnotationInfo;
 import io.github.torand.openapi2java.model.ConstantValue;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -169,5 +172,16 @@ public abstract class BaseCollector {
         }
 
         return new ConstantValue(quote(name));
+    }
+
+    /**
+     * Creates Jakarta Generated annotation info object.
+     * @return the Jakarta Generated annotation info object.
+     */
+    protected AnnotationInfo getGeneratedAnnotation() {
+        return new AnnotationInfo(
+            "@Generated(value = \"io.github.torand.openapi2java.OpenApi2Java\", date = \"%s\")".formatted(ZonedDateTime.now().format(DateTimeFormatter.ISO_ZONED_DATE_TIME)),
+            "jakarta.annotation.Generated"
+        );
     }
 }

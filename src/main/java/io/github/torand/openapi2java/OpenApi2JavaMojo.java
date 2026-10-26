@@ -148,10 +148,16 @@ public class OpenApi2JavaMojo extends AbstractMojo {
     private boolean generateOpenApiDefClass;
 
     /**
-     * Generate Jackson JSON property annotations.
+     * Generate Jackson JsonProperty annotations.
      */
     @Parameter( property = "addJsonPropertyAnnotations", defaultValue = "true" )
     private boolean addJsonPropertyAnnotations;
+
+    /**
+     * Generate Jakarta Generated annotation.
+     */
+    @Parameter( property = "addJakartaGeneratedAnnotations", defaultValue = "true" )
+    private boolean addJakartaGeneratedAnnotations;
 
     /**
      * Generate Jakarta Bean Validation annotations.
@@ -234,6 +240,7 @@ public class OpenApi2JavaMojo extends AbstractMojo {
             generateResourceInterfaces,
             generateOpenApiDefClass,
             addJsonPropertyAnnotations,
+            addJakartaGeneratedAnnotations,
             addJakartaBeanValidationAnnotations,
             addMpOpenApiAnnotations,
             addMpRestClientAnnotations,

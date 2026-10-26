@@ -37,7 +37,8 @@ import static io.github.torand.javacommons.lang.StringHelper.isBlank;
  * @param includeTags the tags to generate source code for. Includes all tags if not specified.
  * @param generateResourceInterfaces the flag to generate resource interfaces (one for each tag included).
  * @param generateOpenApiDefClass the flag to generate an OpenAPI definition class file with implementation oriented annotations.
- * @param addJsonPropertyAnnotations the flag to generate Jackson JSON property annotations.
+ * @param addJsonPropertyAnnotations the flag to generate Jackson JsonProperty annotations.
+ * @param addJakartaGeneratedAnnotations the flag to generate Jakarta Generated annotation.
  * @param addJakartaBeanValidationAnnotations the flag to generate Jakarta Bean Validation annotations.
  * @param addMpOpenApiAnnotations the flag to generate Microprofile OpenAPI annotations.
  * @param addMpRestClientAnnotations the flag to generate Microprofile Rest Client annotations (on resource interfaces).
@@ -66,6 +67,7 @@ public record Options (
     boolean generateResourceInterfaces,
     boolean generateOpenApiDefClass,
     boolean addJsonPropertyAnnotations,
+    boolean addJakartaGeneratedAnnotations,
     boolean addJakartaBeanValidationAnnotations,
     boolean addMpOpenApiAnnotations,
     boolean addMpRestClientAnnotations,
@@ -102,6 +104,7 @@ public record Options (
             true,
             true,
             true,
+            true,
             false,
             false,
             false,
@@ -111,7 +114,7 @@ public record Options (
         );
     }
 
-    private Options with(String outputDir, String rootPackage, String resourceNameSuffix, String resourceNameOverride, String resourceConfigKeyOverride, String resourceClientHeadersFactoryOverride, List<String> resourceProvidersOverride, boolean pojosAsRecords, String durationClassName, String dateTimeClassName, List<String> includeTags, boolean useKotlinSyntax, boolean useResteasyResponse, boolean useOidcClientAnnotation, boolean verbose) {
+    private Options with(String outputDir, String rootPackage, String resourceNameSuffix, String resourceNameOverride, String resourceConfigKeyOverride, String resourceClientHeadersFactoryOverride, List<String> resourceProvidersOverride, boolean pojosAsRecords, String durationClassName, String dateTimeClassName, List<String> includeTags, boolean addJakartaGeneratedAnnotations, boolean useKotlinSyntax, boolean useResteasyResponse, boolean useOidcClientAnnotation, boolean verbose) {
         return new Options(
             outputDir,
             rootPackage,
@@ -130,6 +133,7 @@ public record Options (
             this.generateResourceInterfaces,
             this.generateOpenApiDefClass,
             this.addJsonPropertyAnnotations,
+            addJakartaGeneratedAnnotations,
             this.addJakartaBeanValidationAnnotations,
             this.addMpOpenApiAnnotations,
             this.addMpRestClientAnnotations,
@@ -148,7 +152,7 @@ public record Options (
      * @return the new and updated {@link Options} object.
      */
     public Options withOutputDir(String outputDir) {
-        return with(outputDir, this.rootPackage, this.resourceNameSuffix,  this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, this.dateTimeClassName, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
+        return with(outputDir, this.rootPackage, this.resourceNameSuffix,  this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, this.dateTimeClassName, this.includeTags, this.addJakartaGeneratedAnnotations, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
     /**
@@ -157,7 +161,7 @@ public record Options (
      * @return the new and updated {@link Options} object.
      */
     public Options withRootPackage(String rootPackage) {
-        return with(this.outputDir, rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, this.dateTimeClassName, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
+        return with(this.outputDir, rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, this.dateTimeClassName, this.includeTags, this.addJakartaGeneratedAnnotations, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
     /**
@@ -166,7 +170,7 @@ public record Options (
      * @return the new and updated {@link Options} object.
      */
     public Options withResourceNameSuffix(String resourceNameSuffix) {
-        return with(this.outputDir, this.rootPackage, resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, this.dateTimeClassName, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
+        return with(this.outputDir, this.rootPackage, resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, this.dateTimeClassName, this.includeTags, this.addJakartaGeneratedAnnotations, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
     /**
@@ -175,7 +179,7 @@ public record Options (
      * @return the new and updated {@link Options} object.
      */
     public Options withResourceNameOverride(String resourceNameOverride) {
-        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, this.dateTimeClassName, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
+        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, this.dateTimeClassName, this.includeTags, this.addJakartaGeneratedAnnotations, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
     /**
@@ -184,7 +188,7 @@ public record Options (
      * @return the new and updated {@link Options} object.
      */
     public Options withResourceConfigKeyOverride(String resourceConfigKeyOverride) {
-        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, this.dateTimeClassName, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
+        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, this.dateTimeClassName, this.includeTags, this.addJakartaGeneratedAnnotations, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
     /**
@@ -193,7 +197,7 @@ public record Options (
      * @return the new and updated {@link Options} object.
      */
     public Options withResourceClientHeadersFactoryOverride(String resourceClientHeadersFactoryOverride) {
-        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, this.dateTimeClassName, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
+        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, this.dateTimeClassName, this.includeTags, this.addJakartaGeneratedAnnotations, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
     /**
@@ -202,7 +206,7 @@ public record Options (
      * @return the new and updated {@link Options} object.
      */
     public Options withResourceProvidersOverride(List<String> resourceProvidersOverride) {
-        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, this.dateTimeClassName, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
+        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, this.dateTimeClassName, this.includeTags, this.addJakartaGeneratedAnnotations, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
     /**
@@ -211,7 +215,7 @@ public record Options (
      * @return the new and updated {@link Options} object.
      */
     public Options withPojosAsRecords(boolean pojosAsRecords) {
-        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, resourceProvidersOverride, pojosAsRecords, this.durationClassName, this.dateTimeClassName, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
+        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, resourceProvidersOverride, pojosAsRecords, this.durationClassName, this.dateTimeClassName, this.includeTags, this.addJakartaGeneratedAnnotations, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
     /**
@@ -220,7 +224,7 @@ public record Options (
      * @return the new and updated {@link Options} object.
      */
     public Options withDurationClassName(String durationClassName) {
-        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, durationClassName, this.dateTimeClassName, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
+        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, durationClassName, this.dateTimeClassName, this.includeTags, this.addJakartaGeneratedAnnotations, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
     /**
@@ -229,7 +233,7 @@ public record Options (
      * @return the new and updated {@link Options} object.
      */
     public Options withDateTimeClassName(String dateTimeClassName) {
-        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, dateTimeClassName, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
+        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, dateTimeClassName, this.includeTags, this.addJakartaGeneratedAnnotations, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
     /**
@@ -238,7 +242,16 @@ public record Options (
      * @return the new and updated {@link Options} object.
      */
     public Options withIncludeTags(List<String> includeTags) {
-        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, this.dateTimeClassName, includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation,  this.verbose);
+        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, this.dateTimeClassName, includeTags, this.addJakartaGeneratedAnnotations, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation,  this.verbose);
+    }
+
+    /**
+     * Returns a new {@link Options} object with specified add Jakarta Generated annotations flag.
+     * @param addJakartaGeneratedAnnotations the use Jakarta Generated annotations flag.
+     * @return the new and updated {@link Options} object.
+     */
+    public Options withAddJakartaGeneratedAnnotations(boolean addJakartaGeneratedAnnotations) {
+        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, this.dateTimeClassName, this.includeTags, addJakartaGeneratedAnnotations, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
     /**
@@ -247,7 +260,7 @@ public record Options (
      * @return the new and updated {@link Options} object.
      */
     public Options withUseKotlinSyntax(boolean useKotlinSyntax) {
-        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, this.dateTimeClassName, this.includeTags, useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
+        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, this.dateTimeClassName, this.includeTags, this.addJakartaGeneratedAnnotations, useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
     /**
@@ -256,7 +269,7 @@ public record Options (
      * @return the new and updated {@link Options} object.
      */
     public Options withUseResteasyResponse(boolean useResteasyResponse) {
-        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, this.dateTimeClassName, this.includeTags, this.useKotlinSyntax, useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
+        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, this.dateTimeClassName, this.includeTags, this.addJakartaGeneratedAnnotations, this.useKotlinSyntax, useResteasyResponse, this.useOidcClientAnnotation, this.verbose);
     }
 
     /**
@@ -265,7 +278,7 @@ public record Options (
      * @return the new and updated {@link Options} object.
      */
     public Options withUseOidcClientAnnotation(boolean useOidcClientAnnotation) {
-        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, this.dateTimeClassName, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, useOidcClientAnnotation, this.verbose);
+        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, this.dateTimeClassName, this.includeTags, this.addJakartaGeneratedAnnotations, this.useKotlinSyntax, this.useResteasyResponse, useOidcClientAnnotation, this.verbose);
     }
 
     /**
@@ -274,7 +287,7 @@ public record Options (
      * @return the new and updated {@link Options} object.
      */
     public Options withVerbose(boolean verbose) {
-        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, this.dateTimeClassName, this.includeTags, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, verbose);
+        return with(this.outputDir, this.rootPackage, this.resourceNameSuffix, this.resourceNameOverride, this.resourceConfigKeyOverride, this.resourceClientHeadersFactoryOverride, this.resourceProvidersOverride, this.pojosAsRecords, this.durationClassName, this.dateTimeClassName, this.includeTags, this.addJakartaGeneratedAnnotations, this.useKotlinSyntax, this.useResteasyResponse, this.useOidcClientAnnotation, verbose);
     }
 
     /**
